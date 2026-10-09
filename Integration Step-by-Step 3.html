@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Integration Step-by-Step</title>
+<style>
+:root{--bg:#f6f7f4;--card:#fff;--ink:#1d2b2a;--mute:#66736f;--line:#dbe1dc;--acc:#0f6b5c;--accbg:#e1f1ed;--ok:#1b7f4b;--okbg:#e2f4ea;--bad:#b3341f;--badbg:#fbe9e5;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12191a;--card:#1b2526;--ink:#e8efec;--mute:#93a29d;--line:#2d3b3c;--acc:#4fc3ad;--accbg:#173a35;--ok:#5fd394;--okbg:#17362a;--bad:#ff8a73;--badbg:#3b201b}}
+:root[data-theme="dark"]{--bg:#12191a;--card:#1b2526;--ink:#e8efec;--mute:#93a29d;--line:#2d3b3c;--acc:#4fc3ad;--accbg:#173a35;--ok:#5fd394;--okbg:#17362a;--bad:#ff8a73;--badbg:#3b201b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.6;font-size:17px}
+main{max-width:600px;margin:0 auto;padding:18px 16px 40px}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:var(--mute);margin:0 0 14px;font-size:15px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:7px 14px;border-radius:99px;font:inherit;font-size:15px;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.prob{font-size:17px;font-weight:600}
+.scroll{overflow-x:auto;margin:8px 0 0}
+table{border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:15px;font-weight:400}
+th,td{border:1px solid var(--line);padding:4px 10px;text-align:center}
+th{background:var(--accbg)}
+.dots{display:flex;gap:6px;margin:0 0 12px}
+.dot{height:6px;flex:1;border-radius:3px;background:var(--line)}
+.dot.done{background:var(--ok)}.dot.cur{background:var(--acc)}
+.q{font-weight:600;margin:0 0 10px}
+.opt{display:block;width:100%;text-align:start;border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:11px 14px;border-radius:10px;margin-bottom:8px;font:inherit;cursor:pointer}
+.opt:focus-visible,.chip:focus-visible,.btn:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.opt.bad{background:var(--badbg);border-color:var(--bad);color:var(--bad)}
+.opt.good{background:var(--okbg);border-color:var(--ok);color:var(--ok)}
+.hint{color:var(--bad);font-size:15px;margin:2px 0 8px}
+.reveal{background:var(--accbg);border-radius:10px;padding:10px 14px;margin:0 0 10px;font-size:16px}
+.btn{border:0;background:var(--acc);color:#fff;padding:12px 18px;border-radius:10px;font:inherit;font-weight:600;cursor:pointer;width:100%}
+.final{text-align:center}.final b{font-size:20px}
+.score{color:var(--mute);font-size:14px;text-align:center;margin-top:8px}
+.tutor{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}.tutor[hidden]{display:none}.trow{display:flex;gap:6px;flex-wrap:wrap}.trow input,.trow select{border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;font-size:15px;background:var(--card);color:var(--ink)}.trow input{flex:1;min-width:150px}.tb{border:1.5px solid var(--acc);background:transparent;color:var(--acc);padding:8px 12px;border-radius:10px;font:inherit;font-size:15px;cursor:pointer}.tb:disabled{opacity:.6}.tout{white-space:pre-wrap;margin-top:8px;font-size:16px;background:var(--accbg);border-radius:10px;padding:10px 12px}.tout:empty{display:none}</style>
+</head>
+<body>
+<main>
+<h1>Integration, Step by Step</h1>
+<p class="sub">Pick a topic and answer each step before it's revealed.</p>
+<div class="chips" id="chips"></div>
+<div class="card"><div class="prob" id="prob"></div></div>
+<div id="stage"></div>
+<div class="score" id="score"></div>
+</main>
+<script>
+const R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const sh=a=>[...a].sort(()=>Math.random()-.5);
+const f=(x,d=3)=>String(+x.toFixed(d));
+const sum=a=>a.reduce((s,v)=>s+v,0);
+function numOpts(c,d){const s=new Set([f(c)]);let t=0;while(s.size<4&&t++<100)s.add(f(c+R(1,5)*d*(Math.random()<.5?-1:1)));return [...s]}
+const SUP={"0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷"},sp=n=>String(n).split("").map(c=>SUP[c]).join("");
+function poly(cs){let o="";cs.forEach(([c,v])=>{if(c===0)return;const a=Math.abs(c),b=v===""?String(a):(a===1?v:a+v);o+=o===""?(c<0?"−":"")+b:` ${c<0?"−":"+"} ${b}`});return o||"0"}
+function o4(c,alts,n=4){const s=[c];alts.forEach(a=>{if(!s.includes(a)&&s.length<n)s.push(a)});return s}
+const IN=(a,b)=>`<span style="white-space:nowrap">∫<sub>${a}</sub><sup>${b}</sup></span>`;
+const nz=(a,b)=>{let v=0;while(!v)v=R(a,b);return v};
+const GEN={
+poly(){const deg=R(2,3),k=R(1,4),m=nz(-3,3),c=nz(-5,5),n2=nz(-3,3),P=x=>"x"+sp(x);
+const ig=deg===2?[[3*k,"x²"],[2*m,"x"],[c,""]]:[[4*k,"x³"],[3*m,"x²"],[2*n2,"x"],[c,""]];
+const Ft=deg===2?[[k,"x³"],[m,"x²"],[c,"x"]]:[[k,"x⁴"],[m,"x³"],[n2,"x²"],[c,"x"]];
+const F=poly(Ft),lead=(deg+1)*k;
+return{text:`Evaluate ∫ (${poly(ig)}) dx`,steps:[
+{q:"How do we integrate each term xⁿ?",opts:["Raise the power by 1 and divide by the new power","Lower the power by 1 and multiply","Multiply the power by the coefficient","Keep the power and add C"],hint:"Power rule: ∫xⁿ dx = xⁿ⁺¹ / (n+1).",reveal:"∫xⁿ dx = xⁿ⁺¹ / (n+1), for n ≠ −1"},
+{q:`What is ∫ ${poly([[lead,P(deg)]])} dx?`,opts:o4(poly([[k,P(deg+1)]]),[poly([[lead,P(deg+1)]]),poly([[k,P(deg)]]),poly([[k,P(deg+2)]])]),hint:`${P(deg+1)}/${deg+1} times the coefficient.`,reveal:`∫ ${poly([[lead,P(deg)]])} dx = ${lead}·${P(deg+1)}/${deg+1} = ${poly([[k,P(deg+1)]])}`},
+{q:"What is the full integral?",opts:o4(F+" + C",[F,poly(ig.map(([c,v],i)=>[c,i<ig.length-1?Ft[i][1]:"x"]))+" + C",poly(Ft.map(([c,v],i)=>[i===1?2*c:c,v]))+" + C",poly(Ft.map(([c,v],i)=>[c,i===Ft.length-1?"":v]))+" + C"]),hint:"Integrate every term, including the constant, and add C.",reveal:`${F} + C`}]}},
+standard(){const L=[["sin x","−cos x"],["cos x","sin x"],["eˣ","eˣ"],["sec² x","tan x"],["cosec² x","−cot x"],["sec x tan x","sec x"],["cosec x cot x","−cosec x"],["1/x","ln|x|"],["1/(1 + x²)","tan⁻¹ x"],["1/√(1 − x²)","sin⁻¹ x"],["tan x","−ln|cos x|"],["cot x","ln|sin x|"],["sec x","ln|sec x + tan x|"],["cosec x","ln|cosec x − cot x|"]];
+const two=Math.random()<.5,S=sh(L),[i1,F1]=S[0],[i2,F2]=S[1],k=R(2,9),m=R(2,9),sg=Math.random()<.5?"+":"−";
+if(!two){const oth=S.slice(1).map(l=>l[1]);
+return{text:`Evaluate ∫ ${k}·(${i1}) dx`,steps:[
+{q:`What do we do with the constant ${k}?`,opts:["Take it outside: k·∫f(x) dx","Differentiate it","Drop it","Add it to C"],hint:"∫ k f(x) dx = k ∫ f(x) dx",reveal:`= ${k} ∫ ${i1} dx`},
+{q:`What is ∫ ${i1} dx (without the constant of integration)?`,opts:o4(F1,oth),hint:"Recall the standard integral table.",reveal:`∫ ${i1} dx = ${F1}`},
+{q:"What is the final answer?",opts:o4(`${k}·(${F1}) + C`,[`(${F1}) + C`,`${k}·(${F1})`,`${k}·(${oth[0]}) + C`]),hint:"Multiply by k and add C.",reveal:`${k}·(${F1}) + C`}]}}
+const oth=S.slice(2).map(l=>l[1]),ans=`${k}·(${F1}) ${sg} ${m}·(${F2}) + C`;
+return{text:`Evaluate ∫ (${k}·(${i1}) ${sg} ${m}·(${i2})) dx`,steps:[
+{q:"How do we start?",opts:["Integrate term by term, taking constants outside","Multiply the two functions","Differentiate each term","Integrate only the first term"],hint:"∫ (f ± g) dx = ∫ f dx ± ∫ g dx",reveal:`= ${k}∫ ${i1} dx ${sg} ${m}∫ ${i2} dx`},
+{q:`What is ∫ ${i1} dx?`,opts:o4(F1,[F2,...oth]),hint:"Standard integral table.",reveal:`∫ ${i1} dx = ${F1}`},
+{q:`What is ∫ ${i2} dx?`,opts:o4(F2,[F1,...oth]),hint:"Standard integral table.",reveal:`∫ ${i2} dx = ${F2}`},
+{q:"What is the final answer?",opts:o4(ans,[`${k}·(${F2}) ${sg} ${m}·(${F1}) + C`,`${k}·(${F1}) ${sg==="+"?"−":"+"} ${m}·(${F2}) + C`,`${k}·(${F1}) ${sg} ${m}·(${F2})`]),hint:"Keep the constants and the sign, then add one C.",reveal:ans}]}},
+definite(){const k=R(1,3),m=R(-2,3),c=R(1,4),a=R(0,1),b=R(2,3),Fv=x=>k*x**3+m*x**2+c*x,F=poly([[k,"x³"],[m,"x²"],[c,"x"]]);
+return{text:`Evaluate ${IN(a,b)} (${poly([[3*k,"x²"],[2*m,"x"],[c,""]])}) dx`,steps:[
+{q:"Find an antiderivative F(x):",opts:o4(F,[poly([[3*k,"x³"],[2*m,"x²"],[c,"x"]]),poly([[k,"x³"],[m,"x²"],[c,""]]),poly([[k,"x⁴"],[m,"x³"],[c,"x²"]]),poly([[k,"x³"],[-m-1,"x²"],[c,"x"]])]),hint:"Use the power rule on each term (no C needed).",reveal:`F(x) = ${F}`},
+{q:`What is F(${b})?`,opts:numOpts(Fv(b),2),hint:`Substitute x = ${b} into F.`,reveal:`F(${b}) = ${f(Fv(b))}`},
+{q:`What is F(${a})?`,opts:numOpts(Fv(a),2),hint:`Substitute x = ${a} into F.`,reveal:`F(${a}) = ${f(Fv(a))}`},
+{q:"Result = F(b) − F(a). What is it?",opts:numOpts(Fv(b)-Fv(a),2),hint:`${f(Fv(b))} − (${f(Fv(a))})`,reveal:`${f(Fv(b))} − (${f(Fv(a))}) = ${f(Fv(b)-Fv(a))}`}]}},
+subst(){const n=R(2,4),t=R(0,5);let text,u,du,rw,ans,duf;
+if(t===0){const m=R(2,3),k=R(1,5),gp=m===2?"2x":"3x²";u=`x${sp(m)} + ${k}`;duf=gp;text=`${gp}(${u})${sp(n)}`;rw=`∫ u${sp(n)} du`;ans=`(${u})${sp(n+1)} / ${n+1} + C`}
+else if(t===1){u="sin x";duf="cos x";text=`cos x (sin x)${sp(n)}`;rw=`∫ u${sp(n)} du`;ans=`(sin x)${sp(n+1)} / ${n+1} + C`}
+else if(t===2){u="cos x";duf="−sin x";text=`sin x (cos x)${sp(n)}`;rw=`−∫ u${sp(n)} du`;ans=`−(cos x)${sp(n+1)} / ${n+1} + C`}
+else if(t===3){const k=R(1,5);u=`eˣ + ${k}`;duf="eˣ";text=`eˣ (${u})${sp(n)}`;rw=`∫ u${sp(n)} du`;ans=`(${u})${sp(n+1)} / ${n+1} + C`}
+else if(t===4){u="ln x";duf="1/x";text=`(ln x)${sp(n)} / x`;rw=`∫ u${sp(n)} du`;ans=`(ln x)${sp(n+1)} / ${n+1} + C`}
+else{const a=R(2,4),b=R(1,5);u=`${a}x + ${b}`;duf=String(a);text=`(${u})${sp(n)}`;rw=`(1/${a}) ∫ u${sp(n)} du`;ans=`(${u})${sp(n+1)} / ${a*(n+1)} + C`}
+const dxs=t===5?`${duf} dx`:`${duf} dx`;
+return{text:`Evaluate ∫ ${text} dx`,steps:[
+{q:"Choose u (the inner function whose derivative also appears):",opts:o4(u,[duf,"x","x²","1/x"]),hint:"Look for a function whose derivative is also in the integrand (up to a constant).",reveal:`u = ${u}`},
+{q:"What is du?",opts:o4(`du = ${dxs}`,[`du = ${u} dx`,"du = dx","du = u dx"]),hint:"Differentiate u with respect to x.",reveal:`du = ${dxs}`},
+{q:"Rewrite the integral in terms of u:",opts:o4(rw,[`∫ u${sp(n)} ${duf} du`,"∫ u du",`∫ u${sp(n+1)} du`]),hint:"du absorbs the matching factor.",reveal:rw},
+{q:"Integrate and substitute back u:",opts:o4(ans,[ans.replace(/\(.*?\)|\(ln x\)|\(sin x\)|\(cos x\)/,"u"),ans.replace(/ \/ \d+/,""),ans.replace(/^−/,"").replace(/ \/ (\d+)/,(_,d)=>` / ${+d+1}`),ans.replace(/^−/,"")]),hint:"Power rule, then replace u.",reveal:ans}]}},
+parts(){const L=[
+{i:"x eˣ",u:"x",f:"eˣ",v:"eˣ",a:"x eˣ − eˣ + C"},
+{i:"x cos x",u:"x",f:"cos x",v:"sin x",a:"x sin x + cos x + C"},
+{i:"x sin x",u:"x",f:"sin x",v:"−cos x",a:"−x cos x + sin x + C"},
+{i:"x e⁻ˣ",u:"x",f:"e⁻ˣ",v:"−e⁻ˣ",a:"−x e⁻ˣ − e⁻ˣ + C"},
+{i:"x e²ˣ",u:"x",f:"e²ˣ",v:"e²ˣ / 2",a:"(x/2) e²ˣ − (1/4) e²ˣ + C"},
+{i:"x cos 2x",u:"x",f:"cos 2x",v:"(sin 2x) / 2",a:"(x/2) sin 2x + (1/4) cos 2x + C"},
+{i:"x sin 2x",u:"x",f:"sin 2x",v:"−(cos 2x) / 2",a:"−(x/2) cos 2x + (1/4) sin 2x + C"},
+{i:"ln x",u:"ln x",f:"1",v:"x",a:"x ln x − x + C",dv:"dx"},
+{i:"x ln x",u:"ln x",f:"x",v:"x² / 2",a:"(x²/2) ln x − x²/4 + C"},
+{i:"tan⁻¹ x",u:"tan⁻¹ x",f:"1",v:"x",a:"x tan⁻¹ x − ½ ln(1 + x²) + C",dv:"dx"}],t=sh(L)[0],dvs=t.dv||`${t.f} dx`;
+const other=sh(L.filter(l=>l!==t));
+return{text:`Evaluate ∫ ${t.i} dx`,steps:[
+{q:"Which formula is integration by parts?",opts:["∫u dv = uv − ∫v du","∫u dv = uv + ∫v du","∫u dv = u′v′","∫u dv = u·v"],hint:"Note the minus sign.",reveal:"∫u dv = uv − ∫v du"},
+{q:"Choose u (it should get simpler when differentiated):",opts:o4(`u = ${t.u}`,[`u = ${t.f==="1"?"1":t.f}`,"u = 1","u = x²","u = eˣ"]),hint:t.u==="x"?"x becomes 1 after differentiating.":"ln x and tan⁻¹ x are easier to differentiate than to integrate.",reveal:`u = ${t.u}, dv = ${dvs}`},
+{q:`dv = ${dvs}. What is v?`,opts:o4(t.v,other.map(l=>l.v)),hint:`Integrate ${t.f}.`,reveal:`v = ${t.v}`},
+{q:"Apply uv − ∫v du. What is the result?",opts:o4(t.a,other.map(l=>l.a)),hint:"The remaining integral is a standard one.",reveal:t.a}]}},
+symmetry(){const a=R(1,3),type=R(0,3);
+if(type===0){const fx=["x³","x⁵","x⁷","2x³ + x","x³ + 5x","3x⁵ − x","sin x","x cos x","tan x","x e^(x²)"][R(0,9)];
+return{text:`Evaluate ${IN("−"+a,a)} (${fx}) dx`,steps:[
+{q:"Is the function odd, even, or neither?",opts:["Odd: f(−x) = −f(x)","Even: f(−x) = f(x)","Neither","Cannot be determined"],hint:"Replace x by −x and compare.",reveal:"f is odd"},
+{q:"What is the integral over [−a, a]?",opts:o4("0",[String(a),String(2*a),"−"+a,String(a+3)]),hint:"Odd function over a symmetric interval.",reveal:"∫₋ₐᵃ f(x) dx = 0 for odd f"}]}}
+let fx,v;const j=R(1,3),c=R(1,4);
+if(type===1){fx=`${3*j}x²`;v=2*j*a**3}else if(type===2){fx=`${5*j}x⁴`;v=2*j*a**5}else{fx=`${3*j}x² + ${c}`;v=2*(j*a**3+c*a)}
+return{text:`Evaluate ${IN("−"+a,a)} (${fx}) dx`,steps:[
+{q:"Is the function odd, even, or neither?",opts:["Even: f(−x) = f(x)","Odd: f(−x) = −f(x)","Neither","Cannot be determined"],hint:"Even powers of x don't change sign.",reveal:"f is even"},
+{q:"Which property applies?",opts:["∫₋ₐᵃ f = 2 ∫₀ᵃ f","∫₋ₐᵃ f = 0","∫₋ₐᵃ f = ∫₀ᵃ f","∫₋ₐᵃ f = −2 ∫₀ᵃ f"],hint:"Even function over [−a, a].",reveal:`= 2 × ∫ from 0 to ${a} of (${fx}) dx`},
+{q:"What is the value?",opts:numOpts(v,type===1?2:4),hint:"Integrate from 0 to a, then double it.",reveal:`2 × F(${a}) = ${v}`}]}},
+improper(){const t=R(0,3);
+if(t===0||t===1){const p=R(2,4),a=t===0?1:2,d=(p-1)*a**(p-1),val=d===1?"1":`1/${d}`,den=p===2?"x":`${p-1}x${sp(p-1)}`;
+return{text:`Evaluate ${IN(a,"∞")} 1/x${sp(p)} dx`,steps:[
+{q:"How do we handle the infinite upper limit?",opts:["Replace ∞ by t and take lim (t → ∞)","Substitute ∞ directly","Ignore the limit","Integrate from −∞"],hint:"Improper integrals are defined as limits.",reveal:`= lim<sub>t→∞</sub> ${IN(a,"t")} x⁻${sp(p)} dx`},
+{q:`What is an antiderivative of x⁻${sp(p)}?`,opts:o4(`−1/(${den})`,[`1/(${den})`,`−x${sp(p+1)}/${p+1}`,`1/x${sp(p+1)}`]),hint:`xⁿ⁺¹/(n+1) with n = −${p}`,reveal:`F(x) = −1/(${den})`},
+{q:"As t → ∞, what does the integral converge to?",opts:o4(val,["∞","0","−"+val,"1/"+(d+1)]),hint:`F(t) → 0, so the value is 0 − F(${a}).`,reveal:`0 − F(${a}) = ${val}`}]}}
+if(t===2){const k=R(2,6);
+return{text:`Evaluate ${IN(0,"∞")} e⁻${k===1?"":""}${k}ˣ dx`.replace("e⁻"+k+"ˣ",`e^(−${k}x)`),steps:[
+{q:"How do we handle the infinite upper limit?",opts:["Replace ∞ by t and take lim (t → ∞)","Substitute ∞ directly","Ignore the limit","Integrate from −∞"],hint:"Improper integrals are defined as limits.",reveal:`= lim<sub>t→∞</sub> ${IN(0,"t")} e^(−${k}x) dx`},
+{q:`What is an antiderivative of e^(−${k}x)?`,opts:o4(`−e^(−${k}x) / ${k}`,[`e^(−${k}x) / ${k}`,`−${k}e^(−${k}x)`,`e^(−${k}x)`]),hint:"Divide by the coefficient of x (and keep the sign).",reveal:`F(x) = −e^(−${k}x) / ${k}`},
+{q:"As t → ∞, what does the integral converge to?",opts:o4(`1/${k}`,["∞","0",`−1/${k}`,`1/${k+1}`]),hint:"F(t) → 0 and F(0) = −1/k.",reveal:`0 − (−1/${k}) = 1/${k}`}]}}
+const sq=Math.random()<.5,fn=sq?"1/√x":"1/x",F=sq?"2√x":"ln x";
+return{text:`Evaluate ${IN(1,"∞")} ${fn} dx`,steps:[
+{q:"How do we handle the infinite upper limit?",opts:["Replace ∞ by t and take lim (t → ∞)","Substitute ∞ directly","Ignore the limit","Integrate from −∞"],hint:"Improper integrals are defined as limits.",reveal:`= lim<sub>t→∞</sub> ${IN(1,"t")} ${fn} dx`},
+{q:`What is an antiderivative of ${fn}?`,opts:o4(F,[sq?"ln x":"2√x",sq?"−1/x":"−1/x²",sq?"x√x":"1/x²"]),hint:sq?"x^(−1/2) → x^(1/2) / (1/2)":"This is a standard integral.",reveal:`F(x) = ${F}`},
+{q:"What happens as t → ∞?",opts:o4("It diverges (→ ∞)",["Converges to 1","Converges to 0","Converges to 2"]),hint:`${F} grows without bound as t → ∞.`,reveal:`F(t) → ∞, so the integral diverges`}]}}
+};
+const NAMES={poly:"Power rule",standard:"Standard integrals",definite:"Definite integral",subst:"Substitution",parts:"By parts",symmetry:"Odd / even",improper:"Improper"};
+let type="poly",P,i,tries,right=0,total=0,locked;
+const $=id=>document.getElementById(id);
+function prep(p){p.steps.forEach(s=>{if(s.ans===undefined)s.ans=s.opts[0]});return p}
+function renderChips(){$("chips").innerHTML=Object.keys(NAMES).map(k=>`<button class="chip" aria-pressed="${k===type}" data-k="${k}">${NAMES[k]}</button>`).join("");
+$("chips").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{type=b.dataset.k;renderChips();start()})}
+function start(){{let t=0,np;do{np=prep(GEN[type]())}while(P&&np.text===P.text&&t++<30);P=np}i=0;tries=0;$("prob").innerHTML=P.text;draw()}
+function dots(){return `<div class="dots">${P.steps.map((_,k)=>`<div class="dot ${k<i?"done":k===i?"cur":""}"></div>`).join("")}</div>`}
+function draw(){const st=$("stage");
+if(i>=P.steps.length){st.innerHTML=`<div class="card final">${dots()}<b>Well done! Problem solved 🎉</b></div><button class="btn" id="nx">New problem</button>`;$("nx").onclick=start;score();return}
+const s=P.steps[i];locked=false;
+st.innerHTML=`<div class="card">${dots()}<p class="q">${s.q}</p>${sh(s.opts).map(o=>`<button class="opt" data-v="${o}">${o}</button>`).join("")}<div class="hint" id="hint"></div><div class="trow" style="margin-top:6px"><button class="tb" id="exp">📖 Explain this step</button></div><div class="tout" id="exout" dir="auto"></div><div class="tutor" id="tutor" hidden><div class="trow"><input id="tq" placeholder="Ask about this step (optional)" maxlength="200"><select id="tl" aria-label="Language"><option value="ar">عربي</option><option value="en">English</option></select><button class="tb" id="ask">💡 Ask the tutor</button></div><div class="tout" id="tout" dir="auto"></div></div></div>`;
+st.querySelectorAll(".opt").forEach(b=>b.onclick=()=>pickOpt(b,s));wireTutor(s)}
+function pickOpt(b,s){if(locked)return;
+if(b.dataset.v===s.ans){locked=true;b.classList.add("good");total++;if(tries===0)right++;
+b.closest(".card").insertAdjacentHTML("beforeend",`<div class="reveal">${s.reveal}</div><button class="btn" id="go">${i===P.steps.length-1?"Finish":"Next step"}</button>`);
+$("go").onclick=()=>{i++;tries=0;draw()};score()}
+else{tries++;b.classList.add("bad");b.disabled=true;$("hint").textContent="Not quite, try again. Hint: "+s.hint}}
+function score(){$("score").textContent=total?`Correct on first try: ${right} of ${total}`:""}
+const EX={
+poly:["قاعدة القوة: نرفع الأس بمقدار 1 ثم نقسم على الأس الجديد. مثال: ∫x² dx = x³/3. نطبقها على كل حد لحاله، ولا تنطبق عندما n = −1.","نطبق القاعدة على الحد الأول: نرفع الأس 1 ونقسم على الأس الجديد. مثلاً 6x² ← 6·x³/3 = 2x³.","نكامل كل حد على حدة، والحد الثابت c يصير c·x. وفي النهاية لا ننسى ثابت التكامل + C."],
+standard:["الثابت اللي يضرب الدالة نخرجه خارج التكامل: ∫ k·f(x) dx = k·∫ f(x) dx. هيك تتحول المسألة إلى تكامل أساسي واحد.","هنا نتذكر جدول التكاملات الأساسية: ∫sin x dx = −cos x، ∫cos x dx = sin x، ∫sec²x dx = tan x. الإشارة السالبة أكثر شي ينساه الطلاب.","نضرب نتيجة التكامل بالثابت k ونكتب + C مرة وحدة في النهاية."],
+standard2:["التكامل يتوزع على الجمع والطرح: ∫(f ± g) dx = ∫f dx ± ∫g dx، والثوابت تطلع خارج كل تكامل.","نكامل الدالة الأولى من جدول التكاملات الأساسية.","نكامل الدالة الثانية بنفس الطريقة، ونحتفظ بالإشارة بين الحدين.","نجمع النتيجتين بنفس الإشارة الأصلية، ونكتب + C واحدة فقط."],
+definite:["نبحث عن دالة أصلية F(x) بقاعدة القوة. ما نحتاج + C لأنها تُلغى عند طرح F(b) − F(a).","نعوّض الحد الأعلى b مكان x في F(x).","نعوّض الحد الأدنى a مكان x في F(x).","النظرية الأساسية: ∫ₐᵇ f dx = F(b) − F(a). انتبهي للترتيب: الأعلى ناقص الأدنى."],
+subst:["نختار u هي الدالة الداخلية اللي مشتقتها (أو مضاعف مشتقتها) موجودة بنفس التكامل. هذا مفتاح التعويض.","نشتق u بالنسبة لـ x ثم نضرب في dx فنحصل على du.","نستبدل كل ما يخص x بـ u و du، فيتحول التكامل إلى تكامل قوة بسيط. وإذا ظهر ثابت مثل 1/a نخرجه خارج التكامل.","نكامل بقاعدة القوة بالنسبة لـ u، ثم نرجّع u إلى تعبيرها الأصلي بدلالة x. لا نترك الجواب بدلالة u."],
+parts:["قانون التجزئة: ∫u dv = uv − ∫v du. نستخدمه لما يكون التكامل حاصل ضرب دالتين مختلفتين.","نختار u بحيث تبسط عند الاشتقاق (مثل x أو ln x)، والباقي dv لازم نقدر نكامله.","نكامل dv لنحصل على v. ما نحتاج + C هنا.","نعوّض في uv − ∫v du، ثم نحل التكامل المتبقي (وهو أبسط)، ونضيف + C."],
+symmetry:["الدالة فردية إذا f(−x) = −f(x) (مثل x³ و sin x)، وزوجية إذا f(−x) = f(x) (مثل x² و cos x). عوّضي −x وقارني.","الدالة الفردية على فترة متماثلة [−a, a]: الجزء الموجب يلغي السالب، فالتكامل = 0 بدون أي حساب."],
+symmetryE:["الدوال اللي فيها قوى زوجية فقط (x² و x⁴ وثابت) تكون زوجية لأن (−x)² = x².","للدالة الزوجية: ∫₋ₐᵃ f = 2∫₀ᵃ f، لأن الجزء السالب يطابق الموجب.","نكامل من 0 إلى a ثم نضرب الناتج في 2."],
+improper:["لما يكون أحد الحدين ∞ نستبدله بالمتغير t ونحسب التكامل العادي، ثم نأخذ النهاية لما t ← ∞.","نجد الدالة الأصلية: نرفع الأس 1 ونقسم على الأس الجديد، أو نستخدم الصيغ المعروفة مثل ln x و e^(kx)/k.","نعوّض t والحد الأدنى ونشوف شو يصير لما t ← ∞. إذا اقتربت النتيجة من رقم، التكامل يتقارب. وإذا كبرت بلا حدود، يتباعد."]};
+function exText(){const k=type+(type==="standard"&&P.steps.length===4?"2":"")+(type==="symmetry"&&P.steps.length===3?"E":"");const a=EX[k]||EX[type];return (a&&a[i])||"راجعي قانون هذه الخطوة في الملخص."}
+let SAMPLE=null;
+function plain(h){const d=document.createElement("div");d.innerHTML=h;return d.textContent.replace(/\s+/g," ").trim()}
+function wireTutor(s){const e=$("exp");if(e)e.onclick=()=>{$("exout").textContent=exText()};const box=$("tutor");if(!box)return;box.hidden=!SAMPLE;const btn=$("ask");
+btn.onclick=async()=>{if(!SAMPLE)return;const q=$("tq").value.trim(),lang=$("tl").value,out=$("tout");btn.disabled=true;out.textContent="Thinking…";
+const pr=`You are a friendly math tutor for a university student.\nProblem: ${plain(P.text)}\nCurrent step question: ${plain(s.q)}\nAnswer choices: ${s.opts.map(plain).join(" | ")}\nThe student ${locked?"has already answered this step correctly, so you may explain the full reasoning.":"has NOT answered yet. Do NOT state the correct choice or the final number. Give hints and explain the underlying concept so they can decide themselves."}\n${q?"Student's question: "+q:"Explain the idea behind this step simply."}\nReply in ${lang==="ar"?"simple Arabic (keep math notation and technical terms in English)":"simple English"}, under 120 words, plain text, no headings.`;
+try{const r=await SAMPLE(pr,{cache:false,modelTier:"quick",onText:({text})=>{out.textContent=text}});out.textContent=r.text}
+catch(e){out.textContent=e&&e.code==="rate_limited"?"Too many requests, please wait a moment.":"The tutor isn't available right now."}
+finally{btn.disabled=false}}}
+if(window.claude&&window.claude.use){window.claude.use("sample").then(x=>{SAMPLE=x;const b=document.getElementById("tutor");if(b)b.hidden=!SAMPLE}).catch(()=>{})}
+renderChips();start();
+</script>
+</body>
+</html>
