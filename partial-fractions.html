@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Partial Fractions Step-by-Step</title>
+<style>
+:root{--bg:#f6f7f4;--card:#fff;--ink:#1d2b2a;--mute:#66736f;--line:#dbe1dc;--acc:#0f6b5c;--accbg:#e1f1ed;--ok:#1b7f4b;--okbg:#e2f4ea;--bad:#b3341f;--badbg:#fbe9e5;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12191a;--card:#1b2526;--ink:#e8efec;--mute:#93a29d;--line:#2d3b3c;--acc:#4fc3ad;--accbg:#173a35;--ok:#5fd394;--okbg:#17362a;--bad:#ff8a73;--badbg:#3b201b}}
+:root[data-theme="dark"]{--bg:#12191a;--card:#1b2526;--ink:#e8efec;--mute:#93a29d;--line:#2d3b3c;--acc:#4fc3ad;--accbg:#173a35;--ok:#5fd394;--okbg:#17362a;--bad:#ff8a73;--badbg:#3b201b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.6;font-size:17px}
+main{max-width:600px;margin:0 auto;padding:18px 16px 40px}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:var(--mute);margin:0 0 14px;font-size:15px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:7px 14px;border-radius:99px;font:inherit;font-size:15px;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.prob{font-size:17px;font-weight:600}
+.scroll{overflow-x:auto;margin:8px 0 0}
+table{border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:15px;font-weight:400}
+th,td{border:1px solid var(--line);padding:4px 10px;text-align:center}
+th{background:var(--accbg)}
+.dots{display:flex;gap:6px;margin:0 0 12px}
+.dot{height:6px;flex:1;border-radius:3px;background:var(--line)}
+.dot.done{background:var(--ok)}.dot.cur{background:var(--acc)}
+.q{font-weight:600;margin:0 0 10px}
+.opt{display:block;width:100%;text-align:start;border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:11px 14px;border-radius:10px;margin-bottom:8px;font:inherit;cursor:pointer}
+.opt:focus-visible,.chip:focus-visible,.btn:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.opt.bad{background:var(--badbg);border-color:var(--bad);color:var(--bad)}
+.opt.good{background:var(--okbg);border-color:var(--ok);color:var(--ok)}
+.hint{color:var(--bad);font-size:15px;margin:2px 0 8px}
+.reveal{background:var(--accbg);border-radius:10px;padding:10px 14px;margin:0 0 10px;font-size:16px}
+.btn{border:0;background:var(--acc);color:#fff;padding:12px 18px;border-radius:10px;font:inherit;font-weight:600;cursor:pointer;width:100%}
+.final{text-align:center}.final b{font-size:20px}
+.score{color:var(--mute);font-size:14px;text-align:center;margin-top:8px}
+.tutor{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}.tutor[hidden]{display:none}.trow{display:flex;gap:6px;flex-wrap:wrap}.trow input,.trow select{border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;font-size:15px;background:var(--card);color:var(--ink)}.trow input{flex:1;min-width:150px}.tb{border:1.5px solid var(--acc);background:transparent;color:var(--acc);padding:8px 12px;border-radius:10px;font:inherit;font-size:15px;cursor:pointer}.tb:disabled{opacity:.6}.tout{white-space:pre-wrap;margin-top:8px;font-size:16px;background:var(--accbg);border-radius:10px;padding:10px 12px}.tout:empty{display:none}.lvl{color:var(--mute);font-size:14px;margin:0 0 6px}</style>
+</head>
+<body>
+<main>
+<h1>Partial Fractions Integrals</h1>
+<p class="sub">Pick a topic and answer each step before it's revealed.</p>
+<div class="lvl">Level</div><div class="chips" id="lv"></div><div class="lvl">Type (suggested order 1 → 5)</div><div class="chips" id="chips"></div>
+<div class="card"><div class="prob" id="prob"></div></div>
+<div id="stage"></div>
+<div class="score" id="score"></div>
+</main>
+<script>
+const R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const sh=a=>[...a].sort(()=>Math.random()-.5);
+const f=x=>String(+x.toFixed(3));
+function numOpts(c,d=1){const s=new Set([f(c)]);let t=0;while(s.size<4&&t++<100)s.add(f(c+R(1,4)*d*(Math.random()<.5?-1:1)));return [...s]}
+const SUP={"0":"⁰","1":"¹","2":"²","3":"³"};
+function o4(c,alts,n=4){const s=[c];alts.forEach(a=>{if(!s.includes(a)&&s.length<n)s.push(a)});return s}
+const nz=(a,b)=>{let v=0;while(!v)v=R(a,b);return v};
+const sgn=a=>a<0?`x + ${-a}`:`x − ${a}`,lnT=a=>`ln|${sgn(a)}|`;
+function poly(cs){let o="";cs.forEach(([c,v])=>{if(c===0)return;const a=Math.abs(c),b=v===""?String(a):(a===1?v:a+v);o+=o===""?(c<0?"−":"")+b:` ${c<0?"−":"+"} ${b}`});return o||"0"}
+function terms(cs){let o="";cs.forEach(([c,v])=>{if(c===0)return;const a=Math.abs(c),b=a===1?v:`${a} ${v}`;o+=o===""?(c<0?"−":"")+b:` ${c<0?"−":"+"} ${b}`});return o||"0"}
+const rg=()=>3+2*(LV-1),cm=()=>2+LV;
+function roots(){const a=nz(-rg(),rg());let b;do{b=nz(-rg(),rg())}while(b===a);return[a,b]}
+let LV=1;
+function pf1(){const [a,b]=roots(),m=cm(),A=nz(-m,m),B=nz(-m,m),p=A+B,q=-(A*b+B*a),N=x=>p*x+q,num=poly([[p,"x"],[q,""]]),da=sgn(a),db=sgn(b);
+const fin=(A_,B_,a_,b_)=>terms([[A_,lnT(a_)],[B_,lnT(b_)]])+" + C";
+return{key:"pf1",chk:()=>{const x=.37;return Math.abs(N(x)/((x-a)*(x-b))-(A/(x-a)+B/(x-b)))<1e-9},
+text:`Evaluate ∫ (${num}) / ((${da})(${db})) dx`,steps:[
+{q:"What is the partial fraction form?",opts:[`A/(${da}) + B/(${db})`,`(Ax + B)/((${da})(${db}))`,`A/(${da}) × B/(${db})`,`A/(${da})² + B/(${db})²`],hint:"One fraction with a constant on top for each distinct linear factor.",reveal:`${num} over (${da})(${db}) = A/(${da}) + B/(${db})`},
+{q:"Multiply both sides by the denominator. What do we get?",opts:[`${num} = A(${db}) + B(${da})`,`${num} = A(${da}) + B(${db})`,`${num} = A + B`,`${num} = AB`],hint:"Each constant is multiplied by the OTHER factor.",reveal:`${num} = A(${db}) + B(${da})`},
+{q:`Put x = ${a}. What is A?`,opts:numOpts(A),hint:`The B term vanishes when x = ${a}.`,reveal:`x = ${a}: ${N(a)} = A(${a-b}) → A = ${A}`},
+{q:`Put x = ${b}. What is B?`,opts:numOpts(B),hint:`The A term vanishes when x = ${b}.`,reveal:`x = ${b}: ${N(b)} = B(${b-a}) → B = ${B}`},
+{q:"What is the integral?",opts:o4(fin(A,B,a,b),[fin(B,A,a,b),fin(A,-B,a,b),fin(A,B,-a,-b),fin(A+1,B,a,b)]),hint:"∫ dx/(x − a) = ln|x − a|, times its constant.",reveal:fin(A,B,a,b)}]}}
+function pf2(){const [a,b]=roots(),m=cm(),A=nz(-m,m),B=nz(-m,m),p=A+B,q=-(A*b+B*a),N=x=>p*x+q,num=poly([[p,"x"],[q,""]]),da=sgn(a),db=sgn(b),den=poly([[1,"x²"],[-(a+b),"x"],[a*b,""]]);
+const fin=(A_,B_,a_,b_)=>terms([[A_,lnT(a_)],[B_,lnT(b_)]])+" + C";
+return{key:"pf2",chk:()=>{const x=.37;return Math.abs(N(x)/(x*x-(a+b)*x+a*b)-(A/(x-a)+B/(x-b)))<1e-9},
+text:`Evaluate ∫ (${num}) / (${den}) dx`,steps:[
+{q:`Factor the denominator ${den}:`,opts:[`(${da})(${db})`,`(${sgn(-a)})(${sgn(-b)})`,`(${da})(${sgn(-b)})`,`(${sgn(-a)})(${db})`],hint:`Find two numbers with product ${a*b} and sum ${-(a+b)}.`,reveal:`${den} = (${da})(${db}), so the form is A/(${da}) + B/(${db})`},
+{q:`Put x = ${a} in ${num} = A(${db}) + B(${da}). What is A?`,opts:numOpts(A),hint:`The B term vanishes when x = ${a}.`,reveal:`${N(a)} = A(${a-b}) → A = ${A}`},
+{q:`Put x = ${b}. What is B?`,opts:numOpts(B),hint:`The A term vanishes when x = ${b}.`,reveal:`${N(b)} = B(${b-a}) → B = ${B}`},
+{q:"What is the integral?",opts:o4(fin(A,B,a,b),[fin(B,A,a,b),fin(A,-B,a,b),fin(A,B,-a,-b),fin(A+1,B,a,b)]),hint:"∫ dx/(x − a) = ln|x − a|, times its constant.",reveal:fin(A,B,a,b)}]}}
+function pfrep(){const a=nz(-rg(),rg()),m=cm(),A=nz(-m,m),B=nz(-m,m),p=A,q=B-A*a,da=sgn(a),num=poly([[p,"x"],[q,""]]);
+const fr=(c,d)=>`${c<0?"−":""}${Math.abs(c)===1?"1":Math.abs(c)}/(${d})`;
+const fin=(A_,B_,s)=>terms([[A_,lnT(a)]])+` ${(s*B_)<0?"−":"+"} ${Math.abs(B_)===1?"1":Math.abs(B_)}/(${da}) + C`;
+return{key:"pfrep",chk:()=>{const x=.37;return Math.abs((p*x+q)/((x-a)**2)-(A/(x-a)+B/((x-a)**2)))<1e-9},
+text:`Evaluate ∫ (${num}) / (${da})² dx`,steps:[
+{q:"What is the partial fraction form?",opts:[`A/(${da}) + B/(${da})²`,`A/(${da}) + B/(${da})`,`(Ax + B)/(${da})²`,`A/(${da})²`],hint:"A repeated factor needs one fraction for each power.",reveal:`= A/(${da}) + B/(${da})²`},
+{q:`Multiply by (${da})² and put x = ${a}. What is B?`,opts:numOpts(B),hint:`${num} = A(${da}) + B, so at x = ${a} the A term vanishes.`,reveal:`${num} = A(${da}) + B → x = ${a}: B = ${B}`},
+{q:"Compare the coefficients of x. What is A?",opts:numOpts(A),hint:"The coefficient of x on the right is A.",reveal:`coefficient of x: A = ${A}`},
+{q:`What is ∫ ${B}/(${da})² dx ?`,opts:[`${B<0?"+":"−"}${Math.abs(B)===1?"1":Math.abs(B)}/(${da})`,`${B} ln|${da}|`,`${B}/(${da})`,`${B<0?"−":"+"}${Math.abs(B)===1?"1":Math.abs(B)}/(${da})²`],hint:"∫ (x − a)⁻² dx = −1/(x − a).",reveal:`∫ ${B}(${da})⁻² dx = ${B<0?"+":"−"}${Math.abs(B)===1?"1":Math.abs(B)}/(${da})`},
+{q:"What is the full integral?",opts:o4(fin(A,B,1),[fin(A,B,-1),fin(B,A,1),fin(-A,B,1),fin(A+1,B,1)]),hint:"Add the ln term and the fraction term, then + C.",reveal:fin(A,B,1)}]}}
+function pfq(){const a=nz(-rg(),rg()),k=R(1,3),m=nz(-2,2),A=nz(-cm(),cm()),bb=nz(-2,2),B=2*bb,D=k*m,n2=A+B,n1=D-a*B,n0=A*k*k-a*D,N=x=>n2*x*x+n1*x+n0,da=sgn(a),qd=`x² + ${k*k}`,tn=k===1?"tan⁻¹ x":`tan⁻¹(x/${k})`,lq=`ln(${qd})`;
+const num=poly([[n2,"x²"],[n1,"x"],[n0,""]]);
+const fin=(c1,c2,c3)=>terms([[c1,lnT(a)],[c2,lq],[c3,tn]])+" + C";
+return{key:"pfq",chk:()=>{const x=.37;return Math.abs(N(x)/((x-a)*(x*x+k*k))-(A/(x-a)+(B*x+D)/(x*x+k*k)))<1e-9},
+text:`Evaluate ∫ (${num}) / ((${da})(${qd})) dx`,steps:[
+{q:"What is the partial fraction form?",opts:[`A/(${da}) + (Bx + D)/(${qd})`,`A/(${da}) + B/(${qd})`,`(Ax + B)/(${da}) + D/(${qd})`,`A/(${da}) + B/(${da})²`],hint:"The quadratic x² + k² can't be factored, so its numerator is linear.",reveal:`= A/(${da}) + (Bx + D)/(${qd})`},
+{q:`Put x = ${a}. What is A? (${qd} becomes ${a*a+k*k})`,opts:numOpts(A),hint:`The quadratic-term vanishes at x = ${a}.`,reveal:`${N(a)} = A(${a*a+k*k}) → A = ${A}`},
+{q:`Compare x² coefficients: A + B = ${n2}. What is B?`,opts:numOpts(B,2),hint:`B = ${n2} − A`,reveal:`B = ${n2} − (${A}) = ${B}`},
+{q:`Compare x coefficients: D − ${a}B = ${n1}. What is D?`,opts:numOpts(D,1),hint:`D = ${n1} + ${a}·B`,reveal:`D = ${n1} + (${a})(${B}) = ${D}`},
+{q:"What is the full integral?",opts:o4(fin(A,bb,m),[fin(A,m,bb),fin(A,B,m),fin(A,bb,D),fin(-A,bb,m)]),hint:`∫ x/(${qd}) dx = ½ ln(${qd}) and ∫ dx/(${qd}) = (1/${k}) ${tn}.`,reveal:`${A} ln|${da}| + (${B}/2) ${lq} + (${D}/${k}) ${tn} + C`}]}}
+function pfdiv(){const [a,b]=roots(),m=cm(),A=nz(-m,m),B=nz(-m,m),p=A+B,q=-(A*b+B*a),da=sgn(a),db=sgn(b),n1=-(a+b)+p,n0=a*b+q,N=x=>x*x+n1*x+n0,num=poly([[1,"x²"],[n1,"x"],[n0,""]]);
+const R_=poly([[p,"x"],[q,""]]),fin=(A_,B_,a_,b_)=>terms([[1,"x"],[A_,lnT(a_)],[B_,lnT(b_)]])+" + C";
+return{key:"pfdiv",chk:()=>{const x=.37;return Math.abs(N(x)/((x-a)*(x-b))-(1+A/(x-a)+B/(x-b)))<1e-9},
+text:`Evaluate ∫ (${num}) / ((${da})(${db})) dx`,steps:[
+{q:"The numerator's degree equals the denominator's. What first?",opts:["Divide first (polynomial division)","Decompose directly","Substitute u","Use integration by parts"],hint:"Partial fractions need degree(numerator) < degree(denominator).",reveal:"Divide first, then decompose the remainder."},
+{q:`Denominator = x² ${poly([[-(a+b),"x"],[a*b,""]]).startsWith("−")?"":"+ "}${poly([[-(a+b),"x"],[a*b,""]])}. What is the quotient?`,opts:["1","x","0","2"],hint:"x² ÷ x² = 1",reveal:"quotient = 1"},
+{q:"What is the remainder (numerator − denominator)?",opts:o4(R_,[poly([[p,"x"],[-q,""]]),poly([[n1,"x"],[n0,""]]),poly([[A-B,"x"],[q,""]])]),hint:`Subtract (${da})(${db}) = ${poly([[1,"x²"],[-(a+b),"x"],[a*b,""]])} from the numerator.`,reveal:`remainder = ${R_}`},
+{q:`Now (${R_}) / ((${da})(${db})) = A/(${da}) + B/(${db}). Put x = ${a}: what is A?`,opts:numOpts(A),hint:`Substitute x = ${a} into the remainder.`,reveal:`${p*a+q} = A(${a-b}) → A = ${A}`},
+{q:`Put x = ${b}. What is B?`,opts:numOpts(B),hint:`Substitute x = ${b} into the remainder.`,reveal:`${p*b+q} = B(${b-a}) → B = ${B}`},
+{q:"What is the full integral?",opts:o4(fin(A,B,a,b),[fin(B,A,a,b),fin(A,-B,a,b),fin(A,B,-a,-b),terms([[A,lnT(a)],[B,lnT(b)]])+" + C"]),hint:"∫ 1 dx = x, plus the two ln terms.",reveal:fin(A,B,a,b)}]}}
+const GEN={pf1,pf2,pfrep,pfq,pfdiv};
+const NAMES={pf1:"Distinct factors",pf2:"Factor first",pfrep:"Repeated factor",pfq:"Quadratic factor",pfdiv:"Improper fraction"};
+const EX={
+pf1:["إذا كان المقام حاصل ضرب عوامل خطية مختلفة، نكتب الكسر كمجموع كسور: لكل عامل كسر وفوقه ثابت (A و B).","نضرب الطرفين بالمقام الأصلي فتختفي المقامات، وكل ثابت يبقى مضروباً بالعامل الآخر.","طريقة التعويض (cover-up): نعوّض x بجذر العامل الأول، فيختفي حد B ونحصل على A مباشرة.","نعوّض بجذر العامل الثاني فيختفي حد A ونحصل على B.","نكامل كل كسر لحاله: ∫ dx/(x − a) = ln|x − a|، ثم نضرب بالثابت ونضيف + C."],
+pf2:["نحلل المقام أولاً لعوامل خطية: نبحث عن عددين حاصل ضربهما الحد الثابت ومجموعهما معامل x (بإشارة معاكسة للجذور).","نعوّض x بجذر العامل الأول لنجد A.","نعوّض بجذر العامل الثاني لنجد B.","نكامل كل كسر: ∫ dx/(x − a) = ln|x − a|، ونضيف + C."],
+pfrep:["إذا تكرر العامل (x − a)² نحتاج كسرين: واحد بالعامل نفسه وواحد بمربعه: A/(x − a) + B/(x − a)².","نضرب بالمقام ثم نعوّض x = a، فيختفي حد A ونحصل على B.","نقارن معامل x في الطرفين، فنجد A.","∫ (x − a)⁻² dx = −1/(x − a)، بينما ∫ dx/(x − a) = ln|x − a|.","نجمع النتيجتين ونضيف + C."],
+pfq:["لما يكون العامل التربيعي x² + k² غير قابل للتحليل، بسطه يكون من الدرجة الأولى: (Bx + D)/(x² + k²).","نعوّض x = a (جذر العامل الخطي) فيختفي الحد التربيعي ونحصل على A.","نقارن معاملات x² في الطرفين: A + B = معامل x² بالبسط الأصلي.","نقارن معاملات x في الطرفين لإيجاد D.","∫ x/(x² + k²) dx = ½ ln(x² + k²)، و ∫ dx/(x² + k²) = (1/k) tan⁻¹(x/k)."],
+pfdiv:["لما تكون درجة البسط ≥ درجة المقام، نقسم قسمة طويلة أولاً قبل التجزئة.","نقسم x² على x² فيكون خارج القسمة 1.","الباقي = البسط − المقام، وهو من الدرجة الأولى فقط.","الآن نجزئ الباقي: نعوّض بجذر العامل الأول لنجد A.","نعوّض بجذر العامل الثاني لنجد B.","الناتج = x (تكامل 1) + تكامل الكسور الجزئية."]};
+let type="pf1",P,i,tries,right=0,total=0,locked;
+const $=id=>document.getElementById(id);
+function prep(p){p.steps.forEach(s=>{if(s.ans===undefined)s.ans=s.opts[0]});return p}
+function renderChips(){$("chips").innerHTML=Object.keys(NAMES).map((k,ix)=>`<button class="chip" aria-pressed="${k===type}" data-k="${k}">${ix+1}. ${NAMES[k]}</button>`).join("");
+$("chips").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{type=b.dataset.k;renderChips();start()})}
+function start(){{let t=0,np;do{np=prep(GEN[type]())}while(P&&np.text===P.text&&t++<30);P=np}i=0;tries=0;$("prob").innerHTML=P.text;draw()}
+function dots(){return `<div class="dots">${P.steps.map((_,k)=>`<div class="dot ${k<i?"done":k===i?"cur":""}"></div>`).join("")}</div>`}
+function draw(){const st=$("stage");
+if(i>=P.steps.length){st.innerHTML=`<div class="card final">${dots()}<b>Well done! Problem solved 🎉</b></div><button class="btn" id="nx">New problem</button>`;$("nx").onclick=start;score();return}
+const s=P.steps[i];locked=false;
+st.innerHTML=`<div class="card">${dots()}<p class="q">${s.q}</p>${sh(s.opts).map(o=>`<button class="opt" data-v="${o}">${o}</button>`).join("")}<div class="hint" id="hint"></div><div class="trow" style="margin-top:6px"><button class="tb" id="exp">📖 Explain this step</button></div><div class="tout" id="exout" dir="auto"></div><div class="tutor" id="tutor" hidden><div class="trow"><input id="tq" placeholder="Ask about this step (optional)" maxlength="200"><select id="tl" aria-label="Language"><option value="ar">عربي</option><option value="en">English</option></select><button class="tb" id="ask">💡 Ask the tutor</button></div><div class="tout" id="tout" dir="auto"></div></div></div>`;
+st.querySelectorAll(".opt").forEach(b=>b.onclick=()=>pickOpt(b,s));wireTutor(s)}
+function pickOpt(b,s){if(locked)return;
+if(b.dataset.v===s.ans){locked=true;b.classList.add("good");total++;if(tries===0)right++;
+b.closest(".card").insertAdjacentHTML("beforeend",`<div class="reveal">${s.reveal}</div><button class="btn" id="go">${i===P.steps.length-1?"Finish":"Next step"}</button>`);
+$("go").onclick=()=>{i++;tries=0;draw()};score()}
+else{tries++;b.classList.add("bad");b.disabled=true;$("hint").textContent="Not quite, try again. Hint: "+s.hint}}
+function score(){$("score").textContent=total?`Correct on first try: ${right} of ${total}`:""}
+function exText(){const k=P.key||type;const a=EX[k]||EX[type];return (a&&a[i])||"راجعي قانون هذه الخطوة في الملخص."}
+const LVN=["Easy","Medium","Hard"];function renderLv(){$("lv").innerHTML=LVN.map((n,k)=>`<button class="chip" aria-pressed="${LV===k+1}" data-l="${k+1}">${n}</button>`).join("");$("lv").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{LV=+b.dataset.l;renderLv();start()})}
+let SAMPLE=null;
+function plain(h){const d=document.createElement("div");d.innerHTML=h;return d.textContent.replace(/\s+/g," ").trim()}
+function wireTutor(s){const e=$("exp");if(e)e.onclick=()=>{$("exout").textContent=exText()};const box=$("tutor");if(!box)return;box.hidden=!SAMPLE;const btn=$("ask");
+btn.onclick=async()=>{if(!SAMPLE)return;const q=$("tq").value.trim(),lang=$("tl").value,out=$("tout");btn.disabled=true;out.textContent="Thinking…";
+const pr=`You are a friendly math tutor for a university student.\nProblem: ${plain(P.text)}\nCurrent step question: ${plain(s.q)}\nAnswer choices: ${s.opts.map(plain).join(" | ")}\nThe student ${locked?"has already answered this step correctly, so you may explain the full reasoning.":"has NOT answered yet. Do NOT state the correct choice or the final number. Give hints and explain the underlying concept so they can decide themselves."}\n${q?"Student's question: "+q:"Explain the idea behind this step simply."}\nReply in ${lang==="ar"?"simple Arabic (keep math notation and technical terms in English)":"simple English"}, under 120 words, plain text, no headings.`;
+try{const r=await SAMPLE(pr,{cache:false,modelTier:"quick",onText:({text})=>{out.textContent=text}});out.textContent=r.text}
+catch(e){out.textContent=e&&e.code==="rate_limited"?"Too many requests, please wait a moment.":"The tutor isn't available right now."}
+finally{btn.disabled=false}}}
+if(window.claude&&window.claude.use){window.claude.use("sample").then(x=>{SAMPLE=x;const b=document.getElementById("tutor");if(b)b.hidden=!SAMPLE}).catch(()=>{})}
+renderLv();renderChips();start();
+</script>
+</body>
+</html>
