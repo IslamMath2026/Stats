@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Integration by Parts</title>
+<style>
+:root{--bg:#f6f7f4;--card:#fff;--ink:#1d2b2a;--mute:#66736f;--line:#dbe1dc;--acc:#0f6b5c;--accbg:#e1f1ed;--ok:#1b7f4b;--okbg:#e2f4ea;--bad:#b3341f;--badbg:#fbe9e5;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12191a;--card:#1b2526;--ink:#e8efec;--mute:#93a29d;--line:#2d3b3c;--acc:#4fc3ad;--accbg:#173a35;--ok:#5fd394;--okbg:#17362a;--bad:#ff8a73;--badbg:#3b201b}}
+:root[data-theme="dark"]{--bg:#12191a;--card:#1b2526;--ink:#e8efec;--mute:#93a29d;--line:#2d3b3c;--acc:#4fc3ad;--accbg:#173a35;--ok:#5fd394;--okbg:#17362a;--bad:#ff8a73;--badbg:#3b201b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.6;font-size:17px}
+main{max-width:600px;margin:0 auto;padding:18px 16px 40px}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:var(--mute);margin:0 0 14px;font-size:15px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:7px 14px;border-radius:99px;font:inherit;font-size:15px;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.prob{font-size:17px;font-weight:600}
+.scroll{overflow-x:auto;margin:8px 0 0}
+table{border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:15px;font-weight:400}
+th,td{border:1px solid var(--line);padding:4px 10px;text-align:center}
+th{background:var(--accbg)}
+.dots{display:flex;gap:6px;margin:0 0 12px}
+.dot{height:6px;flex:1;border-radius:3px;background:var(--line)}
+.dot.done{background:var(--ok)}.dot.cur{background:var(--acc)}
+.q{font-weight:600;margin:0 0 10px}
+.opt{display:block;width:100%;text-align:start;border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:11px 14px;border-radius:10px;margin-bottom:8px;font:inherit;cursor:pointer}
+.opt:focus-visible,.chip:focus-visible,.btn:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.opt.bad{background:var(--badbg);border-color:var(--bad);color:var(--bad)}
+.opt.good{background:var(--okbg);border-color:var(--ok);color:var(--ok)}
+.hint{color:var(--bad);font-size:15px;margin:2px 0 8px}
+.reveal{background:var(--accbg);border-radius:10px;padding:10px 14px;margin:0 0 10px;font-size:16px}
+.btn{border:0;background:var(--acc);color:#fff;padding:12px 18px;border-radius:10px;font:inherit;font-weight:600;cursor:pointer;width:100%}
+.final{text-align:center}.final b{font-size:20px}
+.score{color:var(--mute);font-size:14px;text-align:center;margin-top:8px}
+.tutor{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}.tutor[hidden]{display:none}.trow{display:flex;gap:6px;flex-wrap:wrap}.trow input,.trow select{border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;font-size:15px;background:var(--card);color:var(--ink)}.trow input{flex:1;min-width:150px}.tb{border:1.5px solid var(--acc);background:transparent;color:var(--acc);padding:8px 12px;border-radius:10px;font:inherit;font-size:15px;cursor:pointer}.tb:disabled{opacity:.6}.tout{white-space:pre-wrap;margin-top:8px;font-size:16px;background:var(--accbg);border-radius:10px;padding:10px 12px}.tout:empty{display:none}.lvl{color:var(--mute);font-size:14px;margin:0 0 6px}</style>
+</head>
+<body>
+<main>
+<h1>Integration by Parts</h1>
+<p class="sub">Pick a topic and answer each step before it's revealed.</p>
+<div class="lvl">Level</div><div class="chips" id="lv"></div><div class="lvl">Type (suggested order 1 → 6)</div><div class="chips" id="chips"></div>
+<div class="card"><div class="prob" id="prob"></div></div>
+<div id="stage"></div>
+<div class="score" id="score"></div>
+</main>
+<script>
+const R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const sh=a=>[...a].sort(()=>Math.random()-.5);
+const f=x=>String(+x.toFixed(3));
+function numOpts(c,d=1){const s=new Set([f(c)]);let t=0;while(s.size<4&&t++<100)s.add(f(c+R(1,4)*d*(Math.random()<.5?-1:1)));return [...s]}
+const SUP={"0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵"},sp=n=>String(n).split("").map(c=>SUP[c]).join("");
+function o4(c,alts,n=4){const s=[c];alts.forEach(a=>{if(!s.includes(a)&&s.length<n)s.push(a)});return s}
+const neg=s=>s.startsWith("−")?s.slice(1):"−"+s;
+const flip=s=>s.replace(/ ([+−]) /,(m,g)=>g==="+"?" − ":" + ");
+const IN=(a,b)=>`<span style="white-space:nowrap">∫<sub>${a}</sub><sup>${b}</sup></span>`;
+const E=a=>a===1?"eˣ":a===-1?"e⁻ˣ":`e^(${a}x)`;
+const T=(fn,b)=>b===1?`${fn} x`:`${fn}(${b}x)`;
+let LV=1;
+const pickLV=arr=>{const l=arr[LV-1];return l[R(0,l.length-1)]};
+const dvOf=it=>it.f==="1"?"dx":`${it.f} dx`;
+const chkF=it=>()=>{const x=it.x||.43,h=1e-5;return Math.abs((it.F(x+h)-it.F(x-h))/(2*h)-it.g(x))<1e-5};
+function mk(it,key){const dv=dvOf(it);
+const b=it.f==="1"?[`u = 1, dv = ${it.ex} dx`,`u = x, dv = ${it.ex} dx`,`u = ${it.ex} dx, dv = 1`]:[`u = ${it.f}, dv = ${it.u} dx`,`u = ${it.ex}, dv = dx`,`u = 1, dv = ${it.ex} dx`];
+return{key,chk:chkF(it),text:`Evaluate ∫ ${it.ex} dx`,steps:[
+{q:"Choose u and dv (LIATE: Log, Inverse trig, Algebraic, Trig, Exp):",opts:o4(`u = ${it.u}, dv = ${dv}`,b),hint:"u should be the function that gets simpler when differentiated.",reveal:`u = ${it.u}, dv = ${dv}`},
+{q:"What is du?",opts:o4(`du = ${it.du}`,it.duBad.map(x=>`du = ${x}`)),hint:`Differentiate u = ${it.u}.`,reveal:`du = ${it.du}`},
+{q:`dv = ${dv}. What is v?`,opts:o4(it.v,[neg(it.v),it.f==="1"?"1":it.f,it.v+" + C"]),hint:"Integrate dv (no + C yet).",reveal:`v = ${it.v}`},
+{q:"Apply uv − ∫v du. What is the result?",opts:o4(it.ans,it.ansBad),hint:"Solve the remaining integral, then add + C.",reveal:it.ans}]}}
+function p1(){const a=pickLV([[1],[1,2],[2,3]]),k=["e","s","c"],kd=k[R(0,2)];
+const A={e:a===1?"x eˣ − eˣ + C":`(x/${a}) ${E(a)} − ${E(a)}/${a*a} + C`,s:a===1?"−x cos x + sin x + C":`−(x/${a}) cos(${a}x) + sin(${a}x)/${a*a} + C`,c:a===1?"x sin x + cos x + C":`(x/${a}) sin(${a}x) + cos(${a}x)/${a*a} + C`};
+const M={e:{ex:`x ${E(a)}`,f:E(a),v:a===1?"eˣ":`${E(a)}/${a}`,g:x=>x*Math.exp(a*x),F:x=>(x/a)*Math.exp(a*x)-Math.exp(a*x)/(a*a)},
+s:{ex:`x ${T("sin",a)}`,f:T("sin",a),v:a===1?"−cos x":`−cos(${a}x)/${a}`,g:x=>x*Math.sin(a*x),F:x=>-(x/a)*Math.cos(a*x)+Math.sin(a*x)/(a*a)},
+c:{ex:`x ${T("cos",a)}`,f:T("cos",a),v:a===1?"sin x":`sin(${a}x)/${a}`,g:x=>x*Math.cos(a*x),F:x=>(x/a)*Math.sin(a*x)+Math.cos(a*x)/(a*a)}}[kd];
+return mk({...M,u:"x",du:"dx",duBad:["x dx","−dx","dx/x"],ans:A[kd],ansBad:[flip(A[kd]),...k.filter(z=>z!==kd).map(z=>A[z])]},"p1")}
+function p2(){const n=pickLV([[0,1],[1,2],[2,3]]),xp=m=>m===0?"1":m===1?"x":`x${sp(m)}`;
+const al=m=>m===0?"x ln x − x + C":`(x${sp(m+1)}/${m+1}) ln x − x${sp(m+1)}/${(m+1)**2} + C`;
+return mk({ex:n===0?"ln x":`${xp(n)} ln x`,u:"ln x",f:xp(n),du:"dx/x",duBad:["x dx","−dx/x","ln x dx"],v:n===0?"x":`x${sp(n+1)}/${n+1}`,ans:al(n),ansBad:[flip(al(n)),al(n+1),al(n>0?n-1:n+2)],g:x=>Math.pow(x,n)*Math.log(x),F:x=>Math.pow(x,n+1)/(n+1)*Math.log(x)-Math.pow(x,n+1)/((n+1)**2)},"p2")}
+function p3(){const a=pickLV([[1],[1,2],[2,3]]),k=["t","s","c"],kd=k[R(0,2)],ar=a===1?" x":`(${a}x)`,half={1:"½",2:"¼",3:"⅙"}[a],q=a===1?"x²":`${a*a}x²`;
+const A={t:`x tan⁻¹${ar} − ${half} ln(1 + ${q}) + C`,s:a===1?`x sin⁻¹${ar} + √(1 − x²) + C`:`x sin⁻¹${ar} + √(1 − ${q})/${a} + C`,c:a===1?`x cos⁻¹${ar} − √(1 − x²) + C`:`x cos⁻¹${ar} − √(1 − ${q})/${a} + C`};
+const sd=a===1?"dx/√(1 − x²)":`${a} dx/√(1 − ${q})`;
+const M={t:{ex:`tan⁻¹${ar}`,du:a===1?"dx/(1 + x²)":`${a} dx/(1 + ${q})`,duBad:["dx/(1 − x²)","dx/√(1 + x²)","dx"],g:x=>Math.atan(a*x),F:x=>x*Math.atan(a*x)-Math.log(1+a*a*x*x)/(2*a)},
+s:{ex:`sin⁻¹${ar}`,du:sd,duBad:["dx/(1 + x²)","−"+sd,"dx"],g:x=>Math.asin(a*x),F:x=>x*Math.asin(a*x)+Math.sqrt(1-a*a*x*x)/a},
+c:{ex:`cos⁻¹${ar}`,du:"−"+sd,duBad:[sd,"dx/(1 + x²)","dx"],g:x=>Math.acos(a*x),F:x=>x*Math.acos(a*x)-Math.sqrt(1-a*a*x*x)/a}}[kd];
+return mk({...M,u:M.ex,f:"1",v:"x",x:.2,ans:A[kd],ansBad:[flip(A[kd]),...k.filter(z=>z!==kd).map(z=>A[z])]},"p3")}
+const P4=[{ex:"x² eˣ",f:"eˣ",rem:"∫ 2x eˣ dx",ans:"eˣ(x² − 2x + 2) + C",g:x=>x*x*Math.exp(x),F:x=>Math.exp(x)*(x*x-2*x+2)},
+{ex:"x² sin x",f:"sin x",rem:"∫ 2x cos x dx",ans:"−x² cos x + 2x sin x + 2 cos x + C",g:x=>x*x*Math.sin(x),F:x=>-x*x*Math.cos(x)+2*x*Math.sin(x)+2*Math.cos(x)},
+{ex:"x² cos x",f:"cos x",rem:"∫ 2x sin x dx",ans:"x² sin x + 2x cos x − 2 sin x + C",g:x=>x*x*Math.cos(x),F:x=>x*x*Math.sin(x)+2*x*Math.cos(x)-2*Math.sin(x)},
+{ex:"x² e^(2x)",f:"e^(2x)",rem:"∫ x e^(2x) dx",ans:"e^(2x)(x²/2 − x/2 + 1/4) + C",g:x=>x*x*Math.exp(2*x),F:x=>Math.exp(2*x)*(x*x/2-x/2+.25)},
+{ex:"x² e⁻ˣ",f:"e⁻ˣ",rem:"∫ 2x e⁻ˣ dx",ans:"−e⁻ˣ(x² + 2x + 2) + C",g:x=>x*x*Math.exp(-x),F:x=>-Math.exp(-x)*(x*x+2*x+2)}];
+function p4(){const pool=[[0,1],[0,1,2,3],[2,3,4]][LV-1],it=P4[pool[R(0,pool.length-1)]],oth=P4.filter(z=>z!==it);
+return{key:"p4",chk:chkF(it),text:`Evaluate ∫ ${it.ex} dx`,steps:[
+{q:"Choose u and dv:",opts:o4(`u = x², dv = ${it.f} dx`,[`u = ${it.f}, dv = x² dx`,`u = x² ${it.f}, dv = dx`,`u = 1, dv = x² ${it.f} dx`]),hint:"x² gets simpler when differentiated (2x, then 2).",reveal:`u = x², dv = ${it.f} dx`},
+{q:"After the first application, which integral remains?",opts:o4(it.rem,oth.map(z=>z.rem)),hint:"Differentiating x² gives 2x, and v keeps the exp/trig form.",reveal:`${it.ex.replace(/^x² /,"x² ")} → remaining: ${it.rem}`},
+{q:"How many times do we apply parts in total?",opts:["Twice","Once","Three times","Never"],hint:"The power of x drops by 1 each time.",reveal:"x² → 2x → 2: twice"},
+{q:"What is the final answer?",opts:o4(it.ans,[flip(it.ans),...oth.map(z=>z.ans)]),hint:"Combine both rounds and add + C.",reveal:it.ans}]}}
+function p5(){const [a,b]=pickLV([[[1,1]],[[1,1],[1,2],[2,1]],[[1,2],[2,1],[2,3],[3,2],[3,1],[1,3]]]),kd=Math.random()<.5?"s":"c",pc=c=>c===1?"":`${c} `,D=a*a+b*b;
+const ns=`${pc(a)}${T("sin",b)} − ${pc(b)}${T("cos",b)}`,nc=`${pc(a)}${T("cos",b)} + ${pc(b)}${T("sin",b)}`,num=kd==="s"?ns:nc,onum=kd==="s"?nc:ns,fa=n=>`${E(a)}(${n})/${D} + C`;
+const g=kd==="s"?x=>Math.exp(a*x)*Math.sin(b*x):x=>Math.exp(a*x)*Math.cos(b*x),F=kd==="s"?x=>Math.exp(a*x)*(a*Math.sin(b*x)-b*Math.cos(b*x))/D:x=>Math.exp(a*x)*(a*Math.cos(b*x)+b*Math.sin(b*x))/D;
+return{key:"p5",chk:chkF({g,F}),text:`Evaluate ∫ ${E(a)} ${T(kd==="s"?"sin":"cos",b)} dx`,steps:[
+{q:"After applying parts twice, what happens?",opts:["The original integral I reappears, so we solve for I","The integral becomes a polynomial","We need a third application with a new function","The integral vanishes"],hint:"Exp × sin/cos is a 'cyclic' integral.",reveal:"I = (stuff) − (a²/b²) I, so I(1 + a²/b²) = stuff"},
+{q:`Solving for I leads to the denominator a² + b², with a = ${a} and b = ${b}. What is a² + b²?`,opts:numOpts(D,1),hint:`${a}² + ${b}²`,reveal:`a² + b² = ${a*a} + ${b*b} = ${D}`},
+{q:"Which numerator is correct?",opts:o4(num,[onum,kd==="s"?`${pc(a)}${T("sin",b)} + ${pc(b)}${T("cos",b)}`:`${pc(a)}${T("cos",b)} − ${pc(b)}${T("sin",b)}`,kd==="s"?`${pc(b)}${T("sin",b)} − ${pc(a)}${T("cos",b)}`:`${pc(b)}${T("cos",b)} + ${pc(a)}${T("sin",b)}`]),hint:kd==="s"?"For sin: a sin bx − b cos bx":"For cos: a cos bx + b sin bx",reveal:`numerator = ${num}`},
+{q:"What is the full integral?",opts:o4(fa(num),[fa(onum),flip(fa(num)),`${E(a)}(${num})/${a+b} + C`]),hint:"e^(ax) × numerator ÷ (a² + b²) + C",reveal:fa(num)}]}}
+const P6=[{ex:"x eˣ",lo:"0",hi:"1",u:"x",f:"eˣ",F:"x eˣ − eˣ",ans:"1",g:x=>x*Math.exp(x),a:0,b:1,nv:1},
+{ex:"x cos x",lo:"0",hi:"π/2",u:"x",f:"cos x",F:"x sin x + cos x",ans:"π/2 − 1",g:x=>x*Math.cos(x),a:0,b:Math.PI/2,nv:Math.PI/2-1},
+{ex:"x sin x",lo:"0",hi:"π",u:"x",f:"sin x",F:"−x cos x + sin x",ans:"π",g:x=>x*Math.sin(x),a:0,b:Math.PI,nv:Math.PI},
+{ex:"ln x",lo:"1",hi:"e",u:"ln x",f:"1",F:"x ln x − x",ans:"1",g:x=>Math.log(x),a:1,b:Math.E,nv:1},
+{ex:"x ln x",lo:"1",hi:"e",u:"ln x",f:"x",F:"(x²/2) ln x − x²/4",ans:"(e² + 1)/4",g:x=>x*Math.log(x),a:1,b:Math.E,nv:(Math.E**2+1)/4},
+{ex:"tan⁻¹ x",lo:"0",hi:"1",u:"tan⁻¹ x",f:"1",F:"x tan⁻¹ x − ½ ln(1 + x²)",ans:"π/4 − ½ ln 2",g:x=>Math.atan(x),a:0,b:1,nv:Math.PI/4-Math.log(2)/2},
+{ex:"x² eˣ",lo:"0",hi:"1",u:"x²",f:"eˣ",F:"eˣ(x² − 2x + 2)",ans:"e − 2",g:x=>x*x*Math.exp(x),a:0,b:1,nv:Math.E-2}];
+function p6(){const pool=[[0,1,2],[2,3,4],[4,5,6]][LV-1],it=P6[pool[R(0,pool.length-1)]],oth=sh(P6.filter(z=>z!==it)),ua=[...new Set(oth.map(z=>z.ans))].filter(z=>z!==it.ans);
+return{key:"p6",chk:()=>{const n=2000,h=(it.b-it.a)/n;let s=it.g(it.a+1e-12)+it.g(it.b);for(let i=1;i<n;i++)s+=it.g(it.a+i*h)*(i%2?4:2);return Math.abs(s*h/3-it.nv)<1e-6},
+text:`Evaluate ${IN(it.lo,it.hi)} ${it.ex} dx`,steps:[
+{q:"Choose u and dv (LIATE):",opts:o4(`u = ${it.u}, dv = ${dvOf(it)}`,[it.f==="1"?`u = 1, dv = ${it.ex} dx`:`u = ${it.f}, dv = ${it.u} dx`,`u = ${it.ex}, dv = dx`.replace(/^u = (.*), dv = dx$/,(m,x)=>x===it.u?`u = 1, dv = ${it.ex} dx`:m),`u = 1, dv = ${it.ex} dx`,`u = x, dv = ${it.ex} dx`]),hint:"u should get simpler when differentiated.",reveal:`u = ${it.u}, dv = ${dvOf(it)}`},
+{q:"Find the antiderivative F(x) using parts:",opts:o4(it.F,oth.map(z=>z.F)),hint:"Apply uv − ∫v du (no + C needed).",reveal:`F(x) = ${it.F}`},
+{q:"Evaluate F(b) − F(a):",opts:o4(it.ans,ua),hint:"Remember e⁰ = 1, ln 1 = 0, sin 0 = 0, cos 0 = 1.",reveal:`F(${it.hi}) − F(${it.lo}) = ${it.ans}`}]}}
+const GEN={p1,p2,p3,p4,p5,p6};
+const NAMES={p1:"Algebraic × exp/trig",p2:"Logarithms",p3:"Inverse trig",p4:"Repeated parts",p5:"Cyclic (eˣ sin x)",p6:"Definite"};
+const EX={
+p1:["LIATE gives the priority for u: Log, Inverse trig, Algebraic, Trig, Exponential. Here u = x (algebraic) because it gets simpler when differentiated, and dv is the rest.","Differentiate u to get du. For u = x, du = dx.","Integrate dv to get v. Don't add + C yet. For e^(ax), v = e^(ax)/a; for sin(ax), v = −cos(ax)/a.","Apply ∫u dv = uv − ∫v du. The new integral has no x in it, so it's easy. Solve it, then add + C."],
+p2:["Logarithms are hard to integrate but easy to differentiate, so u = ln x and dv = xⁿ dx (or just dx).","Differentiate: d(ln x) = dx/x.","Integrate dv: ∫xⁿ dx = xⁿ⁺¹/(n + 1).","uv − ∫v du: the remaining integral ∫ xⁿ dx/(n + 1) is easy, and it creates the −xⁿ⁺¹/(n + 1)² term."],
+p3:["Inverse trig functions can't be integrated directly, so take u = the inverse trig function and dv = dx (so v = x).","Differentiate the inverse trig function. If the argument is ax, don't forget the chain-rule factor a.","Since dv = dx, v = x.","Apply uv − ∫v du, then solve ∫ x·du with a substitution. That gives the ln term (for tan⁻¹) or the square-root term (for sin⁻¹, cos⁻¹)."],
+p4:["x² has to be reduced twice, so u = x² (it becomes 2x, then 2) and dv is the exp/trig factor.","After one application, x² becomes x (with a factor 2), but the integral still needs another round.","The power of x drops by 1 each time, so x² needs two applications.","Combine both rounds. Factor out the common exponential if there is one, and add + C."],
+p5:["Exp × sin/cos never simplifies: after two applications the original integral I comes back. Then we solve for I algebraically.","I appears on both sides: I(1 + a²/b²) = ..., which leads to the denominator a² + b².","The numerator comes from the two rounds: for sin it is a sin bx − b cos bx; for cos it is a cos bx + b sin bx.","Put it together: e^(ax) × numerator ÷ (a² + b²) + C."],
+p6:["Use parts as usual: choose u by LIATE.","Find the antiderivative F(x) by parts (no + C is needed for a definite integral).","Evaluate F(b) − F(a). Be careful with e⁰ = 1, ln 1 = 0, sin 0 = 0 and cos 0 = 1."]};
+let type="p1",P,i,tries,right=0,total=0,locked;
+const $=id=>document.getElementById(id);
+function prep(p){p.steps.forEach(s=>{if(s.ans===undefined)s.ans=s.opts[0]});return p}
+function renderChips(){$("chips").innerHTML=Object.keys(NAMES).map((k,ix)=>`<button class="chip" aria-pressed="${k===type}" data-k="${k}">${ix+1}. ${NAMES[k]}</button>`).join("");
+$("chips").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{type=b.dataset.k;renderChips();start()})}
+function start(){{let t=0,np;do{np=prep(GEN[type]())}while(P&&np.text===P.text&&t++<30);P=np}i=0;tries=0;$("prob").innerHTML=P.text;draw()}
+function dots(){return `<div class="dots">${P.steps.map((_,k)=>`<div class="dot ${k<i?"done":k===i?"cur":""}"></div>`).join("")}</div>`}
+function draw(){const st=$("stage");
+if(i>=P.steps.length){st.innerHTML=`<div class="card final">${dots()}<b>Well done! Problem solved 🎉</b></div><button class="btn" id="nx">New problem</button>`;$("nx").onclick=start;score();return}
+const s=P.steps[i];locked=false;
+st.innerHTML=`<div class="card">${dots()}<p class="q">${s.q}</p>${sh(s.opts).map(o=>`<button class="opt" data-v="${o}">${o}</button>`).join("")}<div class="hint" id="hint"></div><div class="trow" style="margin-top:6px"><button class="tb" id="exp">📖 Explain this step</button></div><div class="tout" id="exout" dir="auto"></div><div class="tutor" id="tutor" hidden><div class="trow"><input id="tq" placeholder="Ask about this step (optional)" maxlength="200"><select id="tl" aria-label="Language"><option value="ar">عربي</option><option value="en">English</option></select><button class="tb" id="ask">💡 Ask the tutor</button></div><div class="tout" id="tout" dir="auto"></div></div></div>`;
+st.querySelectorAll(".opt").forEach(b=>b.onclick=()=>pickOpt(b,s));wireTutor(s)}
+function pickOpt(b,s){if(locked)return;
+if(b.dataset.v===s.ans){locked=true;b.classList.add("good");total++;if(tries===0)right++;
+b.closest(".card").insertAdjacentHTML("beforeend",`<div class="reveal">${s.reveal}</div><button class="btn" id="go">${i===P.steps.length-1?"Finish":"Next step"}</button>`);
+$("go").onclick=()=>{i++;tries=0;draw()};score()}
+else{tries++;b.classList.add("bad");b.disabled=true;$("hint").textContent="Not quite, try again. Hint: "+s.hint}}
+function score(){$("score").textContent=total?`Correct on first try: ${right} of ${total}`:""}
+function exText(){const k=P.key||type;const a=EX[k]||EX[type];return (a&&a[i])||"Review the rule for this step in your notes."}
+const LVN=["Easy","Medium","Hard"];function renderLv(){$("lv").innerHTML=LVN.map((n,k)=>`<button class="chip" aria-pressed="${LV===k+1}" data-l="${k+1}">${n}</button>`).join("");$("lv").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{LV=+b.dataset.l;renderLv();start()})}
+let SAMPLE=null;
+function plain(h){const d=document.createElement("div");d.innerHTML=h;return d.textContent.replace(/\s+/g," ").trim()}
+function wireTutor(s){const e=$("exp");if(e)e.onclick=()=>{$("exout").textContent=exText()};const box=$("tutor");if(!box)return;box.hidden=!SAMPLE;const btn=$("ask");
+btn.onclick=async()=>{if(!SAMPLE)return;const q=$("tq").value.trim(),lang=$("tl").value,out=$("tout");btn.disabled=true;out.textContent="Thinking…";
+const pr=`You are a friendly math tutor for a university student.\nProblem: ${plain(P.text)}\nCurrent step question: ${plain(s.q)}\nAnswer choices: ${s.opts.map(plain).join(" | ")}\nThe student ${locked?"has already answered this step correctly, so you may explain the full reasoning.":"has NOT answered yet. Do NOT state the correct choice or the final number. Give hints and explain the underlying concept so they can decide themselves."}\n${q?"Student's question: "+q:"Explain the idea behind this step simply."}\nReply in ${lang==="ar"?"simple Arabic (keep math notation and technical terms in English)":"simple English"}, under 120 words, plain text, no headings.`;
+try{const r=await SAMPLE(pr,{cache:false,modelTier:"quick",onText:({text})=>{out.textContent=text}});out.textContent=r.text}
+catch(e){out.textContent=e&&e.code==="rate_limited"?"Too many requests, please wait a moment.":"The tutor isn't available right now."}
+finally{btn.disabled=false}}}
+if(window.claude&&window.claude.use){window.claude.use("sample").then(x=>{SAMPLE=x;const b=document.getElementById("tutor");if(b)b.hidden=!SAMPLE}).catch(()=>{})}
+renderLv();renderChips();start();
+</script>
+</body>
+</html>
