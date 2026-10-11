@@ -122,12 +122,12 @@ text:`Evaluate ${IN(it.lo,it.hi)} ${it.ex} dx`,steps:[
 const GEN={p1,p2,p3,p4,p5,p6};
 const NAMES={p1:"Algebraic × exp/trig",p2:"Logarithms",p3:"Inverse trig",p4:"Repeated parts",p5:"Cyclic (eˣ sin x)",p6:"Definite"};
 const EX={
-p1:["LIATE gives the priority for u: Log, Inverse trig, Algebraic, Trig, Exponential. Here u = x (algebraic) because it gets simpler when differentiated, and dv is the rest.","Differentiate u to get du. For u = x, du = dx.","Integrate dv to get v. Don't add + C yet. For e^(ax), v = e^(ax)/a; for sin(ax), v = −cos(ax)/a.","Apply ∫u dv = uv − ∫v du. The new integral has no x in it, so it's easy. Solve it, then add + C."],
-p2:["Logarithms are hard to integrate but easy to differentiate, so u = ln x and dv = xⁿ dx (or just dx).","Differentiate: d(ln x) = dx/x.","Integrate dv: ∫xⁿ dx = xⁿ⁺¹/(n + 1).","uv − ∫v du: the remaining integral ∫ xⁿ dx/(n + 1) is easy, and it creates the −xⁿ⁺¹/(n + 1)² term."],
-p3:["Inverse trig functions can't be integrated directly, so take u = the inverse trig function and dv = dx (so v = x).","Differentiate the inverse trig function. If the argument is ax, don't forget the chain-rule factor a.","Since dv = dx, v = x.","Apply uv − ∫v du, then solve ∫ x·du with a substitution. That gives the ln term (for tan⁻¹) or the square-root term (for sin⁻¹, cos⁻¹)."],
-p4:["x² has to be reduced twice, so u = x² (it becomes 2x, then 2) and dv is the exp/trig factor.","After one application, x² becomes x (with a factor 2), but the integral still needs another round.","The power of x drops by 1 each time, so x² needs two applications.","Combine both rounds. Factor out the common exponential if there is one, and add + C."],
-p5:["Exp × sin/cos never simplifies: after two applications the original integral I comes back. Then we solve for I algebraically.","I appears on both sides: I(1 + a²/b²) = ..., which leads to the denominator a² + b².","The numerator comes from the two rounds: for sin it is a sin bx − b cos bx; for cos it is a cos bx + b sin bx.","Put it together: e^(ax) × numerator ÷ (a² + b²) + C."],
-p6:["Use parts as usual: choose u by LIATE.","Find the antiderivative F(x) by parts (no + C is needed for a definite integral).","Evaluate F(b) − F(a). Be careful with e⁰ = 1, ln 1 = 0, sin 0 = 0 and cos 0 = 1."]};
+p1:["ترتيب LIATE يحدد أولوية اختيار u: Log ثم Inverse trig ثم Algebraic ثم Trig ثم Exp. هنا u = x (جبرية) لأنها تبسط عند الاشتقاق، وdv هو الباقي.","نشتق u لنجد du. لما u = x يكون du = dx.","نكامل dv لنجد v. ما نضيف + C الآن. مثلاً ∫e^(ax) dx = e^(ax)/a و ∫sin(ax) dx = −cos(ax)/a.","نطبق القانون ∫u dv = uv − ∫v du. التكامل الجديد ما فيه x فيصير سهل. نحله ونضيف + C بالنهاية."],
+p2:["اللوغاريتم صعب نكامله بس سهل نشتقه، فنختار u = ln x و dv = xⁿ dx (أو dx فقط).","نشتق: d(ln x) = dx/x.","نكامل dv: ∫xⁿ dx = xⁿ⁺¹/(n + 1).","نطبق uv − ∫v du: التكامل المتبقي ∫xⁿ dx/(n + 1) سهل، وهو اللي يعطينا الحد −xⁿ⁺¹/(n + 1)²."],
+p3:["الدوال المثلثية العكسية ما نقدر نكاملها مباشرة، فنختار u = الدالة العكسية و dv = dx (أي v = x).","نشتق الدالة المثلثية العكسية. لو الزاوية ax لا تنسي معامل قاعدة السلسلة a.","بما أن dv = dx فإن v = x.","نطبق uv − ∫v du، ثم نحل ∫x·du بالتعويض. ينتج حد ln (مع tan⁻¹) أو حد جذر تربيعي (مع sin⁻¹ و cos⁻¹)."],
+p4:["x² لازم ننزل أسها مرتين، فنختار u = x² (تصير 2x ثم 2) وdv هو الجزء الأسّي أو المثلثي.","بعد التطبيق الأول تصير x² إلى x (مع عامل 2)، لكن التكامل ما زال يحتاج جولة ثانية.","أس x ينقص بمقدار 1 كل مرة، فـ x² تحتاج تطبيقين.","نجمع الجولتين. نخرج العامل الأسّي المشترك إن وجد، ونضيف + C."],
+p5:["الأسّي × sin/cos ما يبسط أبداً: بعد تطبيقين يرجع التكامل الأصلي I. عندها نحل لـ I جبرياً.","يظهر I في الطرفين: I(1 + a²/b²) = ...، وهذا يعطينا المقام a² + b².","البسط ينتج من الجولتين: مع sin يكون a sin bx − b cos bx، ومع cos يكون a cos bx + b sin bx.","نجمع: e^(ax) × البسط ÷ (a² + b²) + C."],
+p6:["نستخدم التجزئة كالعادة: نختار u حسب LIATE.","نجد الدالة الأصلية F(x) بالتجزئة (ما نحتاج + C بالتكامل المحدود).","نحسب F(b) − F(a). انتبهي: e⁰ = 1 و ln 1 = 0 و sin 0 = 0 و cos 0 = 1."]};
 let type="p1",P,i,tries,right=0,total=0,locked;
 const $=id=>document.getElementById(id);
 function prep(p){p.steps.forEach(s=>{if(s.ans===undefined)s.ans=s.opts[0]});return p}
@@ -138,7 +138,7 @@ function dots(){return `<div class="dots">${P.steps.map((_,k)=>`<div class="dot 
 function draw(){const st=$("stage");
 if(i>=P.steps.length){st.innerHTML=`<div class="card final">${dots()}<b>Well done! Problem solved 🎉</b></div><button class="btn" id="nx">New problem</button>`;$("nx").onclick=start;score();return}
 const s=P.steps[i];locked=false;
-st.innerHTML=`<div class="card">${dots()}<p class="q">${s.q}</p>${sh(s.opts).map(o=>`<button class="opt" data-v="${o}">${o}</button>`).join("")}<div class="hint" id="hint"></div><div class="trow" style="margin-top:6px"><button class="tb" id="exp">📖 Explain this step</button></div><div class="tout" id="exout" dir="auto"></div><div class="tutor" id="tutor" hidden><div class="trow"><input id="tq" placeholder="Ask about this step (optional)" maxlength="200"><select id="tl" aria-label="Language"><option value="ar">عربي</option><option value="en">English</option></select><button class="tb" id="ask">💡 Ask the tutor</button></div><div class="tout" id="tout" dir="auto"></div></div></div>`;
+st.innerHTML=`<div class="card">${dots()}<p class="q">${s.q}</p>${sh(s.opts).map(o=>`<button class="opt" data-v="${o}">${o}</button>`).join("")}<div class="hint" id="hint"></div><div class="trow" style="margin-top:6px"><button class="tb" id="exp">📖 اشرح هذه الخطوة</button></div><div class="tout" id="exout" dir="auto"></div><div class="tutor" id="tutor" hidden><div class="trow"><input id="tq" placeholder="Ask about this step (optional)" maxlength="200"><select id="tl" aria-label="Language"><option value="ar">عربي</option><option value="en">English</option></select><button class="tb" id="ask">💡 Ask the tutor</button></div><div class="tout" id="tout" dir="auto"></div></div></div>`;
 st.querySelectorAll(".opt").forEach(b=>b.onclick=()=>pickOpt(b,s));wireTutor(s)}
 function pickOpt(b,s){if(locked)return;
 if(b.dataset.v===s.ans){locked=true;b.classList.add("good");total++;if(tries===0)right++;
@@ -146,7 +146,7 @@ b.closest(".card").insertAdjacentHTML("beforeend",`<div class="reveal">${s.revea
 $("go").onclick=()=>{i++;tries=0;draw()};score()}
 else{tries++;b.classList.add("bad");b.disabled=true;$("hint").textContent="Not quite, try again. Hint: "+s.hint}}
 function score(){$("score").textContent=total?`Correct on first try: ${right} of ${total}`:""}
-function exText(){const k=P.key||type;const a=EX[k]||EX[type];return (a&&a[i])||"Review the rule for this step in your notes."}
+function exText(){const k=P.key||type;const a=EX[k]||EX[type];return (a&&a[i])||"راجعي قانون هذه الخطوة في ملاحظاتك."}
 const LVN=["Easy","Medium","Hard"];function renderLv(){$("lv").innerHTML=LVN.map((n,k)=>`<button class="chip" aria-pressed="${LV===k+1}" data-l="${k+1}">${n}</button>`).join("");$("lv").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{LV=+b.dataset.l;renderLv();start()})}
 let SAMPLE=null;
 function plain(h){const d=document.createElement("div");d.innerHTML=h;return d.textContent.replace(/\s+/g," ").trim()}
