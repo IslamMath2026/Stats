@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Matrices Step-by-Step</title>
+<style>
+:root{--bg:#f6f7f4;--card:#fff;--ink:#1d2b2a;--mute:#66736f;--line:#dbe1dc;--acc:#0f6b5c;--accbg:#e1f1ed;--ok:#1b7f4b;--okbg:#e2f4ea;--bad:#b3341f;--badbg:#fbe9e5;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12191a;--card:#1b2526;--ink:#e8efec;--mute:#93a29d;--line:#2d3b3c;--acc:#4fc3ad;--accbg:#173a35;--ok:#5fd394;--okbg:#17362a;--bad:#ff8a73;--badbg:#3b201b}}
+:root[data-theme="dark"]{--bg:#12191a;--card:#1b2526;--ink:#e8efec;--mute:#93a29d;--line:#2d3b3c;--acc:#4fc3ad;--accbg:#173a35;--ok:#5fd394;--okbg:#17362a;--bad:#ff8a73;--badbg:#3b201b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.6;font-size:17px}
+main{max-width:600px;margin:0 auto;padding:18px 16px 40px}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:var(--mute);margin:0 0 14px;font-size:15px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:7px 14px;border-radius:99px;font:inherit;font-size:15px;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.prob{font-size:17px;font-weight:600}
+.scroll{overflow-x:auto;margin:8px 0 0}
+table{border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:15px;font-weight:400}
+th,td{border:1px solid var(--line);padding:4px 10px;text-align:center}
+th{background:var(--accbg)}
+.dots{display:flex;gap:6px;margin:0 0 12px}
+.dot{height:6px;flex:1;border-radius:3px;background:var(--line)}
+.dot.done{background:var(--ok)}.dot.cur{background:var(--acc)}
+.q{font-weight:600;margin:0 0 10px}
+.opt{display:block;width:100%;text-align:start;border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:11px 14px;border-radius:10px;margin-bottom:8px;font:inherit;cursor:pointer}
+.opt:focus-visible,.chip:focus-visible,.btn:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.opt.bad{background:var(--badbg);border-color:var(--bad);color:var(--bad)}
+.opt.good{background:var(--okbg);border-color:var(--ok);color:var(--ok)}
+.hint{color:var(--bad);font-size:15px;margin:2px 0 8px}
+.reveal{background:var(--accbg);border-radius:10px;padding:10px 14px;margin:0 0 10px;font-size:16px}
+.btn{border:0;background:var(--acc);color:#fff;padding:12px 18px;border-radius:10px;font:inherit;font-weight:600;cursor:pointer;width:100%}
+.final{text-align:center}.final b{font-size:20px}
+.score{color:var(--mute);font-size:14px;text-align:center;margin-top:8px}
+.tutor{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}.tutor[hidden]{display:none}.trow{display:flex;gap:6px;flex-wrap:wrap}.trow input,.trow select{border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;font-size:15px;background:var(--card);color:var(--ink)}.trow input{flex:1;min-width:150px}.tb{border:1.5px solid var(--acc);background:transparent;color:var(--acc);padding:8px 12px;border-radius:10px;font:inherit;font-size:15px;cursor:pointer}.tb:disabled{opacity:.6}.tout{white-space:pre-wrap;margin-top:8px;font-size:16px;background:var(--accbg);border-radius:10px;padding:10px 12px}.tout:empty{display:none}.lvl{color:var(--mute);font-size:14px;margin:0 0 6px}.mt{border-collapse:collapse;display:inline-table;vertical-align:middle;margin:2px 6px;border-left:2px solid currentColor;border-right:2px solid currentColor;border-radius:5px}.mt td{border:0;padding:1px 8px;text-align:center;font-variant-numeric:tabular-nums;font-weight:500}</style>
+</head>
+<body>
+<main>
+<h1>Linear Algebra: Matrices</h1>
+<p class="sub">Pick a topic and answer each step before it's revealed.</p>
+<div class="lvl">Level</div><div class="chips" id="lv"></div><div class="lvl">Topic (suggested order 1 → 8)</div><div class="chips" id="chips"></div>
+<div class="card"><div class="prob" id="prob"></div></div>
+<div id="stage"></div>
+<div class="score" id="score"></div>
+</main>
+<script>
+const R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const sh=a=>[...a].sort(()=>Math.random()-.5);
+const f=x=>String(+x.toFixed(3));
+function numOpts(c,d=1){const s=new Set([f(c)]);let t=0;while(s.size<4&&t++<150)s.add(f(c+R(1,4)*d*(Math.random()<.5?-1:1)));return [...s]}
+function o4(c,alts,n=4){const s=[c];alts.forEach(a=>{if(!s.includes(a)&&s.length<n)s.push(a)});return s}
+let LV=1;
+const pickLV=arr=>{const l=arr[LV-1];return l[R(0,l.length-1)]};
+const M=rows=>"M:"+rows.map(r=>r.join(",")).join(";");
+const sg=v=>String(v).replace("-","−");
+const H=rows=>`<table class="mt">${rows.map(r=>`<tr>${r.map(v=>`<td>${sg(v)}</td>`).join("")}</tr>`).join("")}</table>`;
+function fm(o){if(typeof o==="string"&&o.startsWith("M:"))return H(o.slice(2).split(";").map(r=>r.split(",")));return o}
+const rnd=(r,c,lo,hi)=>Array.from({length:r},()=>Array.from({length:c},()=>R(lo,hi)));
+const mapM=(A,g)=>A.map((r,i)=>r.map((v,j)=>g(v,i,j)));
+const zip=(A,B,g)=>A.map((r,i)=>r.map((v,j)=>g(v,B[i][j])));
+const T=A=>A[0].map((_,j)=>A.map(r=>r[j]));
+const ordS=(r,c)=>`${r} × ${c}`;
+const eq=(A,B)=>JSON.stringify(A)===JSON.stringify(B);
+const perturb=A=>{let B;do{B=A.map(r=>[...r]);const i=R(0,A.length-1),j=R(0,A[0].length-1);B[i][j]+=R(1,2)*(Math.random()<.5?-1:1)}while(eq(A,B));return B};
+const fill=(c,cands)=>o4(f(c),[...cands.map(f),...numOpts(c,1).slice(1)]);
+const matOpts=(C,alts)=>o4(M(C),[...alts,perturb(C),perturb(C),perturb(C)].filter(a=>!eq(a,C)).map(M));
+const orderOpts=(r,c)=>o4(ordS(r,c),[ordS(c,r),ordS(r+1,c),`${r*c}`,`${r} + ${c}`]);
+function mx1(){const r=LV===1?2:LV===2?R(2,3):R(3,4);let c=LV===1?3:LV===2?R(3,4):R(2,4);if(c===r)c++;
+const A=rnd(r,c,1,9),i=R(1,r),j=R(1,c),v=A[i-1][j-1],cand=[];if(j<=r&&i<=c)cand.push(A[j-1][i-1]);cand.push(A[i-1][j%c],A[i%r][j-1]);
+return{key:"mx1",chk:()=>A.flat().length===r*c&&A[i-1][j-1]===v,text:`Consider A = ${H(A)}`,steps:[
+{q:"What is the order of A?",opts:orderOpts(r,c),hint:"Order = number of rows × number of columns.",reveal:`${r} rows and ${c} columns → order ${ordS(r,c)}`},
+{q:"How many elements does A have?",opts:numOpts(r*c,1),hint:"rows × columns",reveal:`${r} × ${c} = ${r*c}`},
+{q:`What is a<sub>${i}${j}</sub> (row ${i}, column ${j})?`,opts:fill(v,cand),hint:"First index = row, second index = column.",reveal:`a<sub>${i}${j}</sub> = ${v}`}]}}
+function mkType(t){const n=R(2,3),z=(r,c)=>Array.from({length:r},()=>Array(c).fill(0));
+if(t==="row"){const c=R(3,4);return{A:[rnd(1,c,-5,9)[0].map(v=>v||2)],name:"Row matrix",alts:["Column matrix","Square matrix","Zero matrix"]}}
+if(t==="column"){const r=R(3,4);return{A:rnd(r,1,-5,9).map(x=>[x[0]||3]),name:"Column matrix",alts:["Row matrix","Square matrix","Zero matrix"]}}
+if(t==="rect"){const r=R(2,3),c=r+R(1,2);return{A:rnd(r,c,1,9),name:"Rectangular matrix",alts:["Square matrix","Row matrix","Column matrix"]}}
+if(t==="square"){const A=rnd(n,n,1,9);A[0][1]=A[0][1]||1;if(A[0][1]===A[1][0])A[0][1]++;return{A,name:"Square matrix",alts:["Diagonal matrix","Scalar matrix","Identity matrix"]}}
+if(t==="zero")return{A:z(2,R(2,3)),name:"Zero matrix",alts:["Identity matrix","Row matrix","Column matrix"]};
+if(t==="diagonal"){const A=z(n,n);const d=sh([2,3,4,5,-1,-2,7]).slice(0,n);d.forEach((v,i)=>A[i][i]=v);return{A,name:"Diagonal matrix",alts:["Scalar matrix","Identity matrix","Square matrix"]}}
+if(t==="scalar"){const k=sh([2,3,4,5,-2,-3,7])[0],A=z(n,n);for(let i=0;i<n;i++)A[i][i]=k;return{A,name:"Scalar matrix",alts:["Diagonal matrix","Identity matrix","Square matrix"]}}
+const A=z(n,n);for(let i=0;i<n;i++)A[i][i]=1;return{A,name:"Identity matrix",alts:["Scalar matrix","Diagonal matrix","Square matrix"]}}
+function mx2(){const t=pickLV([["row","column","rect","square"],["row","column","rect","square","zero","diagonal"],["diagonal","scalar","identity","zero","square"]]),{A,name,alts}=mkType(t),r=A.length,c=A[0].length;
+return{key:"mx2",chk:()=>true,text:`What is the most specific name for A = ${H(A)} ?`,steps:[
+{q:"What is the order of A?",opts:orderOpts(r,c),hint:"rows × columns",reveal:`order = ${ordS(r,c)}`},
+{q:"Choose the most specific name for A:",opts:o4(name,alts),hint:"Zero: all 0. Diagonal: non-diagonal entries are 0. Scalar: diagonal entries equal. Identity: diagonal entries all 1.",reveal:name}]}}
+function mx3(){const x=R(-3,6),y=R(-3,6),p=R(1,9),q=R(1,9);
+if(LV<3){const a=R(1,5),c=R(1,5),k1=LV===1?1:R(2,3),k2=LV===1?1:R(2,3),X=k1*x+a,Y=k2*y-c,s1=k1===1?"x":k1+"x",s2=k2===1?"y":k2+"y";
+const A=[[`${s1} + ${a}`,p],[q,`${s2} − ${c}`]],B=[[X,p],[q,Y]];
+return{key:"mx3",chk:()=>k1*x+a===X&&k2*y-c===Y,text:`If A = B, where A = ${H(A)} and B = ${H(B)}, find x + y.`,steps:[
+{q:"When are two matrices equal?",opts:["Same order and all corresponding elements equal","Only the orders are equal","Only the first elements are equal","They must contain the same numbers in any place"],hint:"Compare element by element.",reveal:"Same order, and each element equals the corresponding element."},
+{q:`From the top-left elements: ${s1} + ${a} = ${X}. What is x?`,opts:numOpts(x,1),hint:`${s1} = ${X} − ${a}`,reveal:`x = ${x}`},
+{q:`From the bottom-right elements: ${s2} − ${c} = ${Y}. What is y?`,opts:numOpts(y,1),hint:`${s2} = ${Y} + ${c}`,reveal:`y = ${y}`},
+{q:"What is x + y?",opts:numOpts(x+y,1),hint:"Add the two values.",reveal:`x + y = ${x+y}`}]}}
+const s=2*x-y,t=x+y,A=[["2x − y",p],[q,"x + y"]],B=[[s,p],[q,t]];
+return{key:"mx3b",chk:()=>2*x-y===s&&x+y===t,text:`If A = B, where A = ${H(A)} and B = ${H(B)}, find x + y.`,steps:[
+{q:"When are two matrices equal?",opts:["Same order and all corresponding elements equal","Only the orders are equal","Only the first elements are equal","They must contain the same numbers in any place"],hint:"Compare element by element.",reveal:"Same order, and each element equals the corresponding element."},
+{q:"Which equations do we get?",opts:[`2x − y = ${s} and x + y = ${t}`,`2x + y = ${s} and x − y = ${t}`,`2x − y = ${t} and x + y = ${s}`,`x − 2y = ${s} and x + y = ${t}`],hint:"Match top-left with top-left, bottom-right with bottom-right.",reveal:`2x − y = ${s}  and  x + y = ${t}`},
+{q:"Solve the two equations. What is x? (Hint: add them.)",opts:numOpts(x,1),hint:`3x = ${s} + ${t}`,reveal:`3x = ${s+t} → x = ${x}`},
+{q:"What is y?",opts:numOpts(y,1),hint:`y = ${t} − x`,reveal:`y = ${t} − ${x} = ${y}`},
+{q:"What is x + y?",opts:numOpts(x+y,1),hint:"Add the two values.",reveal:`x + y = ${t}`}]}}
+function mx4(){const [r,c,lo]=pickLV([[2,2,1],[2,3,-5],[3,3,-9]]),A=rnd(r,c,lo,9),B=rnd(r,c,lo,9),op=LV===1?"+":(Math.random()<.5?"+":"−"),g=op==="+"?(a,b)=>a+b:(a,b)=>a-b,C=zip(A,B,g);
+const other=zip(A,B,op==="+"?(a,b)=>a-b:(a,b)=>a+b);
+return{key:"mx4",chk:()=>C[0][0]===g(A[0][0],B[0][0]),text:`Find A ${op} B, where A = ${H(A)} and B = ${H(B)}`,steps:[
+{q:"Can we add or subtract A and B?",opts:[`Yes, both have the same order ${ordS(r,c)}`,"No, the orders are different","Only if the matrices are square","Only if one of them is zero"],hint:"Addition and subtraction need the same order.",reveal:`Both are ${ordS(r,c)}, so yes.`},
+{q:`What is the top-left element of A ${op} B?`,opts:numOpts(C[0][0],1),hint:`${A[0][0]} ${op} ${B[0][0]}`,reveal:`${A[0][0]} ${op} (${B[0][0]}) = ${C[0][0]}`},
+{q:`What is A ${op} B?`,opts:matOpts(C,[other,op==="−"?zip(B,A,(b,a)=>b-a):[]].filter(m=>m.length)),hint:"Do it element by element.",reveal:H(C)}]}}
+function mx5(){const [r,c,lo,ks]=pickLV([[2,2,1,[2,3]],[2,3,-5,[-1,-2,3,4]],[3,3,-5,[-3,-2,4,5]]]),A=rnd(r,c,lo,9),k=ks[R(0,ks.length-1)],C=mapM(A,v=>k*v);
+return{key:"mx5",chk:()=>C[0][0]===k*A[0][0],text:`Find ${k}A, where A = ${H(A)}`,steps:[
+{q:`What is the order of ${k}A?`,opts:orderOpts(r,c),hint:"Scalar multiplication doesn't change the order.",reveal:`Same as A: ${ordS(r,c)}`},
+{q:`What is the top-left element of ${k}A?`,opts:numOpts(C[0][0],Math.max(1,Math.abs(k))),hint:`${k} × ${A[0][0]}`,reveal:`${k} × (${A[0][0]}) = ${C[0][0]}`},
+{q:`What is ${k}A?`,opts:matOpts(C,[mapM(A,v=>v+k),A.map((row,i)=>row.map(v=>i===0?k*v:v))]),hint:"Multiply EVERY element by the scalar.",reveal:H(C)}]}}
+function mx6(){const [r,c]=pickLV([[2,3],[3,R(2,3)],[3,4]]),A=rnd(r,c,-5,9),B=T(A),i=R(1,c),j=R(1,r);
+return{key:"mx6",chk:()=>B[i-1][j-1]===A[j-1][i-1]&&B.length===c,text:`Find A<sup>T</sup>, where A = ${H(A)}`,steps:[
+{q:"What is the order of A<sup>T</sup>?",opts:orderOpts(c,r),hint:`A is ${ordS(r,c)}; rows and columns swap.`,reveal:`${ordS(c,r)}`},
+{q:`What is the element in row ${i}, column ${j} of A<sup>T</sup>?`,opts:fill(B[i-1][j-1],[A[i-1]&&A[i-1][j-1],A[j-1][i-1]===B[i-1][j-1]?null:A[j-1][i-1]].filter(v=>v!==undefined&&v!==null&&v!==B[i-1][j-1])),hint:`It equals the element in row ${j}, column ${i} of A.`,reveal:`A<sup>T</sup>[${i},${j}] = A[${j},${i}] = ${B[i-1][j-1]}`},
+{q:"What is A<sup>T</sup>?",opts:matOpts(B,[A,B.map(r=>[...r].reverse())]),hint:"Rows of A become columns of A<sup>T</sup>.",reveal:H(B)}]}}
+function mx7(){const tp=R(0,2);
+if(LV===1){const n=R(2,3);let A=rnd(n,n,1,9),kind;if(tp===0){kind="Symmetric";for(let i=0;i<n;i++)for(let j=0;j<i;j++)A[i][j]=A[j][i]}else if(tp===1){kind="Skew-symmetric";for(let i=0;i<n;i++){A[i][i]=0;for(let j=0;j<i;j++)A[i][j]=-A[j][i]}}else{kind="Neither";A[0][1]=A[0][1]+1;if(A[1][0]===A[0][1])A[1][0]++;if(A[1][0]===-A[0][1])A[1][0]+=2}
+if(kind==="Skew-symmetric"&&A[0][1]===0)A[0][1]=A[1][0]=0,A[0][1]=3,A[1][0]=-3;
+const At=T(A),lab={Symmetric:"Symmetric (A<sup>T</sup> = A)","Skew-symmetric":"Skew-symmetric (A<sup>T</sup> = −A)",Neither:"Neither"};
+return{key:"mx7a",chk:()=>kind==="Symmetric"?eq(At,A):kind==="Skew-symmetric"?eq(At,mapM(A,v=>-v)):(!eq(At,A)&&!eq(At,mapM(A,v=>-v))),text:`Is A = ${H(A)} symmetric, skew-symmetric, or neither?`,steps:[
+{q:"What is A<sup>T</sup>?",opts:matOpts(At,[A,mapM(A,v=>-v)]),hint:"Swap rows and columns.",reveal:H(At)},
+{q:"Compare A<sup>T</sup> with A and −A. What is A?",opts:o4(lab[kind],Object.values(lab).filter(v=>v!==lab[kind]).concat(["Both symmetric and skew-symmetric"])),hint:"A<sup>T</sup> = A → symmetric. A<sup>T</sup> = −A → skew-symmetric.",reveal:lab[kind]}]}}
+if(LV===2){const a=R(1,9),b=R(-4,9),d=R(1,9);const A=[[a,"x"],[b,d]];
+return{key:"mx7b",chk:()=>true,text:`Find x so that A = ${H(A)} is symmetric.`,steps:[
+{q:"What does 'symmetric' mean?",opts:["A<sup>T</sup> = A, so a<sub>ij</sub> = a<sub>ji</sub>","A<sup>T</sup> = −A","Only the diagonal must be equal","All elements must be equal"],hint:"Symmetric across the main diagonal.",reveal:"A<sup>T</sup> = A, so a<sub>ij</sub> = a<sub>ji</sub>"},
+{q:"Which element must equal x (= a<sub>12</sub>)?",opts:["a<sub>21</sub>","a<sub>11</sub>","a<sub>22</sub>","−a<sub>21</sub>"],hint:"a<sub>12</sub> = a<sub>21</sub>.",reveal:`a<sub>21</sub> = ${b}`},
+{q:"What is x?",opts:numOpts(b,1),hint:"x = a₂₁",reveal:`x = ${b}`}]}}
+const a=R(1,5),b=R(1,5),c=R(1,5);const A=[["p",a,b],["q","r",c],["d","e","s"]];
+return{key:"mx7c",chk:()=>true,text:`The matrix A = ${H(A)} is skew-symmetric. Find q + d + e.`,steps:[
+{q:"What must the diagonal entries p, r, s be?",opts:["0","1",String(a),String(-a)],hint:"a<sub>ii</sub> = −a<sub>ii</sub> forces a<sub>ii</sub> = 0.",reveal:"p = r = s = 0"},
+{q:`a<sub>12</sub> = ${a}. What is q (= a<sub>21</sub>)?`,opts:numOpts(-a,1),hint:"a<sub>ji</sub> = −a<sub>ij</sub>",reveal:`q = −${a}`},
+{q:"What is q + d + e?",opts:numOpts(-(a+b+c),1),hint:`q = −${a}, d = −${b}, e = −${c}`,reveal:`q + d + e = ${-(a+b+c)}`}]}}
+function mx8(){if(LV===3){const n=R(2,3),A=rnd(n,n,-4,9),At=T(A),S=zip(A,At,(a,b)=>a+b);
+return{key:"mx8b",chk:()=>eq(S,T(S)),text:`Find A + A<sup>T</sup>, where A = ${H(A)}`,steps:[
+{q:"What is A<sup>T</sup>?",opts:matOpts(At,[A,mapM(A,v=>-v)]),hint:"Swap rows and columns.",reveal:H(At)},
+{q:"What is A + A<sup>T</sup>?",opts:matOpts(S,[zip(A,At,(a,b)=>a-b),mapM(A,v=>2*v)]),hint:"Add element by element.",reveal:H(S)}]}}
+const r=2,c=LV===1?2:3,A=rnd(r,c,-4,9),B=rnd(r,c,-4,9),k=LV===1?2:3,m=LV===1?1:2,op=LV===1?"+":"−",g=op==="+"?(a,b)=>a+b:(a,b)=>a-b,KA=mapM(A,v=>k*v),MB=mapM(B,v=>m*v),C=zip(KA,MB,g);
+const ts=m===1?"B":`${m}B`;
+return{key:"mx8",chk:()=>C[0][0]===g(k*A[0][0],m*B[0][0]),text:`Find ${k}A ${op} ${ts}, where A = ${H(A)} and B = ${H(B)}`,steps:[
+{q:`What is ${k}A?`,opts:matOpts(KA,[mapM(A,v=>v+k)]),hint:"Multiply every element by "+k+".",reveal:H(KA)},
+{q:`What is ${ts}?`,opts:m===1?matOpts(B,[mapM(B,v=>-v)]):matOpts(MB,[mapM(B,v=>v+m)]),hint:m===1?"B is unchanged.":`Multiply every element by ${m}.`,reveal:H(MB)},
+{q:`What is ${k}A ${op} ${ts}?`,opts:matOpts(C,[zip(KA,MB,op==="+"?(a,b)=>a-b:(a,b)=>a+b),zip(MB,KA,(b,a)=>b-a)]),hint:`Element by element${op==="−"?", in this order (not reversed)":""}.`,reveal:H(C)}]}}
+const GEN={mx1,mx2,mx3,mx4,mx5,mx6,mx7,mx8};
+const NAMES={mx1:"Order & elements",mx2:"Types of matrices",mx3:"Equality (find x, y)",mx4:"Add & subtract",mx5:"Scalar multiple",mx6:"Transpose",mx7:"Symmetric / skew",mx8:"Mixed operations"};
+const EXC="نفس الفكرة: نقارن كل عنصر بمقابله.";
+const EX={
+mx1:["رتبة المصفوفة = عدد الصفوف × عدد الأعمدة (الصفوف أولاً). مثلاً مصفوفة بصفين و3 أعمدة رتبتها 2 × 3.","عدد العناصر = عدد الصفوف × عدد الأعمدة.","العنصر a<sub>ij</sub>: الرقم الأول i هو رقم الصف، والثاني j هو رقم العمود."],
+mx2:["نحدد الرتبة أولاً: صف واحد (Row)، عمود واحد (Column)، عدد الصفوف = عدد الأعمدة (Square)، أو مختلفان (Rectangular).","نبحث عن الاسم الأدق: Zero (كل العناصر 0)، Diagonal (العناصر خارج القطر أصفار)، Scalar (قطرية وعناصر القطر متساوية)، Identity (قياسية وعناصر القطر كلها 1)."],
+mx3:["مصفوفتان متساويتان إذا كانت لهما نفس الرتبة وكل عنصر يساوي العنصر المقابل له.","نساوي العنصرين المقابلين ونحل المعادلة لإيجاد x.","نفس الفكرة لإيجاد y من العنصرين المقابلين الآخرين.","نجمع القيمتين لنجد x + y."],
+mx3b:["مصفوفتان متساويتان إذا كانت لهما نفس الرتبة وكل عنصر يساوي العنصر المقابل له.","نساوي كل عنصر بمقابله فنحصل على معادلتين فيهما x و y.","نحل المعادلتين معاً (بالجمع أو التعويض) لإيجاد x.","نعوّض قيمة x في إحدى المعادلتين لإيجاد y.","نجمع القيمتين."],
+mx4:["الجمع والطرح ممكنان فقط إذا كانت للمصفوفتين نفس الرتبة، والناتج له نفس الرتبة.","نجمع (أو نطرح) العنصرين المقابلين في الصف الأول والعمود الأول.","نكرر على كل عنصر، وانتبهي للإشارة السالبة عند الطرح (A − B ليس B − A)."],
+mx5:["ضرب المصفوفة بعدد k لا يغيّر رتبتها.","نضرب k في كل عنصر من المصفوفة. انتبهي لقواعد الإشارات.","نكتب كل العناصر بعد الضرب، ولا نضرب صفاً واحداً فقط ولا نجمع k."],
+mx6:["المدور Aᵀ يبدّل الصفوف بالأعمدة: إذا كانت رتبة A هي m × n فرتبة Aᵀ هي n × m.","العنصر في الصف i والعمود j من Aᵀ هو نفسه العنصر في الصف j والعمود i من A.","الصف الأول من A يصير العمود الأول من Aᵀ، والصف الثاني يصير العمود الثاني، وهكذا."],
+mx7a:["نكتب Aᵀ بتبديل الصفوف بالأعمدة.","إذا كانت Aᵀ = A فهي Symmetric. وإذا كانت Aᵀ = −A فهي Skew-symmetric. وإلا فلا هذا ولا ذاك."],
+mx7b:["المصفوفة المتماثلة تحقق Aᵀ = A، أي أن a_ij = a_ji.","العنصر المجهول يقابله العنصر المتناظر عبر القطر.","نأخذ قيمة العنصر المتناظر فتكون هي قيمة المجهول."],
+mx7c:["في المصفوفة Skew-symmetric عناصر القطر كلها أصفار، لأن a_ii = −a_ii.","a_ji = −a_ij، فالعنصر المقابل يساوي سالب العنصر المعطى.","نجمع القيم المطلوبة بعد إيجاد كل مجهول."],
+mx8:["نضرب المصفوفة الأولى بالعدد k أولاً.","نضرب المصفوفة الثانية بالعدد m.","نجمع (أو نطرح) العنصرين المقابلين بعد الضرب، وبنفس الترتيب."],
+mx8b:["نكتب المدور Aᵀ أولاً.","نجمع A + Aᵀ عنصراً بعنصر. الناتج دائماً مصفوفة متماثلة."]};
+let type="mx1",P,i,tries,right=0,total=0,locked;
+const $=id=>document.getElementById(id);
+function prep(p){p.steps.forEach(s=>{if(s.ans===undefined)s.ans=s.opts[0]});return p}
+function renderChips(){$("chips").innerHTML=Object.keys(NAMES).map((k,ix)=>`<button class="chip" aria-pressed="${k===type}" data-k="${k}">${ix+1}. ${NAMES[k]}</button>`).join("");
+$("chips").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{type=b.dataset.k;renderChips();start()})}
+function start(){{let t=0,np;do{np=prep(GEN[type]())}while(P&&np.text===P.text&&t++<30);P=np}i=0;tries=0;$("prob").innerHTML=P.text;draw()}
+function dots(){return `<div class="dots">${P.steps.map((_,k)=>`<div class="dot ${k<i?"done":k===i?"cur":""}"></div>`).join("")}</div>`}
+function draw(){const st=$("stage");
+if(i>=P.steps.length){st.innerHTML=`<div class="card final">${dots()}<b>Well done! Problem solved 🎉</b></div><button class="btn" id="nx">New problem</button>`;$("nx").onclick=start;score();return}
+const s=P.steps[i];locked=false;
+st.innerHTML=`<div class="card">${dots()}<p class="q">${s.q}</p>${sh(s.opts).map(o=>`<button class="opt" data-v="${o}">${fm(o)}</button>`).join("")}<div class="hint" id="hint"></div><div class="trow" style="margin-top:6px"><button class="tb" id="exp">📖 اشرح هذه الخطوة</button></div><div class="tout" id="exout" dir="auto"></div><div class="tutor" id="tutor" hidden><div class="trow"><input id="tq" placeholder="Ask about this step (optional)" maxlength="200"><select id="tl" aria-label="Language"><option value="ar">عربي</option><option value="en">English</option></select><button class="tb" id="ask">💡 Ask the tutor</button></div><div class="tout" id="tout" dir="auto"></div></div></div>`;
+st.querySelectorAll(".opt").forEach(b=>b.onclick=()=>pickOpt(b,s));wireTutor(s)}
+function pickOpt(b,s){if(locked)return;
+if(b.dataset.v===s.ans){locked=true;b.classList.add("good");total++;if(tries===0)right++;
+b.closest(".card").insertAdjacentHTML("beforeend",`<div class="reveal">${s.reveal}</div><button class="btn" id="go">${i===P.steps.length-1?"Finish":"Next step"}</button>`);
+$("go").onclick=()=>{i++;tries=0;draw()};score()}
+else{tries++;b.classList.add("bad");b.disabled=true;$("hint").textContent="Not quite, try again. Hint: "+s.hint}}
+function score(){$("score").textContent=total?`Correct on first try: ${right} of ${total}`:""}
+function exText(){const k=P.key||type;const a=EX[k]||EX[type];return (a&&a[i])||"راجعي قانون هذه الخطوة في ملاحظاتك."}
+const LVN=["Easy","Medium","Hard"];function renderLv(){$("lv").innerHTML=LVN.map((n,k)=>`<button class="chip" aria-pressed="${LV===k+1}" data-l="${k+1}">${n}</button>`).join("");$("lv").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{LV=+b.dataset.l;renderLv();start()})}
+let SAMPLE=null;
+function plain(h){const d=document.createElement("div");d.innerHTML=h;return d.textContent.replace(/\s+/g," ").trim()}
+function wireTutor(s){const e=$("exp");if(e)e.onclick=()=>{$("exout").textContent=exText()};const box=$("tutor");if(!box)return;box.hidden=!SAMPLE;const btn=$("ask");
+btn.onclick=async()=>{if(!SAMPLE)return;const q=$("tq").value.trim(),lang=$("tl").value,out=$("tout");btn.disabled=true;out.textContent="Thinking…";
+const pr=`You are a friendly math tutor for a university student.\nProblem: ${plain(P.text)}\nCurrent step question: ${plain(s.q)}\nAnswer choices: ${s.opts.map(plain).join(" | ")}\nThe student ${locked?"has already answered this step correctly, so you may explain the full reasoning.":"has NOT answered yet. Do NOT state the correct choice or the final number. Give hints and explain the underlying concept so they can decide themselves."}\n${q?"Student's question: "+q:"Explain the idea behind this step simply."}\nReply in ${lang==="ar"?"simple Arabic (keep math notation and technical terms in English)":"simple English"}, under 120 words, plain text, no headings.`;
+try{const r=await SAMPLE(pr,{cache:false,modelTier:"quick",onText:({text})=>{out.textContent=text}});out.textContent=r.text}
+catch(e){out.textContent=e&&e.code==="rate_limited"?"Too many requests, please wait a moment.":"The tutor isn't available right now."}
+finally{btn.disabled=false}}}
+if(window.claude&&window.claude.use){window.claude.use("sample").then(x=>{SAMPLE=x;const b=document.getElementById("tutor");if(b)b.hidden=!SAMPLE}).catch(()=>{})}
+renderLv();renderChips();start();
+</script>
+</body>
+</html>
