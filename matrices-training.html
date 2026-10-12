@@ -37,7 +37,7 @@ th{background:var(--accbg)}
 .btn{border:0;background:var(--acc);color:#fff;padding:12px 18px;border-radius:10px;font:inherit;font-weight:600;cursor:pointer;width:100%}
 .final{text-align:center}.final b{font-size:20px}
 .score{color:var(--mute);font-size:14px;text-align:center;margin-top:8px}
-.tutor{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}.tutor[hidden]{display:none}.trow{display:flex;gap:6px;flex-wrap:wrap}.trow input,.trow select{border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;font-size:15px;background:var(--card);color:var(--ink)}.trow input{flex:1;min-width:150px}.tb{border:1.5px solid var(--acc);background:transparent;color:var(--acc);padding:8px 12px;border-radius:10px;font:inherit;font-size:15px;cursor:pointer}.tb:disabled{opacity:.6}.tout{white-space:pre-wrap;margin-top:8px;font-size:16px;background:var(--accbg);border-radius:10px;padding:10px 12px}.tout:empty{display:none}.lvl{color:var(--mute);font-size:14px;margin:0 0 6px}.mt{border-collapse:collapse;display:inline-table;vertical-align:middle;margin:2px 6px;border-left:2px solid currentColor;border-right:2px solid currentColor;border-radius:5px}.mt td{border:0;padding:1px 8px;text-align:center;font-variant-numeric:tabular-nums;font-weight:500}</style>
+.tutor{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}.tutor[hidden]{display:none}.trow{display:flex;gap:6px;flex-wrap:wrap}.trow input,.trow select{border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;font-size:15px;background:var(--card);color:var(--ink)}.trow input{flex:1;min-width:150px}.tb{border:1.5px solid var(--acc);background:transparent;color:var(--acc);padding:8px 12px;border-radius:10px;font:inherit;font-size:15px;cursor:pointer}.tb:disabled{opacity:.6}.tout{white-space:pre-wrap;margin-top:8px;font-size:16px;background:var(--accbg);border-radius:10px;padding:10px 12px}.tout:empty{display:none}.lvl{color:var(--mute);font-size:14px;margin:0 0 6px}.mt{border-collapse:collapse;display:inline-table;vertical-align:middle;margin:2px 6px;border-left:2px solid currentColor;border-right:2px solid currentColor;background:linear-gradient(currentColor,currentColor) left top/7px 2px no-repeat,linear-gradient(currentColor,currentColor) left bottom/7px 2px no-repeat,linear-gradient(currentColor,currentColor) right top/7px 2px no-repeat,linear-gradient(currentColor,currentColor) right bottom/7px 2px no-repeat}.mt td{border:0;padding:1px 8px;text-align:center;font-variant-numeric:tabular-nums;font-weight:500}</style>
 </head>
 <body>
 <main>
@@ -56,6 +56,7 @@ function numOpts(c,d=1){const s=new Set([f(c)]);let t=0;while(s.size<4&&t++<150)
 function o4(c,alts,n=4){const s=[c];alts.forEach(a=>{if(!s.includes(a)&&s.length<n)s.push(a)});return s}
 let LV=1;
 const pickLV=arr=>{const l=arr[LV-1];return l[R(0,l.length-1)]};
+const lv=arr=>arr[LV-1];
 const M=rows=>"M:"+rows.map(r=>r.join(",")).join(";");
 const sg=v=>String(v).replace("-","−");
 const H=rows=>`<table class="mt">${rows.map(r=>`<tr>${r.map(v=>`<td>${sg(v)}</td>`).join("")}</tr>`).join("")}</table>`;
@@ -89,7 +90,7 @@ function mx2(){const t=pickLV([["row","column","rect","square"],["row","column",
 return{key:"mx2",chk:()=>true,text:`What is the most specific name for A = ${H(A)} ?`,steps:[
 {q:"What is the order of A?",opts:orderOpts(r,c),hint:"rows × columns",reveal:`order = ${ordS(r,c)}`},
 {q:"Choose the most specific name for A:",opts:o4(name,alts),hint:"Zero: all 0. Diagonal: non-diagonal entries are 0. Scalar: diagonal entries equal. Identity: diagonal entries all 1.",reveal:name}]}}
-function mx3(){const x=R(-3,6),y=R(-3,6),p=R(1,9),q=R(1,9);
+function mx3(){const x=R(-3,6);let y=R(-3,6);while(LV===3&&x===2*y)y=R(-3,6);const p=R(1,9),q=R(1,9);
 if(LV<3){const a=R(1,5),c=R(1,5),k1=LV===1?1:R(2,3),k2=LV===1?1:R(2,3),X=k1*x+a,Y=k2*y-c,s1=k1===1?"x":k1+"x",s2=k2===1?"y":k2+"y";
 const A=[[`${s1} + ${a}`,p],[q,`${s2} − ${c}`]],B=[[X,p],[q,Y]];
 return{key:"mx3",chk:()=>k1*x+a===X&&k2*y-c===Y,text:`If A = B, where A = ${H(A)} and B = ${H(B)}, find x + y.`,steps:[
@@ -104,18 +105,18 @@ return{key:"mx3b",chk:()=>2*x-y===s&&x+y===t,text:`If A = B, where A = ${H(A)} a
 {q:"Solve the two equations. What is x? (Hint: add them.)",opts:numOpts(x,1),hint:`3x = ${s} + ${t}`,reveal:`3x = ${s+t} → x = ${x}`},
 {q:"What is y?",opts:numOpts(y,1),hint:`y = ${t} − x`,reveal:`y = ${t} − ${x} = ${y}`},
 {q:"What is x + y?",opts:numOpts(x+y,1),hint:"Add the two values.",reveal:`x + y = ${t}`}]}}
-function mx4(){const [r,c,lo]=pickLV([[2,2,1],[2,3,-5],[3,3,-9]]),A=rnd(r,c,lo,9),B=rnd(r,c,lo,9),op=LV===1?"+":(Math.random()<.5?"+":"−"),g=op==="+"?(a,b)=>a+b:(a,b)=>a-b,C=zip(A,B,g);
+function mx4(){const [r,c,lo]=lv([[2,2,1],[2,3,-5],[3,3,-9]]),A=rnd(r,c,lo,9),B=rnd(r,c,lo,9),op=LV===1?"+":(Math.random()<.5?"+":"−"),g=op==="+"?(a,b)=>a+b:(a,b)=>a-b,C=zip(A,B,g);
 const other=zip(A,B,op==="+"?(a,b)=>a-b:(a,b)=>a+b);
 return{key:"mx4",chk:()=>C[0][0]===g(A[0][0],B[0][0]),text:`Find A ${op} B, where A = ${H(A)} and B = ${H(B)}`,steps:[
 {q:"Can we add or subtract A and B?",opts:[`Yes, both have the same order ${ordS(r,c)}`,"No, the orders are different","Only if the matrices are square","Only if one of them is zero"],hint:"Addition and subtraction need the same order.",reveal:`Both are ${ordS(r,c)}, so yes.`},
 {q:`What is the top-left element of A ${op} B?`,opts:numOpts(C[0][0],1),hint:`${A[0][0]} ${op} ${B[0][0]}`,reveal:`${A[0][0]} ${op} (${B[0][0]}) = ${C[0][0]}`},
 {q:`What is A ${op} B?`,opts:matOpts(C,[other,op==="−"?zip(B,A,(b,a)=>b-a):[]].filter(m=>m.length)),hint:"Do it element by element.",reveal:H(C)}]}}
-function mx5(){const [r,c,lo,ks]=pickLV([[2,2,1,[2,3]],[2,3,-5,[-1,-2,3,4]],[3,3,-5,[-3,-2,4,5]]]),A=rnd(r,c,lo,9),k=ks[R(0,ks.length-1)],C=mapM(A,v=>k*v);
+function mx5(){const [r,c,lo,ks]=lv([[2,2,1,[2,3]],[2,3,-5,[-1,-2,3,4]],[3,3,-5,[-3,-2,4,5]]]),A=rnd(r,c,lo,9),k=ks[R(0,ks.length-1)],C=mapM(A,v=>k*v);
 return{key:"mx5",chk:()=>C[0][0]===k*A[0][0],text:`Find ${k}A, where A = ${H(A)}`,steps:[
 {q:`What is the order of ${k}A?`,opts:orderOpts(r,c),hint:"Scalar multiplication doesn't change the order.",reveal:`Same as A: ${ordS(r,c)}`},
 {q:`What is the top-left element of ${k}A?`,opts:numOpts(C[0][0],Math.max(1,Math.abs(k))),hint:`${k} × ${A[0][0]}`,reveal:`${k} × (${A[0][0]}) = ${C[0][0]}`},
 {q:`What is ${k}A?`,opts:matOpts(C,[mapM(A,v=>v+k),A.map((row,i)=>row.map(v=>i===0?k*v:v))]),hint:"Multiply EVERY element by the scalar.",reveal:H(C)}]}}
-function mx6(){const [r,c]=pickLV([[2,3],[3,R(2,3)],[3,4]]),A=rnd(r,c,-5,9),B=T(A),i=R(1,c),j=R(1,r);
+function mx6(){const [r,c]=lv([[2,3],[3,R(2,3)],[3,4]]),A=rnd(r,c,-5,9),B=T(A),i=R(1,c),j=R(1,r);
 return{key:"mx6",chk:()=>B[i-1][j-1]===A[j-1][i-1]&&B.length===c,text:`Find A<sup>T</sup>, where A = ${H(A)}`,steps:[
 {q:"What is the order of A<sup>T</sup>?",opts:orderOpts(c,r),hint:`A is ${ordS(r,c)}; rows and columns swap.`,reveal:`${ordS(c,r)}`},
 {q:`What is the element in row ${i}, column ${j} of A<sup>T</sup>?`,opts:fill(B[i-1][j-1],[A[i-1]&&A[i-1][j-1],A[j-1][i-1]===B[i-1][j-1]?null:A[j-1][i-1]].filter(v=>v!==undefined&&v!==null&&v!==B[i-1][j-1])),hint:`It equals the element in row ${j}, column ${i} of A.`,reveal:`A<sup>T</sup>[${i},${j}] = A[${j},${i}] = ${B[i-1][j-1]}`},
@@ -134,7 +135,7 @@ return{key:"mx7b",chk:()=>true,text:`Find x so that A = ${H(A)} is symmetric.`,s
 {q:"What is x?",opts:numOpts(b,1),hint:"x = a₂₁",reveal:`x = ${b}`}]}}
 const a=R(1,5),b=R(1,5),c=R(1,5);const A=[["p",a,b],["q","r",c],["d","e","s"]];
 return{key:"mx7c",chk:()=>true,text:`The matrix A = ${H(A)} is skew-symmetric. Find q + d + e.`,steps:[
-{q:"What must the diagonal entries p, r, s be?",opts:["0","1",String(a),String(-a)],hint:"a<sub>ii</sub> = −a<sub>ii</sub> forces a<sub>ii</sub> = 0.",reveal:"p = r = s = 0"},
+{q:"What must the diagonal entries p, r, s be?",opts:o4("0",["1",String(a),String(-a),"2","3"]),hint:"a<sub>ii</sub> = −a<sub>ii</sub> forces a<sub>ii</sub> = 0.",reveal:"p = r = s = 0"},
 {q:`a<sub>12</sub> = ${a}. What is q (= a<sub>21</sub>)?`,opts:numOpts(-a,1),hint:"a<sub>ji</sub> = −a<sub>ij</sub>",reveal:`q = −${a}`},
 {q:"What is q + d + e?",opts:numOpts(-(a+b+c),1),hint:`q = −${a}, d = −${b}, e = −${c}`,reveal:`q + d + e = ${-(a+b+c)}`}]}}
 function mx8(){if(LV===3){const n=R(2,3),A=rnd(n,n,-4,9),At=T(A),S=zip(A,At,(a,b)=>a+b);
