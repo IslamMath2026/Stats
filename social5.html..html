@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>الاجتماعيات - الصف الخامس: رحلتي في محافظة العاصمة</title>
+<style>
+:root{--bg:#f7f5f0;--card:#fff;--ink:#222a2b;--mute:#69726f;--line:#ddd9cf;--acc:#6b3fa0;--accbg:#efe8f7;--ok:#1b7f4b;--okbg:#e2f4ea;--bad:#b3341f;--badbg:#fbe9e5;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17141c;--card:#211d29;--ink:#ece9f1;--mute:#a29cae;--line:#383145;--acc:#b894ee;--accbg:#2e2540;--ok:#5fd394;--okbg:#17362a;--bad:#ff8a73;--badbg:#3b201b}}
+:root[data-theme="dark"]{--bg:#17141c;--card:#211d29;--ink:#ece9f1;--mute:#a29cae;--line:#383145;--acc:#b894ee;--accbg:#2e2540;--ok:#5fd394;--okbg:#17362a;--bad:#ff8a73;--badbg:#3b201b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI","Noto Naskh Arabic",Tahoma,sans-serif;line-height:1.8;font-size:18px}
+main{max-width:600px;margin:0 auto;padding:18px 16px 40px}
+h1{font-size:22px;margin:0 0 2px}
+.sub{color:var(--mute);margin:0 0 14px;font-size:15px}
+.tabs{display:flex;gap:8px;margin-bottom:14px}
+.tab{flex:1;border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:9px;border-radius:12px;font:inherit;font-size:16px;cursor:pointer}
+.tab[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.card h2{font-size:18px;margin:0 0 6px;color:var(--acc)}
+.card ul{margin:6px 0 0;padding-inline-start:22px}
+.card li{margin-bottom:4px}
+.pic{border-radius:10px;overflow:hidden;margin:8px 0 4px;border:1px solid var(--line)}
+.pic svg{display:block;width:100%;height:auto}
+.cap{font-size:14px;color:var(--mute);margin:0 0 6px}
+.dots{display:flex;gap:4px;margin:0 0 12px}
+.dot{height:6px;flex:1;border-radius:3px;background:var(--line)}
+.dot.done{background:var(--ok)}.dot.cur{background:var(--acc)}
+.tag{color:var(--mute);font-size:14px;margin-bottom:4px}
+.q{font-weight:600;margin:0 0 10px}
+.opt{display:block;width:100%;text-align:start;border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:11px 14px;border-radius:10px;margin-bottom:8px;font:inherit;cursor:pointer}
+.opt:focus-visible,.tab:focus-visible,.btn:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.opt.good{background:var(--okbg);border-color:var(--ok);color:var(--ok)}
+.opt.bad{background:var(--badbg);border-color:var(--bad);color:var(--bad)}
+.why{background:var(--accbg);border-radius:10px;padding:10px 14px;margin:2px 0 10px;font-size:16px}
+.btn{border:0;background:var(--acc);color:#fff;padding:12px 18px;border-radius:10px;font:inherit;font-weight:600;cursor:pointer;width:100%}
+.final{text-align:center}.big{font-size:44px;font-weight:700;color:var(--acc)}
+.score{color:var(--mute);font-size:14px;text-align:center;margin-top:8px}
+</style>
+</head>
+<body>
+<main>
+<h1>رحلتي في محافظة العاصمة</h1>
+<p class="sub">الاجتماعيات · الصف الخامس · الوحدة 3: رحلة في وطني</p>
+<div class="tabs"><button class="tab" id="t1" aria-pressed="true">الملخص</button><button class="tab" id="t2" aria-pressed="false">تدرّب</button></div>
+<div id="app"></div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const sh=a=>[...a].sort(()=>Math.random()-.5);
+const SKY='#cfe8f5',SAND='#d9b779';
+const IMG={
+theatre:`<svg viewBox="0 0 240 130" role="img" aria-label="رسم توضيحي للمدرج الروماني"><rect width="240" height="130" fill="${SKY}"/><circle cx="205" cy="24" r="14" fill="#ffd966"/><rect y="105" width="240" height="25" fill="${SAND}"/>${[0,1,2,3,4,5].map(i=>{const r=105-i*15;return `<path d="M${120-r} 105 A ${r} ${r*0.78} 0 0 1 ${120+r} 105 Z" fill="${i%2?'#e6c892':'#d4ad6e'}" stroke="#a9792f" stroke-width="2"/>`}).join("")}<rect x="82" y="96" width="76" height="11" fill="#c49a58" stroke="#a9792f" stroke-width="2"/></svg>`,
+columns:`<svg viewBox="0 0 240 130" role="img" aria-label="رسم توضيحي لأعمدة معبد هرقل"><rect width="240" height="130" fill="${SKY}"/><circle cx="30" cy="24" r="14" fill="#ffd966"/><rect y="108" width="240" height="22" fill="${SAND}"/><rect x="28" y="26" width="184" height="10" fill="#d9c7a0" stroke="#a9792f"/><rect x="34" y="36" width="172" height="6" fill="#e8dbb9" stroke="#a9792f"/>${[44,84,124,164].map(x=>`<rect x="${x-3}" y="42" width="26" height="6" fill="#d9c7a0" stroke="#a9792f"/><rect x="${x}" y="48" width="20" height="58" fill="#efe3c3" stroke="#a9792f" stroke-width="1.5"/><rect x="${x-3}" y="104" width="26" height="5" fill="#d9c7a0" stroke="#a9792f"/>`).join("")}</svg>`,
+mosque:`<svg viewBox="0 0 240 130" role="img" aria-label="رسم توضيحي لمسجد بقبة زرقاء"><rect width="240" height="130" fill="${SKY}"/><rect y="108" width="240" height="22" fill="#cdbf9a"/><rect x="50" y="68" width="110" height="42" fill="#efe6d2" stroke="#a89870" stroke-width="2"/><path d="M64 68 A41 41 0 0 1 146 68 Z" fill="#2b6cb0" stroke="#1d4f86" stroke-width="2"/><rect x="104" y="20" width="2" height="9" fill="#c9a227"/><rect x="184" y="30" width="12" height="80" fill="#efe6d2" stroke="#a89870" stroke-width="2"/><path d="M181 30 A9 9 0 0 1 199 30 Z" fill="#2b6cb0" stroke="#1d4f86" stroke-width="2"/><rect x="189" y="16" width="2" height="9" fill="#c9a227"/>${[68,92,116,138].map(x=>`<path d="M${x} 108 V92 a6 6 0 0 1 12 0 V108 Z" fill="#9db7d1"/>`).join("")}</svg>`};
+const pic=(k,c)=>`<div class="pic">${IMG[k]}</div><p class="cap">${c}</p>`;
+const SUM=`
+<div class="card"><h2>عمّان العاصمة</h2><ul>
+<li>عمّان هي عاصمة المملكة الأردنية الهاشمية وأكبر مدنها، وفيها محافظة العاصمة.</li>
+<li>اسمها القديم <b>ربّة عمّون</b>، وسُمّيت <b>فيلادلفيا</b> في العصر الروماني.</li>
+<li>فيها مؤسسات حكومية وأسواق تجارية وأبنية جميلة، وفيها آثار تحكي تاريخ الأردن.</li></ul></div>
+<div class="card"><h2>المدرج الروماني</h2>${pic("theatre","رسم توضيحي للمدرج الروماني")}<ul><li>من أشهر معالم عمّان، ويقع في وسط البلد.</li><li>بناه الرومان، وصفوف مقاعده على شكل نصف دائرة.</li></ul></div>
+<div class="card"><h2>جبل القلعة ومعبد هرقل</h2>${pic("columns","رسم توضيحي لأعمدة معبد قديم")}<ul><li>على جبل القلعة يقع <b>معبد هرقل</b> بأعمدته الضخمة.</li><li>ويطل الجبل على المدينة، وفيه آثار من عصور مختلفة.</li></ul></div>
+<div class="card"><h2>من المساجد المعروفة</h2>${pic("mosque","رسم توضيحي لمسجد بقبة زرقاء")}<ul><li><b>مسجد الملك عبدالله الأول</b> بقبته الزرقاء.</li><li><b>المسجد الحسيني الكبير</b> في وسط البلد.</li></ul></div>
+<div class="card"><h2>أماكن أخرى</h2><ul><li><b>شارع الرينبو</b> من الأماكن المعروفة في عمّان.</li><li>زيارة الأماكن الأثرية تعرّفنا على تاريخ بلدنا، ونحافظ عليها ولا نخرّبها.</li></ul></div>
+<button class="btn" id="go">ابدأ التدرّب</button>`;
+const BANK=[
+{t:"mcq",q:"ما هي عاصمة المملكة الأردنية الهاشمية؟",o:["عمّان","إربد","الزرقاء","العقبة"],a:0,w:"عمّان هي العاصمة وأكبر مدن المملكة."},
+{t:"tf",q:"عمّان هي أكبر مدن الأردن.",a:true,w:"صح، عمّان أكبر مدن المملكة وفيها محافظة العاصمة."},
+{t:"mcq",q:"ما الاسم القديم لمدينة عمّان؟",o:["ربّة عمّون","البتراء","جدارا","أيلة"],a:0,w:"كان اسمها القديم ربّة عمّون."},
+{t:"mcq",q:"ما اسم عمّان في العصر الروماني؟",o:["فيلادلفيا","جراسا","أيلة","بصرى"],a:0,w:"سُمّيت فيلادلفيا في العصر الروماني."},
+{t:"mcq",q:"ما اسم هذا المعلم الأثري في وسط عمّان؟",img:"theatre",o:["المدرج الروماني","قلعة الكرك","الخزنة","قصر الحرانة"],a:0,w:"هذا المدرج الروماني، ومقاعده بشكل نصف دائرة."},
+{t:"mcq",q:"هذه أعمدة معبد قديم على جبل القلعة. ما اسمه؟",img:"columns",o:["معبد هرقل","الخزنة","الدير","المدرج الروماني"],a:0,w:"هذا معبد هرقل على جبل القلعة."},
+{t:"mcq",q:"على أي جبل يقع معبد هرقل؟",o:["جبل القلعة","جبل نيبو","جبل أم الدامي","جبل اللويبدة"],a:0,w:"يقع معبد هرقل على جبل القلعة في عمّان."},
+{t:"mcq",q:"ما اسم هذا المسجد المعروف بقبّته الزرقاء في عمّان؟",img:"mosque",o:["مسجد الملك عبدالله الأول","المسجد الأقصى","المسجد النبوي","مسجد قبة الصخرة"],a:0,w:"هو مسجد الملك عبدالله الأول، ومعروف بقبته الزرقاء."},
+{t:"mcq",q:"أين يقع المسجد الحسيني الكبير؟",o:["وسط البلد في عمّان","العقبة","إربد","الكرك"],a:0,w:"المسجد الحسيني الكبير في وسط البلد بعمّان."},
+{t:"tf",q:"في العاصمة أسواق تجارية ومؤسسات حكومية.",a:true,w:"صح، العاصمة فيها أسواق ومؤسسات حكومية كثيرة."},
+{t:"tf",q:"المدرج الروماني يقع في مدينة العقبة.",a:false,w:"خطأ، المدرج الروماني في وسط البلد بعمّان."},
+{t:"mcq",q:"أي المعالم التالية يقع في محافظة العاصمة؟",o:["المدرج الروماني","البتراء","وادي رم","قلعة العقبة"],a:0,w:"المدرج الروماني في عمّان. أما البتراء ووادي رم والعقبة ففي أماكن أخرى."},
+{t:"tf",q:"شارع الرينبو من الأماكن المعروفة في عمّان.",a:true,w:"صح، شارع الرينبو من الأماكن المعروفة في عمّان."},
+{t:"mcq",q:"المدرج الروماني بناه:",o:["الرومان","الأنباط","العثمانيون","الأمويون"],a:0,w:"بناه الرومان في العصر الروماني."},
+{t:"tf",q:"عمّان مدينة حديثة وليس لها تاريخ قديم.",a:false,w:"خطأ، عمّان قديمة وفيها آثار من عصور مختلفة."},
+{t:"mcq",q:"ما فائدة زيارة الأماكن الأثرية في عاصمتنا؟",o:["نتعرّف على تاريخ بلدنا ونحافظ عليها","نكتب عليها أسماءنا","نأخذ قطعاً منها","نتسلّقها"],a:0,w:"نتعلم عن تاريخنا ونحافظ على آثارنا."}];
+let qs,qi,right,locked;
+function tab(n){$("t1").setAttribute("aria-pressed",n===1);$("t2").setAttribute("aria-pressed",n===2);n===1?summary():start()}
+function summary(){$("app").innerHTML=SUM;$("go").onclick=()=>tab(2)}
+function start(){qs=sh(BANK).slice(0,10).map(b=>b.t==="tf"?{...b,o:["صح","خطأ"],c:b.a?0:1,ord:[0,1]}:(()=>{const ord=sh([0,1,2,3]);return{...b,ord,c:ord.indexOf(b.a)}})());qi=0;right=0;show()}
+function show(){if(qi>=qs.length)return done();locked=false;const q=qs[qi];
+const opts=q.t==="tf"?["صح","خطأ"]:q.ord.map(i=>q.o[i]);
+$("app").innerHTML=`<div class="dots">${qs.map((_,k)=>`<div class="dot ${k<qi?"done":k===qi?"cur":""}"></div>`).join("")}</div><div class="card"><div class="tag">سؤال ${qi+1} من ${qs.length}${q.t==="tf"?" · صح أم خطأ":""}</div>${q.img?`<div class="pic">${IMG[q.img]}</div>`:""}<p class="q">${q.q}</p><div id="opts">${opts.map((o,k)=>`<button class="opt" data-k="${k}">${o}</button>`).join("")}</div></div>`;
+document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>pick(b,q));window.scrollTo(0,0)}
+function pick(b,q){if(locked)return;locked=true;const k=+b.dataset.k,ok=k===q.c;if(ok)right++;
+document.querySelectorAll(".opt").forEach(o=>{o.disabled=true;if(+o.dataset.k===q.c)o.classList.add("good")});if(!ok)b.classList.add("bad");
+$("opts").insertAdjacentHTML("afterend",`<div class="why"><b>${ok?"إجابة صحيحة ✅":"إجابة غير صحيحة ❌"}</b><br>${q.w}</div><button class="btn" id="nx">${qi===qs.length-1?"النتيجة":"السؤال التالي"}</button>`);
+$("nx").onclick=()=>{qi++;show()};$("nx").scrollIntoView({block:"nearest"})}
+function done(){const n=qs.length,pc=Math.round(right/n*100);
+$("app").innerHTML=`<div class="card final"><div class="big">${right} / ${n}</div><b>${pc}% · ${pc>=80?"ممتاز! 🎉":pc>=50?"جيد، حاول مرة ثانية لتتحسّن.":"راجع الملخص ثم حاول مرة ثانية."}</b></div><button class="btn" id="again">أسئلة جديدة</button><div class="score"><a href="#" id="rv" style="color:var(--acc)">العودة إلى الملخص</a></div>`;
+$("again").onclick=start;$("rv").onclick=e=>{e.preventDefault();tab(1)};window.scrollTo(0,0)}
+$("t1").onclick=()=>tab(1);$("t2").onclick=()=>tab(2);
+tab(1);
+</script>
+</body>
+</html>
