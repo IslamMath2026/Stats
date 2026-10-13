@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rafef - حروف الجر - الصف الثاني</title>
+<style>
+:root{--bg:#fff8ee;--card:#fff;--ink:#2a2430;--mute:#7a6f80;--line:#f0dcc0;--acc:#e8710a;--accbg:#fff0dc;--ok:#1b8a4b;--okbg:#e2f6ea;--bad:#c0392b;--badbg:#fdeae6;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d1822;--card:#282230;--ink:#f4eef7;--mute:#b6abbd;--line:#42384d;--acc:#ffa24d;--accbg:#3a2c20;--ok:#6fe0a0;--okbg:#17362a;--bad:#ff8f80;--badbg:#3b201b}}
+:root[data-theme="dark"]{--bg:#1d1822;--card:#282230;--ink:#f4eef7;--mute:#b6abbd;--line:#42384d;--acc:#ffa24d;--accbg:#3a2c20;--ok:#6fe0a0;--okbg:#17362a;--bad:#ff8f80;--badbg:#3b201b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI","Noto Naskh Arabic",Tahoma,sans-serif;line-height:1.9;font-size:22px}
+main{max-width:560px;margin:0 auto;padding:16px 16px 40px}
+.brand{display:flex;align-items:center;gap:10px;margin:0 0 2px}
+.logo{background:var(--acc);color:#fff;font-weight:800;border-radius:14px;padding:2px 14px;font-size:22px;letter-spacing:.5px;direction:ltr}
+h1{font-size:24px;margin:0}
+.sub{color:var(--mute);margin:0 0 12px;font-size:17px}
+.tabs{display:flex;gap:8px;margin-bottom:14px}
+.tab{flex:1;border:2px solid var(--line);background:var(--card);color:var(--ink);padding:9px;border-radius:16px;font:inherit;font-size:19px;cursor:pointer}
+.tab[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#fff}
+.card{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:16px;margin-bottom:14px}
+.card h2{font-size:22px;margin:0 0 6px;color:var(--acc)}
+.ex{background:var(--accbg);border-radius:14px;padding:6px 14px;margin:6px 0;font-size:21px}
+.big{font-size:60px;line-height:1.2}
+.pill{display:inline-block;background:var(--acc);color:#fff;border-radius:12px;padding:0 12px;margin-inline-start:6px;font-weight:700}
+.dots{display:flex;gap:4px;margin:0 0 12px}
+.dot{height:8px;flex:1;border-radius:4px;background:var(--line)}
+.dot.done{background:var(--ok)}.dot.cur{background:var(--acc)}
+.tag{color:var(--mute);font-size:16px}
+.q{font-size:26px;font-weight:700;margin:6px 0 14px}
+.blank{display:inline-block;min-width:70px;border-bottom:4px dashed var(--acc);text-align:center;color:var(--acc)}
+.opt{display:block;width:100%;text-align:center;border:3px solid var(--line);background:var(--card);color:var(--ink);padding:10px 14px;border-radius:18px;margin-bottom:10px;font:inherit;font-size:26px;font-weight:700;cursor:pointer}
+.opt:focus-visible,.tab:focus-visible,.btn:focus-visible{outline:4px solid var(--acc);outline-offset:2px}
+.opt.good{background:var(--okbg);border-color:var(--ok);color:var(--ok)}
+.opt.bad{background:var(--badbg);border-color:var(--bad);color:var(--bad)}
+.msg{border-radius:16px;padding:8px 14px;margin:2px 0 12px;font-size:21px}
+.msg.ok{background:var(--okbg);color:var(--ok)}
+.msg.no{background:var(--badbg);color:var(--bad)}
+.btn{border:0;background:var(--acc);color:#fff;padding:13px 18px;border-radius:18px;font:inherit;font-weight:800;font-size:23px;cursor:pointer;width:100%}
+.final{text-align:center}
+.stars{font-size:34px;letter-spacing:2px}
+.score{color:var(--mute);font-size:16px;text-align:center;margin-top:8px}
+.pic{display:flex;justify-content:center;align-items:center;gap:14px;font-size:46px;line-height:1.3;margin:2px 0 6px;direction:rtl}.water{background:#bfe3ff;border:4px solid #5aa9e6;border-radius:22px;padding:2px 26px;font-size:46px;color:#000}</style>
+</head>
+<body>
+<main>
+<div class="brand"><span class="logo">Rafef</span><h1>حُرُوفُ الْجَرِّ</h1></div>
+<p class="sub">اللُّغَةُ الْعَرَبِيَّةُ · الصَّفُّ الثَّانِي</p>
+<div class="tabs"><button class="tab" id="t1" aria-pressed="true">📖 تَعَلَّمْ</button><button class="tab" id="t2" aria-pressed="false">✏️ تَدَرَّبْ</button></div>
+<div id="app"></div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const sh=a=>[...a].sort(()=>Math.random()-.5);
+const LEARN=`
+<div class="card"><h2>مَا حُرُوفُ الْجَرِّ؟</h2><p style="margin:0">حُرُوفُ الْجَرِّ كَلِمَاتٌ صَغِيرَةٌ تَأْتِي <b>قَبْلَ الِاسْمِ</b>، مِثْلُ: <span class="pill">مِنْ</span><span class="pill">إِلَى</span><span class="pill">عَنْ</span><span class="pill">عَلَى</span><span class="pill">فِي</span><span class="pill">بِـ</span></p></div>
+<div class="card"><div class="pic"><span>🏠</span><span>⬅️</span><span>👦</span></div><h2>مِنْ</h2><div class="ex">خَرَجَ الْوَلَدُ <b>مِنَ</b> الْبَيْتِ.</div></div>
+<div class="card"><div class="pic"><span>👦</span><span>⬅️</span><span>🏫</span></div><h2>إِلَى</h2><div class="ex">ذَهَبَ أَحْمَدُ <b>إِلَى</b> الْمَدْرَسَةِ.</div></div>
+<div class="card"><div class="pic"><div class="water">🐟 🫧</div></div><h2>فِي</h2><div class="ex">السَّمَكُ <b>فِي</b> الْمَاءِ.</div></div>
+<div class="card"><div class="pic"><svg viewBox="0 0 130 84" width="130" height="84" role="img" aria-label="كتاب على طاولة"><rect x="14" y="52" width="102" height="9" rx="3" fill="#a9743a"/><rect x="22" y="61" width="8" height="18" fill="#8a5a28"/><rect x="100" y="61" width="8" height="18" fill="#8a5a28"/><rect x="46" y="30" width="38" height="22" rx="3" fill="#d9453a"/><rect x="46" y="30" width="6" height="22" rx="2" fill="#a8302a"/><rect x="58" y="37" width="20" height="3" fill="#fff" opacity=".85"/><rect x="58" y="43" width="14" height="3" fill="#fff" opacity=".85"/></svg></div><h2>عَلَى</h2><div class="ex">الْكِتَابُ <b>عَلَى</b> الطَّاوِلَةِ.</div></div>
+<div class="card"><div class="pic"><span>❓</span><span>👦</span></div><h2>عَنْ</h2><div class="ex">سَأَلْتُ <b>عَنْ</b> صَدِيقِي.</div></div>
+<div class="card"><div class="pic"><span>✏️</span><span>📝</span></div><h2>بِـ</h2><div class="ex">كَتَبْتُ <b>بِ</b>الْقَلَمِ.</div></div>
+<button class="btn" id="go">هَيَّا نَتَدَرَّبْ! ✏️</button>`;
+const B=(sent,ans,opts,full)=>({k:"fill",q:sent,a:ans,o:opts,w:full});
+const BANK=[
+B("ذَهَبَ أَحْمَدُ <span class='blank'>＿＿＿</span> الْمَدْرَسَةِ.","إِلَى",["إِلَى","مِنْ","عَنْ","فِي"],"ذَهَبَ أَحْمَدُ إِلَى الْمَدْرَسَةِ."),
+B("خَرَجَ الْوَلَدُ <span class='blank'>＿＿＿</span> الْبَيْتِ.","مِنْ",["مِنْ","فِي","عَلَى","عَنْ"],"خَرَجَ الْوَلَدُ مِنَ الْبَيْتِ."),
+B("الْكِتَابُ <span class='blank'>＿＿＿</span> الطَّاوِلَةِ.","عَلَى",["عَلَى","مِنْ","إِلَى","عَنْ"],"الْكِتَابُ عَلَى الطَّاوِلَةِ."),
+B("السَّمَكُ <span class='blank'>＿＿＿</span> الْمَاءِ.","فِي",["فِي","عَنْ","إِلَى","مِنْ"],"السَّمَكُ فِي الْمَاءِ."),
+B("سَأَلْتُ <span class='blank'>＿＿＿</span> صَدِيقِي.","عَنْ",["عَنْ","فِي","إِلَى","عَلَى"],"سَأَلْتُ عَنْ صَدِيقِي."),
+B("كَتَبْتُ <span class='blank'>＿＿＿</span>الْقَلَمِ.","بِـ",["بِـ","عَنْ","إِلَى","مِنْ"],"كَتَبْتُ بِالْقَلَمِ."),
+B("أَكَلْتُ <span class='blank'>＿＿＿</span>الْمِلْعَقَةِ.","بِـ",["بِـ","عَنْ","إِلَى","فِي"],"أَكَلْتُ بِالْمِلْعَقَةِ."),
+B("سَافَرَ أَبِي <span class='blank'>＿＿＿</span> عَمَّانَ.","إِلَى",["إِلَى","عَنْ","عَلَى","بِـ"],"سَافَرَ أَبِي إِلَى عَمَّانَ."),
+B("رَجَعَ الطُّلَّابُ <span class='blank'>＿＿＿</span> الْمَدْرَسَةِ.","مِنْ",["مِنْ","عَنْ","عَلَى","فِي"],"رَجَعَ الطُّلَّابُ مِنَ الْمَدْرَسَةِ."),
+B("جَلَسَ الطِّفْلُ <span class='blank'>＿＿＿</span> الْكُرْسِيِّ.","عَلَى",["عَلَى","عَنْ","مِنْ","بِـ"],"جَلَسَ الطِّفْلُ عَلَى الْكُرْسِيِّ."),
+B("وَضَعْتُ الْمَاءَ <span class='blank'>＿＿＿</span> الْكُوبِ.","فِي",["فِي","عَنْ","إِلَى","بِـ"],"وَضَعْتُ الْمَاءَ فِي الْكُوبِ."),
+{k:"find",q:"مَا حَرْفُ الْجَرِّ فِي الْجُمْلَةِ؟<div class='ex'>جَلَسَ الطِّفْلُ عَلَى الْكُرْسِيِّ.</div>",a:"عَلَى",o:["عَلَى","جَلَسَ","الطِّفْلُ","الْكُرْسِيِّ"],w:"حَرْفُ الْجَرِّ هُوَ: عَلَى."},
+{k:"find",q:"مَا حَرْفُ الْجَرِّ فِي الْجُمْلَةِ؟<div class='ex'>ذَهَبْنَا إِلَى الْحَدِيقَةِ.</div>",a:"إِلَى",o:["إِلَى","ذَهَبْنَا","الْحَدِيقَةِ","جَمِيلَةٌ"],w:"حَرْفُ الْجَرِّ هُوَ: إِلَى."},
+{k:"find",q:"مَا حَرْفُ الْجَرِّ فِي الْجُمْلَةِ؟<div class='ex'>الْقِطَّةُ الصَّغِيرَةُ فِي الْحَدِيقَةِ.</div>",a:"فِي",o:["فِي","الْقِطَّةُ","الصَّغِيرَةُ","الْحَدِيقَةِ"],w:"حَرْفُ الْجَرِّ هُوَ: فِي."},
+{k:"find",q:"مَا حَرْفُ الْجَرِّ فِي الْجُمْلَةِ؟<div class='ex'>خَرَجَ أَبِي مِنَ الْبَيْتِ.</div>",a:"مِنَ",o:["مِنَ","خَرَجَ","أَبِي","الْبَيْتِ"],w:"حَرْفُ الْجَرِّ هُوَ: مِنَ (مِنْ)."},
+{k:"find",q:"مَا حَرْفُ الْجَرِّ فِي الْجُمْلَةِ؟<div class='ex'>تَحَدَّثَ الْمُعَلِّمُ عَنِ النَّظَافَةِ.</div>",a:"عَنِ",o:["عَنِ","تَحَدَّثَ","الْمُعَلِّمُ","النَّظَافَةِ"],w:"حَرْفُ الْجَرِّ هُوَ: عَنِ (عَنْ)."},
+{k:"which",q:"أَيُّ هَذِهِ الْكَلِمَاتِ حَرْفُ جَرٍّ؟",a:"فِي",o:["فِي","كِتَابٌ","يَلْعَبُ","جَمِيلٌ"],w:"فِي حَرْفُ جَرٍّ، وَالْبَاقِي لَيْسَتْ حُرُوفَ جَرٍّ."},
+{k:"which",q:"أَيُّ هَذِهِ الْكَلِمَاتِ حَرْفُ جَرٍّ؟",a:"مِنْ",o:["مِنْ","قَرَأَ","بَيْتٌ","كَبِيرٌ"],w:"مِنْ حَرْفُ جَرٍّ."},
+{k:"which",q:"أَيُّ هَذِهِ الْكَلِمَاتِ حَرْفُ جَرٍّ؟",a:"إِلَى",o:["إِلَى","مَدْرَسَةٌ","كَتَبَ","سَعِيدٌ"],w:"إِلَى حَرْفُ جَرٍّ."},
+{k:"which",q:"أَيُّ هَذِهِ الْكَلِمَاتِ حَرْفُ جَرٍّ؟",a:"عَلَى",o:["عَلَى","شَجَرَةٌ","يَجْرِي","طَوِيلٌ"],w:"عَلَى حَرْفُ جَرٍّ."},
+{k:"which",q:"أَيُّ هَذِهِ الْكَلِمَاتِ حَرْفُ جَرٍّ؟",a:"عَنْ",o:["عَنْ","قَلَمٌ","رَسَمَ","جَدِيدٌ"],w:"عَنْ حَرْفُ جَرٍّ."},
+{k:"tf",q:"هَلْ (مِنْ) حَرْفُ جَرٍّ؟",a:"نَعَمْ",o:["نَعَمْ","لَا"],w:"نَعَمْ، مِنْ حَرْفُ جَرٍّ."},
+{k:"tf",q:"هَلْ (كِتَابٌ) حَرْفُ جَرٍّ؟",a:"لَا",o:["نَعَمْ","لَا"],w:"لَا، كِتَابٌ اسْمٌ وَلَيْسَ حَرْفَ جَرٍّ."},
+{k:"tf",q:"هَلْ (يَكْتُبُ) حَرْفُ جَرٍّ؟",a:"لَا",o:["نَعَمْ","لَا"],w:"لَا، يَكْتُبُ فِعْلٌ وَلَيْسَ حَرْفَ جَرٍّ."},
+{k:"tf",q:"هَلْ تَأْتِي حُرُوفُ الْجَرِّ قَبْلَ الِاسْمِ؟",a:"نَعَمْ",o:["نَعَمْ","لَا"],w:"نَعَمْ، حَرْفُ الْجَرِّ يَأْتِي قَبْلَ الِاسْمِ."}];
+let qs,qi,right,tries,locked;
+function tab(n){$("t1").setAttribute("aria-pressed",n===1);$("t2").setAttribute("aria-pressed",n===2);n===1?learn():start()}
+function learn(){$("app").innerHTML=LEARN;$("go").onclick=()=>tab(2);window.scrollTo(0,0)}
+function start(){qs=sh(BANK).slice(0,10).map(b=>({...b,o:b.k==="tf"?b.o:sh(b.o)}));qi=0;right=0;show()}
+function show(){if(qi>=qs.length)return done();locked=false;tries=0;const q=qs[qi];
+$("app").innerHTML=`<div class="dots">${qs.map((_,k)=>`<div class="dot ${k<qi?"done":k===qi?"cur":""}"></div>`).join("")}</div><div class="card"><div class="tag">سُؤَالٌ ${qi+1} مِنْ ${qs.length}</div><p class="q">${q.q}</p><div id="opts">${q.o.map((o,k)=>`<button class="opt" data-k="${k}">${o}</button>`).join("")}</div><div id="fb"></div></div>`;
+document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>pick(b,q));window.scrollTo(0,0)}
+function pick(b,q){if(locked)return;const v=q.o[+b.dataset.k];
+if(v===q.a){locked=true;if(tries===0)right++;b.classList.add("good");document.querySelectorAll(".opt").forEach(o=>o.disabled=true);
+$("fb").innerHTML=`<div class="msg ok"><b>أَحْسَنْتَ! ⭐</b><br>${q.w}</div><button class="btn" id="nx">${qi===qs.length-1?"النَّتِيجَةُ":"السُّؤَالُ التَّالِي"}</button>`;
+$("nx").onclick=()=>{qi++;show()};$("nx").scrollIntoView({block:"nearest"})}
+else{tries++;b.classList.add("bad");b.disabled=true;$("fb").innerHTML=`<div class="msg no">لَيْسَتْ هَذِهِ الْإِجَابَةَ، حَاوِلْ مَرَّةً أُخْرَى 💪</div>`}}
+function done(){const n=qs.length,st=Math.max(1,Math.round(right/n*5));
+$("app").innerHTML=`<div class="card final"><div class="stars">${"⭐".repeat(st)}</div><div style="font-size:46px;font-weight:800;color:var(--acc)">${right} / ${n}</div><div>${right>=9?"مُمْتَازٌ! أَنْتَ بَطَلٌ 🎉":right>=6?"جَيِّدٌ جِدًّا! 👏":"لَا بَأْسَ، تَدَرَّبْ مَرَّةً أُخْرَى 💪"}</div></div><button class="btn" id="again">أَسْئِلَةٌ جَدِيدَةٌ</button><div class="score"><a href="#" id="rv" style="color:var(--acc)">الرُّجُوعُ إِلَى الشَّرْحِ</a></div>`;
+$("again").onclick=start;$("rv").onclick=e=>{e.preventDefault();tab(1)};window.scrollTo(0,0)}
+$("t1").onclick=()=>tab(1);$("t2").onclick=()=>tab(2);
+tab(1);
+</script>
+</body>
+</html>
