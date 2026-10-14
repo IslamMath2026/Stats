@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calculus 102 – Integration Question Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f2f5f9; --surface:#ffffff; --ink:#14213d; --muted:#5a6679; --line:#d5dde8;
+  --accent:#0f7c7e; --accent-ink:#ffffff; --accent-soft:#dff1f1; --warm:#e9b44c;
+  --ok:#1f7a4d; --ok-soft:#dff3e8; --bad:#a63a2e; --bad-soft:#fbe4e0;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1624; --surface:#18233a; --ink:#e8edf6; --muted:#9aa8bf; --line:#2c3a56;
+    --accent:#3cc3c5; --accent-ink:#06282a; --accent-soft:#16363f; --warm:#e9b44c;
+    --ok:#6fd6a1; --ok-soft:#173a2b; --bad:#f19a8e; --bad-soft:#431f1b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1624; --surface:#18233a; --ink:#e8edf6; --muted:#9aa8bf; --line:#2c3a56;
+  --accent:#3cc3c5; --accent-ink:#06282a; --accent-soft:#16363f; --warm:#e9b44c;
+  --ok:#6fd6a1; --ok-soft:#173a2b; --bad:#f19a8e; --bad-soft:#431f1b;
+  color-scheme: dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,"Segoe UI",Arial,sans-serif;line-height:1.7;font-size:17px}
+main{max-width:760px;margin:0 auto;padding:28px 18px 60px}
+h1{font-size:1.6rem;line-height:1.3;margin:0 0 6px;font-weight:700}
+.lead{color:var(--muted);margin:0 0 24px}
+.group{margin-bottom:20px}
+.group-title{font-weight:700;margin-bottom:8px}
+.levels{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);
+  padding:8px 16px;border-radius:999px;font:inherit;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:500}
+.topics{list-style:none;margin:0;padding:0;border:1.5px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface)}
+.topics li+li{border-top:1px solid var(--line)}
+.topic{width:100%;display:flex;align-items:center;gap:12px;text-align:left;
+  background:none;border:0;color:var(--ink);font:inherit;padding:12px 14px;cursor:pointer}
+.topic:hover{background:var(--accent-soft)}
+.num{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
+  background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:.95rem}
+.topic[aria-current="true"] .num{background:var(--accent);color:var(--accent-ink)}
+.topic .t{flex:1}
+.done{font-size:.85rem;color:var(--ok);background:var(--ok-soft);padding:2px 10px;border-radius:999px;white-space:nowrap}
+.stage{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:20px 18px;margin-top:8px}
+.stage h2{font-size:1.2rem;margin:0 0 10px}
+.progress{height:6px;background:var(--line);border-radius:6px;overflow:hidden;margin-bottom:6px}
+.progress>i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.count{color:var(--muted);font-size:.9rem;margin-bottom:12px}
+.q{margin:0 0 14px;font-weight:500}
+.stem{background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:14px 12px;margin:0 0 14px;overflow-x:auto;text-align:center}
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{display:flex;align-items:center;gap:12px;text-align:left;width:100%;
+  font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);
+  border-radius:12px;padding:10px 12px;cursor:pointer}
+.opt:hover:not([disabled]){border-color:var(--accent)}
+.opt[disabled]{cursor:default}
+.circle{flex:none;width:30px;height:30px;border-radius:50%;border:2px solid var(--muted);
+  display:grid;place-items:center;font-size:.9rem;font-weight:500;color:var(--muted)}
+.opt .txt{flex:1;overflow-x:auto;text-align:left}
+.opt.correct{border-color:var(--ok);background:var(--ok-soft)}
+.opt.correct .circle{background:var(--ok);border-color:var(--ok);color:var(--surface)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.wrong .circle{background:var(--bad);border-color:var(--bad);color:var(--surface)}
+.fb{margin-top:14px;padding:10px 14px;border-radius:10px;background:var(--accent-soft)}
+.fb>b{display:block;margin-bottom:4px}
+.fb.ok>b{color:var(--ok)} .fb.bad>b{color:var(--bad)}
+.steps{margin:6px 0 0;padding:0 0 0 22px}
+.steps li{margin-bottom:6px}
+.btn{font:inherit;border:0;border-radius:10px;padding:9px 18px;cursor:pointer;background:var(--accent);color:var(--accent-ink);font-weight:500;margin-top:14px}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.chip:focus-visible,.topic:focus-visible,.btn:focus-visible,.opt:focus-visible{outline:3px solid var(--warm);outline-offset:2px}
+.summary{text-align:center;padding:6px 0}
+.summary .score{font-size:2.2rem;font-weight:700;color:var(--accent)}
+.review{text-align:left;margin:14px 0;padding:0;list-style:none}
+.review li{padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;background:var(--bg);overflow-x:auto}
+.review small{display:block;color:var(--ok);margin-top:4px}
+.empty{color:var(--muted);padding:18px;text-align:center}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.theme{background:none;border:1.5px solid var(--line);color:var(--ink);border-radius:10px;padding:4px 10px;font:inherit;cursor:pointer}
+
+/* math */
+.m{direction:ltr;unicode-bidi:isolate;display:inline-block;font-family:"Cambria Math","STIX Two Math","Times New Roman",serif;font-size:1.18em;line-height:1.5;white-space:nowrap}
+.m sup{font-size:.68em;line-height:0}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 3px;line-height:1.25;font-size:.95em}
+.fr>span:first-child{border-bottom:1.5px solid currentColor;padding:0 4px 1px}
+.fr>span:last-child{padding:1px 4px 0}
+.int{font-size:1.9em;vertical-align:middle;margin-right:2px}
+.sq{white-space:nowrap}
+.sq .ov{border-top:1.5px solid currentColor;padding:0 2px;margin-left:1px}
+@media (prefers-reduced-motion: reduce){.progress>i{transition:none}}
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <div>
+      <h1>Calculus 102 – Integration Question Generator</h1>
+      <p class="lead">Every quiz is generated with fresh random numbers. Circle the correct letter, then review the worked steps.</p>
+    </div>
+    <button class="theme" id="themeBtn" type="button" aria-label="Toggle theme">◐</button>
+  </div>
+
+  <div class="group">
+    <div class="group-title">Level</div>
+    <div class="levels" id="levels"></div>
+  </div>
+  <div class="group">
+    <div class="group-title">Number of questions</div>
+    <div class="levels" id="counts"></div>
+  </div>
+  <div class="group">
+    <div class="group-title">Topic</div>
+    <ul class="topics" id="topics"></ul>
+  </div>
+
+  <section id="stage" aria-live="polite"></section>
+</main>
+
+<script>
+/* ============ math helpers ============ */
+const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const nz=(lo,hi)=>{let v=0;while(v===0)v=R(lo,hi);return v};
+const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a);
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+const M=x=>`<span class="m">${x}</span>`;
+const fr=(n,d)=>`<span class="fr"><span>${n}</span><span>${d}</span></span>`;
+const sup=x=>`<sup>${x}</sup>`;
+const sq=x=>`<span class="sq">√<span class="ov">${x}</span></span>`;
+const sg=n=>n<0?" − ":" + ";
+const mn=n=>n<0?"−"+(-n):String(n);
+const ln=x=>`ln|${x}|`;
+const ATAN=x=>`tan${sup("−1")}(${x})`;
+const ASIN=x=>`sin${sup("−1")}(${x})`;
+const ACOS=x=>`cos${sup("−1")}(${x})`;
+const kt=(c,h)=>c===1?h:c===-1?"−"+h:`${mn(c)} ${h}`;
+function scale(k,s){return s.startsWith("−")?"−"+kt(k,s.slice(1)):kt(k,s)}
+function lin(a,b){
+  let t=a===1?"x":a===-1?"−x":`${mn(a)}x`;
+  if(b>0)t+=` + ${b}`; else if(b<0)t+=` − ${-b}`;
+  return t;
+}
+function qf(num,k,tail=""){
+  const s=k<0?"−":"", a=Math.abs(k), parts=[];
+  if(a!==1)parts.push(a);
+  if(tail)parts.push(tail);
+  if(!parts.length)return s+num;
+  return s+fr(num,parts.join(" "));
+}
+function rat(p,q){if(q<0){p=-p;q=-q}const g=gcd(p,q)||1;return{n:p/g,d:q/g}}
+function cf(p,q){ // coefficient p/q: "" if 1, "−" if −1
+  const r=rat(p,q), s=r.n<0?"−":"", n=Math.abs(r.n);
+  if(r.d===1)return n===1?s:s+n;
+  return s+fr(n,r.d);
+}
+const withC=(c,h)=>(c?c+" ":"")+h;
+const poly=(m,n)=>`x${sup(2)}`+(m===0?"":sg(m)+(Math.abs(m)===1?"":Math.abs(m))+"x")+(n===0?"":sg(n)+Math.abs(n));
+const Fn=(n,u)=>u==="x"?`${n} x`:`${n}(${u})`;
+const Fn2=(n,u)=>u==="x"?`${n}${sup(2)} x`:`${n}${sup(2)}(${u})`;
+
+/* ============ question types ============ */
+const TOPICS=[
+  "Basic integrals",
+  "Linear substitution (ax + b)",
+  "Basic trigonometric integrals",
+  "Trig with a linear angle",
+  "f′(x)/f(x) and logarithms",
+  "Rational forms: tan⁻¹ and ln",
+  "Special root integrals"
+];
+const TYPES=[];
+function T(topic,minLv,gen){TYPES.push({topic,minLv,gen})}
+
+/* ---- 0: basic ---- */
+T(0,"a",lv=>{
+  const k=lv==="a"?R(1,4):R(2,9), n=lv==="a"?R(2,4):R(2,8), N=n+1, g=gcd(k,N);
+  const num=k/g, den=N/g, kk=k===1?"":k;
+  const correct=(den===1?(num===1?"":num):fr(num,den))+`x${sup(N)}`;
+  return{integrand:`${kk}x${sup(n)}`,correct,
+    wrongs:[`${kk}x${sup(N)}`,`${k*n}x${sup(n-1)}`,`${cf(k,n)}x${sup(N)}`,`${cf(k,N)}x${sup(n)}`],
+    steps:[`Power rule: ${M("∫ xⁿ dx = "+fr("xⁿ⁺¹","n + 1")+" + C")}`,
+           `The constant ${k} stays outside. The new exponent is ${n} + 1 = ${N}.`,
+           `Divide by ${N} and simplify: ${M(correct+" + C")}`]};
+});
+T(0,"a",lv=>{
+  const k=R(2,7), correct=`${k} ${ln("x")}`;
+  return{integrand:fr(k,"x"),correct,
+    wrongs:[ln(k+"x"),`−${fr(k,"x"+sup(2))}`,fr(k+"x"+sup(2),2),`${k} ${ln("x"+sup(2))}`],
+    steps:[`${M("∫ "+fr(1,"x")+" dx = ln|x| + C")}`,`Take the constant ${k} outside the integral.`,`${M(correct+" + C")}`]};
+});
+T(0,"a",lv=>{
+  const k=R(2,6), m=lv==="a"?R(2,9):nz(-9,9), am=Math.abs(m);
+  const correct=`${k}e${sup("x")}${sg(m)}${am}x`;
+  return{integrand:`(${k}e${sup("x")}${sg(m)}${am})`,correct,
+    wrongs:[`${k}e${sup("x")}${sg(m)}${am}`,`${k}e${sup("x")}${sg(m)}${fr(am+"x"+sup(2),2)}`,`${k+am}e${sup("x")}`,`${k}x e${sup("x")}${sg(m)}${am}x`],
+    steps:[`Integrate term by term.`,`${M("∫ eˣ dx = eˣ + C")} and ${M("∫ "+mn(m)+" dx = "+mn(m)+"x + C")}`,`${M(correct+" + C")}`]};
+});
+T(0,"a",lv=>{
+  const B=pick([2,3,5,7]), E=`${B}${sup("x")}`, correct=fr(E,`ln ${B}`);
+  return{integrand:E,correct,
+    wrongs:[`${E} ln ${B}`,E,fr(`${B}${sup("x + 1")}`,"x + 1"),fr(E,B)],
+    steps:[`${M("∫ aˣ dx = "+fr("aˣ","ln a")+" + C")}, where a > 0 and a ≠ 1`,`Here a = ${B}.`,`${M(correct+" + C")}`]};
+});
+
+/* ---- 1: linear substitution ---- */
+T(1,"a",lv=>{
+  const a=lv==="a"?pick([2,3,4]):pick([2,3,4,5,-2,-3]), b=lv==="a"?R(1,6):nz(-7,7), n=lv==="a"?R(2,4):R(2,6);
+  const u=lin(a,b), N=n+1, P=`(${u})${sup(N)}`, correct=qf(P,a*N);
+  return{integrand:`(${u})${sup(n)}`,correct,
+    wrongs:[qf(P,N),qf(P,a*n),qf(`(${u})${sup(n)}`,a*N),P,kt(a,P)],
+    steps:[`${M("∫ (ax+b)ⁿ dx = "+fr("(ax+b)ⁿ⁺¹","a(n+1)")+" + C")}`,
+           `Here a = ${a} and n = ${n}, so a(n+1) = ${a} × ${N} = ${a*N}.`,
+           `${M(correct+" + C")}`]};
+});
+T(1,"a",lv=>{
+  const a=lv==="a"?pick([2,3,4,5]):pick([2,3,4,5,-1,-2,-3]), b=lv==="a"?R(1,6):nz(-7,7);
+  const u=lin(a,b), L=ln(u), correct=qf(L,a);
+  return{integrand:fr(1,u),correct,
+    wrongs:[L,kt(a,L),`−${fr(1,`(${u})${sup(2)}`)}`,qf(L,-a),qf(L,b)],
+    steps:[`${M("∫ "+fr(1,"ax+b")+" dx = "+fr("ln|ax+b|","a")+" + C")}`,`Here a = ${a}, so divide by ${a}.`,`${M(correct+" + C")}`]};
+});
+T(1,"a",lv=>{
+  const a=lv==="a"?pick([2,3,4]):pick([2,3,5,-1,-2,-3]), b=lv==="a"?R(1,5):nz(-5,5);
+  const u=lin(a,b), E=`e${sup(u)}`, correct=qf(E,a);
+  return{integrand:E,correct,
+    wrongs:[kt(a,E),E,qf(E,-a),qf(E,b),fr(`e${sup(u+" + 1")}`,u+" + 1")],
+    steps:[`${M("∫ e^(ax+b) dx = "+fr("e^(ax+b)","a")+" + C")}`,`Here a = ${a}, so divide by ${a}.`,`${M(correct+" + C")}`]};
+});
+T(1,"a",lv=>{
+  const B=pick([2,3,5]), m=lv==="a"?pick([2,3]):pick([2,3,4,-1,-2,-3]), n=lv==="a"?R(1,4):nz(-4,4);
+  const u=lin(m,n), E=`${B}${sup(u)}`, correct=qf(E,m,`ln ${B}`);
+  return{integrand:E,correct,
+    wrongs:[qf(E,1,`ln ${B}`),kt(m,fr(E,`ln ${B}`)),qf(`${E} ln ${B}`,m),qf(E,m)],
+    steps:[`${M("∫ a^(mx+n) dx = "+fr("a^(mx+n)","m ln a")+" + C")}`,`Here a = ${B} and m = ${m}, so the denominator is ${m} · ln ${B}.`,`${M(correct+" + C")}`]};
+});
+
+/* ---- 2: basic trig ---- */
+T(2,"a",lv=>{
+  const k=lv==="a"?1:R(2,5), kinds=[
+    {f:"tan x",c:kt(-k,ln("cos x")),w:[kt(k,ln("cos x")),kt(k,ln("sin x")),kt(-k,ln("sin x")),kt(k,`sec${sup(2)} x`)],
+     s:[`Write ${M("tan x = "+fr("sin x","cos x"))}.`,`The numerator is the negative of the derivative of the denominator, so ${M("∫ tan x dx = −∫ "+fr("−sin x","cos x")+" dx")}.`,`${M("= −ln|cos x| + C")}`]},
+    {f:"cot x",c:kt(k,ln("sin x")),w:[kt(-k,ln("sin x")),kt(k,ln("cos x")),kt(-k,ln("cos x")),kt(k,`csc${sup(2)} x`)],
+     s:[`Write ${M("cot x = "+fr("cos x","sin x"))}.`,`The numerator is the derivative of the denominator: ${M("∫ "+fr("g′(x)","g(x)")+" dx = ln|g(x)| + C")}.`,`${M("= ln|sin x| + C")}`]},
+    {f:"sec x",c:kt(k,ln("sec x + tan x")),w:[kt(k,ln("sec x − tan x")),kt(k,ln("sec x")),kt(k,"sec x tan x"),kt(k,"tan x")],
+     s:[`Multiply and divide by ${M("(sec x + tan x)")}.`,`The numerator becomes ${M("sec x tan x + sec"+sup(2)+" x")}, which is the derivative of the denominator.`,`${M("∫ sec x dx = ln|sec x + tan x| + C")}`]},
+    {f:"csc x",c:kt(k,ln("csc x − cot x")),w:[kt(k,ln("csc x + cot x")),kt(k,ln("csc x")),kt(-k,"csc x cot x"),kt(k,ln("sin x"))],
+     s:[`Multiply and divide by ${M("(csc x − cot x)")}.`,`The numerator becomes ${M("csc"+sup(2)+" x − csc x cot x")}, which is the derivative of the denominator.`,`${M("∫ csc x dx = ln|csc x − cot x| + C")}`]}
+  ], c=pick(kinds);
+  return{integrand:`${k===1?"":k+" "}${c.f}`,correct:c.c,wrongs:c.w,
+    steps:[...c.s,...(k>1?[`The constant ${k} stays as a coefficient: ${M(c.c+" + C")}`]:[])]};
+});
+const TL=[
+  {base:"∫ sin x dx = −cos x + C",f:u=>Fn("sin",u),F:u=>Fn("cos",u),s:-1,w:(u,a)=>[qf(Fn("sin",u),a),qf(Fn("sin",u),-a)]},
+  {base:"∫ cos x dx = sin x + C",f:u=>Fn("cos",u),F:u=>Fn("sin",u),s:1,w:(u,a)=>[qf(Fn("cos",u),-a),qf(Fn("cos",u),a)]},
+  {base:"∫ sec² x dx = tan x + C",f:u=>Fn2("sec",u),F:u=>Fn("tan",u),s:1,w:(u,a)=>[qf(Fn("sec",u),a),qf(Fn("cot",u),-a)]},
+  {base:"∫ csc² x dx = −cot x + C",f:u=>Fn2("csc",u),F:u=>Fn("cot",u),s:-1,w:(u,a)=>[qf(Fn("tan",u),-a),qf(Fn("csc",u),a)]},
+  {base:"∫ sec x tan x dx = sec x + C",f:u=>Fn("sec",u)+" "+Fn("tan",u),F:u=>Fn("sec",u),s:1,w:(u,a)=>[qf(Fn2("sec",u),a),qf(Fn("tan",u),a)]},
+  {base:"∫ csc x cot x dx = −csc x + C",f:u=>Fn("csc",u)+" "+Fn("cot",u),F:u=>Fn("csc",u),s:-1,w:(u,a)=>[qf(Fn("cot",u),-a),qf(Fn2("csc",u),a)]}
+];
+T(2,"a",lv=>{
+  const e=pick(TL), k=lv==="a"?1:R(2,5), a=1, u="x";
+  const correct=scale(k,qf(e.F(u),e.s));
+  const wr=[qf(e.F(u),-e.s),...e.w(u,a),qf(e.F(u),e.s*2)].map(w=>scale(k,w));
+  return{integrand:`${k===1?"":k+" "}${e.f(u)}`,correct,wrongs:wr,
+    steps:[`Standard formula: ${M(e.base)}`,`The constant ${k} stays outside the integral.`,`${M(correct+" + C")}`]};
+});
+T(2,"a",lv=>{
+  const kinds=[
+    {f:`sin${sup(2)}x`,c:`${fr("x",2)} − ${fr("sin 2x",4)}`,w:[`${fr("x",2)} + ${fr("sin 2x",4)}`,fr(`sin${sup(3)}x`,3),`${fr("x",2)} − ${fr("sin 2x",2)}`,fr("sin 2x",2)],
+     s:[`Use ${M("sin"+sup(2)+"x = "+fr("1 − cos 2x",2))}.`,`${M("∫ "+fr("1 − cos 2x",2)+" dx = "+fr("x",2)+" − "+fr("sin 2x",4))}`,`Add the constant C.`]},
+    {f:`cos${sup(2)}x`,c:`${fr("x",2)} + ${fr("sin 2x",4)}`,w:[`${fr("x",2)} − ${fr("sin 2x",4)}`,fr(`cos${sup(3)}x`,3),`${fr("x",2)} + ${fr("sin 2x",2)}`,fr("sin 2x",4)],
+     s:[`Use ${M("cos"+sup(2)+"x = "+fr("1 + cos 2x",2))}.`,`${M("∫ "+fr("1 + cos 2x",2)+" dx = "+fr("x",2)+" + "+fr("sin 2x",4))}`,`Add the constant C.`]},
+    {f:"sin x cos x",c:fr(`sin${sup(2)}x`,2),w:[fr(`cos${sup(2)}x`,2),fr("sin 2x",2),fr(`sin${sup(3)}x`,3),`−${fr(`sin${sup(2)}x`,2)}`],
+     s:[`Let u = sin x, so du = cos x dx.`,`${M("∫ u du = "+fr("u"+sup(2),2))}`,`Substitute back: ${M(fr("sin"+sup(2)+"x",2)+" + C")} (${M("−"+fr("cos"+sup(2)+"x",2))} is also accepted, since it differs by a constant).`]}
+  ], c=pick(kinds);
+  return{integrand:c.f,correct:c.c,wrongs:c.w,steps:c.s};
+});
+
+/* ---- 3: trig with linear angle ---- */
+T(3,"a",lv=>{
+  const e=pick(TL), a=lv==="a"?pick([2,3,4]):pick([2,3,5,-2,-3]), b=lv==="a"?0:pick([0,0,nz(-4,4)]);
+  const u=lin(a,b), correct=qf(e.F(u),e.s*a);
+  const wr=[qf(e.F(u),-e.s*a),qf(e.F(u),e.s),qf(e.F(u),-e.s),...e.w(u,a)];
+  return{integrand:e.f(u),correct,wrongs:wr,
+    steps:[`Standard formula: ${M(e.base)}`,`The angle ${M(u)} is linear with coefficient ${a} (its derivative), so divide the result by ${a}.`,`${M(correct+" + C")}`]};
+});
+
+/* ---- 4: f'/f ---- */
+T(4,"a",lv=>{
+  const m=lv==="a"?R(1,6):nz(-6,6), n=lv==="a"?R(1,9):nz(-9,9), P=poly(m,n);
+  const correct=ln(P);
+  return{integrand:fr(`2x${sg(m)}${Math.abs(m)}`,P),correct,
+    wrongs:[ln(`2x${sg(m)}${Math.abs(m)}`),`2 ${ln(P)}`,`${fr(1,2)} ${ln(P)}`,fr(1,P)],
+    steps:[`The derivative of the denominator ${M(P)} is ${M("2x"+sg(m)+Math.abs(m))}, which is exactly the numerator.`,`${M("∫ "+fr("g′(x)","g(x)")+" dx = ln|g(x)| + C")}`,`${M(correct+" + C")}`]};
+});
+T(4,"a",lv=>{
+  const k=R(2,5), v=pick([0,1]);
+  if(v===0)return{integrand:fr("cos x",`sin x + ${k}`),correct:ln(`sin x + ${k}`),
+    wrongs:[`−${ln(`sin x + ${k}`)}`,ln(`cos x + ${k}`),ln("sin x"),fr(1,`sin x + ${k}`)],
+    steps:[`The derivative of the denominator ${M("sin x + "+k)} is ${M("cos x")}, which is the numerator.`,`${M("∫ "+fr("g′(x)","g(x)")+" dx = ln|g(x)| + C")}`,`${M(ln("sin x + "+k)+" + C")}`]};
+  return{integrand:fr("sin x",`cos x + ${k}`),correct:`−${ln(`cos x + ${k}`)}`,
+    wrongs:[ln(`cos x + ${k}`),ln(`sin x + ${k}`),`−${ln("cos x")}`,fr(1,`cos x + ${k}`)],
+    steps:[`The derivative of the denominator ${M("cos x + "+k)} is ${M("−sin x")}, so the numerator is its negative.`,`${M("∫ "+fr("sin x","cos x + "+k)+" dx = −∫ "+fr("−sin x","cos x + "+k)+" dx")}`,`${M("−"+ln("cos x + "+k)+" + C")}`]};
+});
+T(4,"a",lv=>{
+  const k=R(1,9), E=`e${sup("x")}`, correct=`ln(${E} + ${k})`;
+  return{integrand:fr(E,`${E} + ${k}`),correct,
+    wrongs:[fr(1,`${E} + ${k}`),`${fr(1,2)} ln(${E} + ${k})`,`${E} ln(${E} + ${k})`,`ln(${E}) + ${k}`],
+    steps:[`The derivative of the denominator ${M(E+" + "+k)} is ${M(E)}, which is the numerator.`,`${M("∫ "+fr("g′(x)","g(x)")+" dx = ln|g(x)| + C")}`,`The denominator is always positive, so no absolute value is needed: ${M(correct+" + C")}`]};
+});
+T(4,"b",lv=>{
+  const c=pick([1,2,3,6]), k=nz(-9,9), P=`x${sup(3)}${sg(k)}${Math.abs(k)}`, cc=c===1?"":c;
+  const correct=withC(cf(c,3),ln(P));
+  return{integrand:fr(`${cc}x${sup(2)}`,P),correct,
+    wrongs:[kt(c,ln(P)),withC(cf(c,2),ln(P)),withC(cf(c,3),`(${P})${sup(2)}`),withC(cf(c,3),ln(`x${sup(2)}${sg(k)}${Math.abs(k)}`))],
+    steps:[`The derivative of the denominator ${M(P)} is ${M("3x"+sup(2))}.`,`Rewrite the numerator ${M(cc+"x"+sup(2))} as ${M(fr(c,3)+" · 3x"+sup(2))}.`,`${M("∫ "+fr("g′","g")+" dx = ln|g|")}, so ${M(correct+" + C")}`]};
+});
+
+/* ---- 5: rational forms ---- */
+T(5,"a",lv=>{
+  const a=nz(-6,6), base=lin(1,-a), correct=ln(base);
+  return{integrand:fr(1,base),correct,
+    wrongs:[ln("x"),`−${fr(1,`(${base})${sup(2)}`)}`,fr(`(${base})${sup(2)}`,2),fr(1,base)],
+    steps:[`${M("∫ "+fr(1,"x − a")+" dx = ln|x − a| + C")}`,`Here a = ${a}.`,`${M(correct+" + C")}`]};
+});
+T(5,"a",lv=>{
+  const a=nz(-6,6), base=lin(1,-a), correct=`−${fr(1,base)}`;
+  return{integrand:fr(1,`(${base})${sup(2)}`),correct,
+    wrongs:[fr(1,base),ln(base),`−${fr(2,`(${base})${sup(3)}`)}`,fr(`(${base})${sup(3)}`,3)],
+    steps:[`Write the integral as ${M("∫ (x − a)"+sup("−2")+" dx")}.`,`Power rule: ${M(fr("(x − a)"+sup("−1"),"−1")+" = −"+fr(1,"x − a"))}`,`${M(correct+" + C")}`]};
+});
+T(5,"a",lv=>{
+  const a=lv==="a"?pick([1,2,3,4]):pick([2,3,4,5,6,7]), arg=a===1?"x":fr("x",a);
+  const correct=withC(cf(1,a),ATAN(arg));
+  return{integrand:fr(1,`x${sup(2)} + ${a*a}`),correct,
+    wrongs:[ATAN(arg),withC(cf(1,a*a),ATAN(arg)),kt(a,ATAN(arg)),`${fr(1,2)} ln(x${sup(2)} + ${a*a})`,ASIN(arg)],
+    steps:[`${M("∫ "+fr(1,"x²+a²")+" dx = "+fr(1,"a")+" tan⁻¹("+fr("x","a")+") + C")}`,`Here a² = ${a*a}, so a = ${a}.`,`${M(correct+" + C")}`]};
+});
+T(5,"b",lv=>{
+  const a=R(2,7), correct=`${fr(1,2*a)} ln|${fr(`x − ${a}`,`x + ${a}`)}|`;
+  return{integrand:fr(1,`x${sup(2)} − ${a*a}`),correct,
+    wrongs:[`${fr(1,a)} ln|${fr(`x − ${a}`,`x + ${a}`)}|`,`${fr(1,2*a)} ln|${fr(`x + ${a}`,`x − ${a}`)}|`,`${fr(1,2*a)} ${ln(`x${sup(2)} − ${a*a}`)}`,`${fr(1,a)} ${ATAN(fr("x",a))}`],
+    steps:[`${M("∫ "+fr(1,"x²−a²")+" dx = "+fr(1,"2a")+" ln|"+fr("x−a","x+a")+"| + C")}`,`Here a² = ${a*a}, so a = ${a}.`,`${M(correct+" + C")}`]};
+});
+T(5,"b",lv=>{
+  const A=R(1,6), B=R(1,9), a=pick([2,3,4]), arg=fr("x",a), L=`ln(x${sup(2)} + ${a*a})`, AT=ATAN(arg);
+  const comb=(c1,c2)=>withC(c1,L)+" + "+withC(c2,AT);
+  const correct=comb(cf(A,2),cf(B,a));
+  return{integrand:fr(`${A===1?"":A}x + ${B}`,`x${sup(2)} + ${a*a}`),correct,
+    wrongs:[comb(cf(A,1),cf(B,a)),comb(cf(A,2),cf(B,1)),comb(cf(B,a),cf(A,2)),comb(cf(A,a),cf(B,2))],
+    steps:[`${M("∫ "+fr("Ax + B","x²+a²")+" dx = "+fr("A","2")+" ln(x²+a²) + "+fr("B","a")+" tan⁻¹("+fr("x","a")+") + C")}`,
+           `Here A = ${A}, B = ${B}, a = ${a}.`,`${M(correct+" + C")}`]};
+});
+
+/* ---- 6: roots ---- */
+T(6,"a",lv=>{
+  const a=lv==="a"?pick([2,3,4,5]):pick([2,3,4,5,6,7]), arg=fr("x",a), correct=ASIN(arg);
+  return{integrand:fr(1,sq(`${a*a} − x${sup(2)}`)),correct,
+    wrongs:[ACOS(arg),withC(cf(1,a),ASIN(arg)),ASIN("x"),ATAN(arg),ln(`x + ${sq(`${a*a} − x${sup(2)}`)}`)],
+    steps:[`${M("∫ "+fr(1,sq("a²−x²"))+" dx = sin⁻¹("+fr("x","a")+") + C")}`,`Here a² = ${a*a}, so a = ${a}.`,`${M(correct+" + C")}`]};
+});
+T(6,"a",lv=>{
+  const a=lv==="a"?pick([2,3,4,5]):pick([2,3,4,5,6]), plus=lv==="a"?true:Math.random()<.5;
+  const inside=`x${sup(2)}${plus?" + ":" − "}${a*a}`, S=sq(inside);
+  return{integrand:fr(1,S),correct:ln(`x + ${S}`),
+    wrongs:[ln(`x − ${S}`),ASIN(fr("x",a)),withC(cf(1,a),ATAN(fr("x",a))),S],
+    steps:[`${M("∫ "+fr(1,sq("x²"+(plus?"+":"−")+"a²"))+" dx = ln|x + "+sq("x²"+(plus?"+":"−")+"a²")+"| + C")}`,`Here a² = ${a*a}.`,`${M(ln("x + "+S)+" + C")}`]};
+});
+
+/* ============ quiz building ============ */
+function makeQ(topic,lv){
+  const pool=TYPES.filter(t=>(topic==="mix"||t.topic===topic)&&(t.minLv==="a"||lv==="b"));
+  const t=pick(pool), g=t.gen(lv);
+  const seen=new Set([g.correct]), w=[];
+  for(const x of shuffle(g.wrongs.filter(Boolean)))if(!seen.has(x)){seen.add(x);w.push(x)}
+  while(w.length<3){const x=g.correct+" + "+R(2,9);if(!seen.has(x)){seen.add(x);w.push(x)}}
+  const opts=shuffle([{h:g.correct,ok:true},...w.slice(0,3).map(h=>({h,ok:false}))]);
+  return{topic:t.topic,integrand:g.integrand,steps:g.steps,correct:g.correct,opts};
+}
+function buildQuiz(topic,lv,n){
+  const out=[],keys=new Set();let guard=0;
+  while(out.length<n&&guard++<400){
+    const q=makeQ(topic,lv);
+    if(keys.has(q.integrand))continue;
+    keys.add(q.integrand);out.push(q);
+  }
+  return out;
+}
+/*UI*/
+const LEVELS=[{id:"a",name:"Basic"},{id:"b",name:"Advanced"}];
+const COUNTS=[5,10,20];
+const LETTERS=["A","B","C","D"];
+const LS="calc102-en-best-v1";
+let state={level:"a",topic:null,count:10,quiz:[],idx:0,picked:null,results:[]};
+let best={};
+try{best=JSON.parse(localStorage.getItem(LS)||"{}")}catch(e){best={}}
+function save(){try{localStorage.setItem(LS,JSON.stringify(best))}catch(e){}}
+
+const $=s=>document.querySelector(s);
+const levelsEl=$("#levels"),countsEl=$("#counts"),topicsEl=$("#topics"),stageEl=$("#stage");
+const stemHtml=q=>`<span class="m"><span class="int">∫</span> ${q.integrand} dx</span>`;
+const ansHtml=h=>`<span class="m">${h} + C</span>`;
+
+function chips(el,items,cur,onPick){
+  el.innerHTML="";
+  items.forEach(it=>{
+    const b=document.createElement("button");
+    b.className="chip";b.type="button";b.textContent=it.name;
+    b.setAttribute("aria-pressed",String(cur===it.id));
+    b.onclick=()=>onPick(it.id);
+    el.appendChild(b);
+  });
+}
+function renderControls(){
+  chips(levelsEl,LEVELS,state.level,id=>{state.level=id;state.topic=null;state.quiz=[];renderAll()});
+  chips(countsEl,COUNTS.map(c=>({id:c,name:String(c)})),state.count,id=>{state.count=id;if(state.topic!==null)start(state.topic);else renderAll()});
+  topicsEl.innerHTML="";
+  const items=[{id:"mix",name:"Mixed (all topics)",n:"★"},...TOPICS.map((t,i)=>({id:i,name:t,n:i+1}))];
+  items.forEach(it=>{
+    const li=document.createElement("li"),b=document.createElement("button");
+    b.className="topic";b.type="button";
+    if(state.topic===it.id)b.setAttribute("aria-current","true");
+    const p=best[state.level+"-"+it.id];
+    b.innerHTML=`<span class="num">${it.n}</span><span class="t">${it.name}</span>`+(p?`<span class="done">Best: ${p}%</span>`:"");
+    b.onclick=()=>{start(it.id);stageEl.scrollIntoView({behavior:"smooth",block:"start"})};
+    li.appendChild(b);topicsEl.appendChild(li);
+  });
+}
+function start(topic){
+  state.topic=topic;state.quiz=buildQuiz(topic,state.level,state.count);
+  state.idx=0;state.picked=null;state.results=[];renderAll();
+}
+function topicName(){return state.topic==="mix"?"Mixed":TOPICS[state.topic]}
+
+function renderStage(){
+  if(state.topic===null){stageEl.innerHTML='<div class="empty">Pick a topic to generate a new quiz.</div>';return}
+  const n=state.quiz.length;
+  let h=`<div class="stage"><h2>${topicName()}</h2>`;
+  if(state.idx>=n){
+    const sc=state.results.filter(r=>r.ok).length, pct=Math.round(sc/n*100);
+    h+=`<div class="summary"><div class="score">${sc} / ${n}</div><p>Score: ${pct}%</p></div>`;
+    const wrong=state.results.filter(r=>!r.ok);
+    if(wrong.length){
+      h+='<p><b>Questions to review:</b></p><ul class="review">';
+      wrong.forEach(r=>{const q=state.quiz[r.i];h+=`<li>${stemHtml(q)}<small>Correct answer: ${ansHtml(q.correct)}</small></li>`});
+      h+="</ul>";
+    }
+    h+='<div style="text-align:center"><button class="btn" id="again" type="button">New quiz with new numbers</button></div></div>';
+    stageEl.innerHTML=h;
+    $("#again").onclick=()=>start(state.topic);
+    return;
+  }
+  const q=state.quiz[state.idx],answered=state.picked!==null;
+  h+=`<div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="${n}" aria-valuenow="${state.idx}"><i style="width:${state.idx/n*100}%"></i></div>`;
+  h+=`<div class="count">Question ${state.idx+1} of ${n}</div>`;
+  h+=`<p class="q">Evaluate the integral:</p><div class="stem">${stemHtml(q)}</div>`;
+  h+='<div class="opts" role="radiogroup" aria-label="Choices">';
+  q.opts.forEach((o,i)=>{
+    let cls="opt";
+    if(answered){if(o.ok)cls+=" correct";else if(i===state.picked)cls+=" wrong"}
+    h+=`<button type="button" role="radio" aria-checked="${state.picked===i}" class="${cls}" data-i="${i}"${answered?" disabled":""}><span class="circle">${LETTERS[i]}</span><span class="txt">${ansHtml(o.h)}</span></button>`;
+  });
+  h+="</div>";
+  if(answered){
+    const ok=q.opts[state.picked].ok, ci=q.opts.findIndex(o=>o.ok);
+    h+=`<div class="fb ${ok?"ok":"bad"}"><b>${ok?"Correct":"Incorrect. The right answer is "+LETTERS[ci]}</b>Worked steps:<ol class="steps">${q.steps.map(s=>`<li>${s}</li>`).join("")}</ol></div>`;
+    h+=`<button class="btn" id="go" type="button">${state.idx===n-1?"See results":"Next question"}</button>`;
+  }
+  h+="</div>";
+  stageEl.innerHTML=h;
+  stageEl.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    state.picked=+b.dataset.i;
+    state.results.push({i:state.idx,ok:q.opts[state.picked].ok});
+    renderStage();
+  });
+  const go=$("#go");
+  if(go)go.onclick=()=>{
+    state.idx++;state.picked=null;
+    if(state.idx>=n){
+      const pct=Math.round(state.results.filter(r=>r.ok).length/n*100), k=state.level+"-"+state.topic;
+      if(!best[k]||pct>best[k]){best[k]=pct;save()}
+      renderControls();
+    }
+    renderStage();
+  };
+}
+function renderAll(){renderControls();renderStage()}
+renderAll();
+
+$("#themeBtn").onclick=()=>{
+  const r=document.documentElement;
+  const dark=r.getAttribute("data-theme")==="dark"||(!r.getAttribute("data-theme")&&matchMedia("(prefers-color-scheme: dark)").matches);
+  r.setAttribute("data-theme",dark?"light":"dark");
+};
+</script>
+</body>
+</html>
