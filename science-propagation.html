@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>العلوم - إكثار النباتات خضريا</title>
+<style>
+:root{--bg:#f3f8f1;--card:#fff;--ink:#1f2a22;--mute:#66756a;--line:#d8e5d6;--acc:#2f8a4a;--accbg:#e4f3e6;--ok:#1b7f4b;--okbg:#e2f4ea;--bad:#b3341f;--badbg:#fbe9e5;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141b16;--card:#1d2620;--ink:#e8f1ea;--mute:#9db3a2;--line:#2f3f34;--acc:#6fd28b;--accbg:#1f3526;--ok:#5fd394;--okbg:#17362a;--bad:#ff8a73;--badbg:#3b201b}}
+:root[data-theme="dark"]{--bg:#141b16;--card:#1d2620;--ink:#e8f1ea;--mute:#9db3a2;--line:#2f3f34;--acc:#6fd28b;--accbg:#1f3526;--ok:#5fd394;--okbg:#17362a;--bad:#ff8a73;--badbg:#3b201b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI","Noto Naskh Arabic",Tahoma,sans-serif;line-height:1.85;font-size:18px}
+main{max-width:600px;margin:0 auto;padding:18px 16px 40px}
+h1{font-size:22px;margin:0 0 2px}
+.sub{color:var(--mute);margin:0 0 14px;font-size:15px}
+.tabs{display:flex;gap:8px;margin-bottom:14px}
+.tab{flex:1;border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:9px;border-radius:12px;font:inherit;font-size:16px;cursor:pointer}
+.tab[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.card h2{font-size:18px;margin:0 0 6px;color:var(--acc)}
+.card ul{margin:6px 0 0;padding-inline-start:22px}
+.card li{margin-bottom:4px}
+.term{display:flex;justify-content:space-between;gap:10px;background:var(--accbg);border-radius:10px;padding:6px 12px;margin:6px 0}
+.term span:last-child{direction:ltr;color:var(--mute);font-family:system-ui,sans-serif}
+.pic{border-radius:10px;overflow:hidden;margin:8px 0 4px;border:1px solid var(--line)}
+.pic svg{display:block;width:100%;height:auto}
+.cap{font-size:14px;color:var(--mute);margin:0 0 6px}
+.flow{display:flex;align-items:center;justify-content:center;gap:8px;font-size:34px;direction:rtl;margin:6px 0}
+.flow small{display:block;font-size:13px;color:var(--mute);text-align:center;line-height:1.3}
+.dots{display:flex;gap:4px;margin:0 0 12px}
+.dot{height:6px;flex:1;border-radius:3px;background:var(--line)}
+.dot.done{background:var(--ok)}.dot.cur{background:var(--acc)}
+.tag{color:var(--mute);font-size:14px;margin-bottom:4px}
+.q{font-weight:600;margin:0 0 10px}
+.opt{display:block;width:100%;text-align:start;border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:11px 14px;border-radius:10px;margin-bottom:8px;font:inherit;cursor:pointer}
+.opt:focus-visible,.tab:focus-visible,.btn:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.opt.good{background:var(--okbg);border-color:var(--ok);color:var(--ok)}
+.opt.bad{background:var(--badbg);border-color:var(--bad);color:var(--bad)}
+.why{background:var(--accbg);border-radius:10px;padding:10px 14px;margin:2px 0 10px;font-size:16px}
+.btn{border:0;background:var(--acc);color:#fff;padding:12px 18px;border-radius:10px;font:inherit;font-weight:600;cursor:pointer;width:100%}
+.final{text-align:center}.big{font-size:44px;font-weight:700;color:var(--acc)}
+.score{color:var(--mute);font-size:14px;text-align:center;margin-top:8px}
+</style>
+</head>
+<body>
+<main>
+<h1>إِكْثَارُ النَّبَاتَاتِ خُضَرِيًّا</h1>
+<p class="sub">العلوم · الوحدة 3 · تكثير النباتات بالدرنات والعقل</p>
+<div class="tabs"><button class="tab" id="t1" aria-pressed="true">الملخص</button><button class="tab" id="t2" aria-pressed="false">تدرّب</button></div>
+<div id="app"></div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const sh=a=>[...a].sort(()=>Math.random()-.5);
+const IMG={
+tuber:`<svg viewBox="0 0 240 140" role="img" aria-label="رسم توضيحي لدرنة بطاطا فيها براعم"><rect width="240" height="140" fill="#cfe8f5"/><rect y="95" width="240" height="45" fill="#8a5a38"/><ellipse cx="85" cy="108" rx="48" ry="24" fill="#c99a62" stroke="#8a6030" stroke-width="2"/><circle cx="68" cy="102" r="3.5" fill="#6b4a24"/><circle cx="92" cy="112" r="3.5" fill="#6b4a24"/><circle cx="108" cy="100" r="3.5" fill="#6b4a24"/><path d="M68 100 q-2 -22 6 -32" stroke="#4caf50" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M74 68 q10 -8 16 0 q-8 8 -16 0z" fill="#4caf50"/><path d="M108 98 q4 -26 -4 -38" stroke="#4caf50" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M104 60 q-10 -8 -16 0 q8 8 16 0z" fill="#4caf50"/><ellipse cx="185" cy="115" rx="26" ry="14" fill="#c99a62" stroke="#8a6030" stroke-width="2"/><circle cx="178" cy="112" r="3" fill="#6b4a24"/><text x="185" y="90" text-anchor="middle" font-size="14" fill="#333" font-family="sans-serif">قطعة فيها عين</text></svg>`,
+cutting:`<svg viewBox="0 0 240 140" role="img" aria-label="رسم توضيحي لعقلة نبات في كأس ماء وجذور صغيرة"><rect width="240" height="140" fill="#eaf4ec"/><rect x="85" y="55" width="70" height="75" rx="6" fill="#bfe3ff" stroke="#5aa9e6" stroke-width="3"/><rect x="88" y="75" width="64" height="52" rx="4" fill="#8cc8f5"/><path d="M120 18 V102" stroke="#3f9b4a" stroke-width="5" stroke-linecap="round"/><path d="M120 40 q-26 -6 -30 -24 q24 0 30 24z" fill="#4caf50"/><path d="M120 54 q26 -6 30 -24 q-24 0 -30 24z" fill="#4caf50"/><path d="M120 86 q-10 12 -18 12 M120 90 q0 14 -2 20 M120 88 q10 12 18 14" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>`,
+pot:`<svg viewBox="0 0 240 140" role="img" aria-label="رسم توضيحي لنبات جديد في أصيص"><rect width="240" height="140" fill="#eaf4ec"/><path d="M85 90 h70 l-8 42 h-54z" fill="#c4683a" stroke="#97451f" stroke-width="2"/><rect x="80" y="84" width="80" height="10" rx="3" fill="#d27a4a" stroke="#97451f" stroke-width="2"/><path d="M120 84 V30" stroke="#3f9b4a" stroke-width="5" stroke-linecap="round"/><path d="M120 66 q-32 -4 -38 -26 q30 0 38 26z" fill="#4caf50"/><path d="M120 54 q32 -4 38 -26 q-30 0 -38 26z" fill="#4caf50"/><path d="M120 36 q-14 -2 -18 -16 q14 2 18 16z" fill="#66bb6a"/></svg>`};
+const pic=(k,c)=>`<div class="pic">${IMG[k]}</div><p class="cap">${c}</p>`;
+const SUM=`
+<div class="card"><h2>الفكرة الرئيسة</h2><p style="margin:0">يهدف <b>إكثار النباتات خضريًا</b> إلى <b>زيادة أعدادها</b>، باستخدام <b>أجزاء منها</b> في إنتاج نباتات جديدة تحمل <b>صفات النبات الأم</b>، مثل استخدام <b>الدرنات</b> و<b>العقل</b>.</p>
+<div class="flow"><div>🌿<small>النبات الأم</small></div><div>⬅️</div><div>✂️<small>جزء منه</small></div><div>⬅️</div><div>🪴<small>نبات جديد</small></div></div></div>
+<div class="card"><h2>ماذا سأتعلّم؟</h2><ul><li>تكثير النباتات بالدرنات.</li><li>تكثير النباتات بالعقل.</li></ul></div>
+<div class="card"><h2>المفاهيم والمصطلحات</h2><div class="term"><span>الدَّرَنَاتُ</span><span>Tubers</span></div><div class="term"><span>الْعُقَلُ</span><span>Cuttings</span></div></div>
+<div class="card"><h2>التكثير بالدرنات</h2>${pic("tuber","رسم توضيحي: قطع من درنة بطاطا، في كل قطعة عين (برعم) ينمو منها نبات جديد")}<ul><li>الدرنات سيقان منتفخة تحت التربة تخزّن الغذاء، مثل <b>البطاطا</b>.</li><li>في الدرنة «عيون» (براعم) ينمو منها نبات جديد.</li><li>نقطّع الدرنة إلى قطع، في كل قطعة عين واحدة على الأقل، ونزرعها في التربة.</li></ul></div>
+<div class="card"><h2>التكثير بالعقل</h2>${pic("cutting","رسم توضيحي: عقلة من ساق نبات في ماء، وتظهر الجذور البيضاء الصغيرة")}${pic("pot","رسم توضيحي: نبات جديد نما في أصيص")}<ul><li>العقلة جزء مقطوع من ساق النبات الأم.</li><li>نزرعها في تربة رطبة أو نضعها في الماء حتى تنمو لها جذور.</li><li>من النباتات التي تُكثَّر بالعقل: <b>النعناع</b> و<b>الورد</b>.</li></ul></div>
+<div class="card"><h2>القيم والاتجاهات</h2><ul><li>تعزيز مفهوم <b>الانتماء للأرض</b>.</li><li>تقدير <b>العمل في مهنة الزراعة</b>.</li></ul></div>
+<button class="btn" id="go">ابدأ التدرّب</button>`;
+const BANK=[
+{t:"mcq",q:"ما الهدف من إكثار النباتات خضريًّا؟",o:["زيادة أعدادها","تغيير لونها","جعلها تعيش بلا ماء","تقليل أعدادها"],a:0,w:"يهدف الإكثار الخضري إلى زيادة أعداد النباتات."},
+{t:"mcq",q:"في الإكثار الخضري نستخدم لإنتاج نبات جديد:",o:["أجزاء من النبات الأم","بذورًا فقط","ماءً فقط","صخورًا"],a:0,w:"نستخدم أجزاءً من النبات الأم لإنتاج نبات جديد."},
+{t:"mcq",q:"النباتات الجديدة الناتجة بالإكثار الخضري تحمل صفات:",o:["النبات الأم","نبات مختلف تمامًا","الحيوانات","التربة فقط"],a:0,w:"تحمل النباتات الجديدة صفات النبات الأم."},
+{t:"mcq",q:"ماذا تعني كلمة (Tubers) بالعربية؟",o:["الدرنات","العقل","الجذور","الثمار"],a:0,w:"Tubers تعني الدرنات."},
+{t:"mcq",q:"ماذا تعني كلمة (Cuttings) بالعربية؟",o:["العقل","الدرنات","الأوراق","الأزهار"],a:0,w:"Cuttings تعني العقل."},
+{t:"mcq",q:"أي هذه النباتات يُكثَّر بالدرنات؟",o:["البطاطا","النعناع","القمح","الفول"],a:0,w:"البطاطا تُكثَّر بالدرنات."},
+{t:"mcq",q:"أي هذه النباتات يُكثَّر بالعقل؟",o:["النعناع","البطاطا","القمح","الفول"],a:0,w:"النعناع يُكثَّر بالعقل، أما البطاطا فبالدرنات."},
+{t:"mcq",q:"الدرنة مثل البطاطا هي:",o:["ساق منتفخة تخزّن الغذاء","زهرة كبيرة","ورقة جافة","حشرة"],a:0,w:"الدرنات سيقان منتفخة تخزّن الغذاء."},
+{t:"mcq",q:"ماذا ينمو من «عيون» الدرنة؟",o:["نبات جديد","حجارة","ماء","تراب"],a:0,w:"تنمو من عيون الدرنة (البراعم) نباتات جديدة."},
+{t:"mcq",q:"عند تقطيع الدرنة للزراعة، يجب أن يكون في كل قطعة:",o:["عين واحدة على الأقل","لون أخضر","ثمرة","زهرة"],a:0,w:"لكي تنمو القطعة نباتًا جديدًا لا بدّ أن تحمل عينًا واحدة على الأقل."},
+{t:"mcq",q:"العقلة هي:",o:["جزء مقطوع من ساق النبات","بذرة صغيرة","ثمرة ناضجة","جذر الشجرة كاملًا"],a:0,w:"العقلة جزء مقطوع من ساق النبات الأم."},
+{t:"mcq",q:"لتنمو العقلة وتكوّن جذورًا نزرعها في:",o:["تربة رطبة أو نضعها في الماء","رمل جاف تمامًا","مكان مظلم جاف","الثلج"],a:0,w:"نزرع العقلة في تربة رطبة أو نضعها في الماء حتى تنمو لها جذور."},
+{t:"mcq",q:"من خلال هذا الدرس نعزّز:",o:["الانتماء للأرض وتقدير العمل في الزراعة","الخوف من النباتات","ترك الأرض","إهمال الزراعة"],a:0,w:"نعزّز الانتماء للأرض ونقدّر العمل في مهنة الزراعة."},
+{t:"tf",q:"إكثار النباتات بالدرنات والعقل أمثلة على الإكثار الخضري.",a:true,w:"صح، الدرنات والعقل أجزاء من النبات تُستخدم للإكثار الخضري."},
+{t:"tf",q:"النبات الجديد الناتج بالعقل يختلف تمامًا عن النبات الأم.",a:false,w:"خطأ، يحمل النبات الجديد صفات النبات الأم."},
+{t:"tf",q:"الإكثار الخضري يحتاج دائمًا إلى بذور.",a:false,w:"خطأ، الإكثار الخضري يستخدم أجزاءً من النبات مثل الدرنات والعقل."},
+{t:"tf",q:"البطاطا مثال على الإكثار بالدرنات.",a:true,w:"صح، البطاطا تُكثَّر بالدرنات."},
+{t:"tf",q:"الدرنات سيقان منتفخة تخزّن الغذاء.",a:true,w:"صح."}];
+let qs,qi,right,locked;
+function tab(n){$("t1").setAttribute("aria-pressed",n===1);$("t2").setAttribute("aria-pressed",n===2);n===1?summary():start()}
+function summary(){$("app").innerHTML=SUM;$("go").onclick=()=>tab(2);window.scrollTo(0,0)}
+function start(){qs=sh(BANK).slice(0,10).map(b=>{if(b.t==="tf")return{...b,opts:["صح","خطأ"],c:b.a?0:1};const ord=sh([0,1,2,3]);return{...b,opts:ord.map(i=>b.o[i]),c:ord.indexOf(b.a)}});qi=0;right=0;show()}
+function show(){if(qi>=qs.length)return done();locked=false;const q=qs[qi];
+$("app").innerHTML=`<div class="dots">${qs.map((_,k)=>`<div class="dot ${k<qi?"done":k===qi?"cur":""}"></div>`).join("")}</div><div class="card"><div class="tag">سؤال ${qi+1} من ${qs.length}${q.t==="tf"?" · صح أم خطأ":""}</div><p class="q">${q.q}</p><div id="opts">${q.opts.map((o,k)=>`<button class="opt" data-k="${k}">${o}</button>`).join("")}</div></div>`;
+document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>pick(b,q));window.scrollTo(0,0)}
+function pick(b,q){if(locked)return;locked=true;const k=+b.dataset.k,ok=k===q.c;if(ok)right++;
+document.querySelectorAll(".opt").forEach(o=>{o.disabled=true;if(+o.dataset.k===q.c)o.classList.add("good")});if(!ok)b.classList.add("bad");
+$("opts").insertAdjacentHTML("afterend",`<div class="why"><b>${ok?"إجابة صحيحة ✅":"إجابة غير صحيحة ❌"}</b><br>${q.w}</div><button class="btn" id="nx">${qi===qs.length-1?"النتيجة":"السؤال التالي"}</button>`);
+$("nx").onclick=()=>{qi++;show()};$("nx").scrollIntoView({block:"nearest"})}
+function done(){const n=qs.length,pc=Math.round(right/n*100);
+$("app").innerHTML=`<div class="card final"><div class="big">${right} / ${n}</div><b>${pc}% · ${pc>=80?"ممتاز! 🎉":pc>=50?"جيد، حاول مرة ثانية لتتحسّن.":"راجع الملخص ثم حاول مرة ثانية."}</b></div><button class="btn" id="again">أسئلة جديدة</button><div class="score"><a href="#" id="rv" style="color:var(--acc)">العودة إلى الملخص</a></div>`;
+$("again").onclick=start;$("rv").onclick=e=>{e.preventDefault();tab(1)};window.scrollTo(0,0)}
+$("t1").onclick=()=>tab(1);$("t2").onclick=()=>tab(2);
+tab(1);
+</script>
+</body>
+</html>
