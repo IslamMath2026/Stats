@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Integration Question Generator</title>
+<style>
+:root{--ink:#172554;--blue:#2563eb;--pale:#eff6ff;--line:#dbe3ef;--green:#166534}
+*{box-sizing:border-box}body{margin:0;background:#f4f7fb;color:#172033;font-family:Arial,Helvetica,sans-serif;line-height:1.65}
+header{background:linear-gradient(135deg,#172554,#2563eb);color:white;padding:28px 16px;text-align:center}
+header h1{margin:0 0 5px;font-size:clamp(24px,4vw,34px)}header p{margin:0;color:#e0eaff}
+main{max-width:900px;margin:22px auto;padding:0 14px}.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 5px 20px #0f172a0a}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:13px}label{display:block;font-weight:bold;margin-bottom:5px}select{width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:9px;background:white;font:inherit}
+button{border:0;border-radius:10px;padding:11px 16px;font:inherit;font-weight:bold;cursor:pointer}button.primary{background:var(--blue);color:white}button.secondary{background:var(--pale);color:#1d4ed8;border:1px solid #bfdbfe}button:focus,select:focus{outline:3px solid #bfdbfe}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:15px}.question{border:1px solid var(--line);border-radius:12px;padding:15px;margin:12px 0;background:#fff}.qtitle{font-weight:bold;color:var(--ink);margin-bottom:8px}.choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:7px}.choice{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px;cursor:pointer;text-align:left}.choice.selected{border-color:#2563eb;background:#eff6ff}.choice.correct{border-color:#16a34a;background:#f0fdf4}.choice.wrong{border-color:#dc2626;background:#fef2f2}.answer{display:none;background:#f0fdf4;border-left:4px solid #16a34a;padding:9px 12px;margin-top:10px;border-radius:7px}.answer.show{display:block}.muted{color:#64748b;font-size:14px}.score{font-size:18px;font-weight:bold;color:var(--green)}
+footer{text-align:center;color:#64748b;font-size:13px;padding:20px}
+@media print{header,.controls,.actions,.no-print{display:none!important}body{background:white}.panel,.question{box-shadow:none;break-inside:avoid}}
+</style>
+</head>
+<body>
+<header><h1>Integration Question Generator</h1><p>Practice standard, trigonometric, rational, and special integrals</p></header>
+<main>
+<section class="panel">
+<h2 style="margin-top:0">Quiz Settings</h2>
+<div class="controls">
+<div><label for="topic">Topic</label><select id="topic"><option value="all">All Topics</option><option value="basic">Standard Integrals</option><option value="trig">Trigonometric Integrals</option><option value="rational">Rational Functions</option><option value="special">Special Integrals</option></select></div>
+<div><label for="count">Number of Questions</label><select id="count"><option>5</option><option selected>10</option><option>15</option><option>20</option></select></div>
+<div><label for="level">Difficulty</label><select id="level"><option value="mixed">Mixed</option><option value="easy">Basic</option><option value="challenge">Advanced</option></select></div>
+</div>
+<div class="actions no-print"><button class="primary" onclick="generate()">Generate New Questions</button><button class="secondary" onclick="checkAnswers()">Check Answers</button><button class="secondary" onclick="toggleAnswers()">Show/Hide Solutions</button><button class="secondary" onclick="window.print()">Print / Save as PDF</button></div>
+<p class="muted">Choose an answer for each question, then click “Check Answers”. Generate a new set whenever you like.</p>
+</section>
+<section class="panel">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h2 style="margin:0">Questions</h2><div id="score" class="score" aria-live="polite"></div></div>
+<div id="questions"><p class="muted">Click “Generate New Questions” to begin.</p></div>
+</section>
+</main>
+<footer>A standalone practice tool that runs in your browser. Questions are selected from the built-in question bank.</footer>
+<script>
+const bank = [
+{t:'basic',q:'Evaluate ∫ x⁴ dx.',o:['x⁵/5 + C','4x³ + C','x⁴/4 + C','x⁵ + C'],a:0,e:'Power rule: ∫xⁿ dx = xⁿ⁺¹/(n+1) + C, for n ≠ −1.'},
+{t:'basic',q:'Evaluate ∫ (1/x) dx.',o:['1/x² + C','ln|x| + C','x + C','eˣ + C'],a:1,e:'∫(1/x) dx = ln|x| + C.'},
+{t:'basic',q:'Evaluate ∫ eˣ dx.',o:['xeˣ + C','eˣ + C','eˣ/x + C','ln|x| + C'],a:1,e:'The derivative of eˣ is eˣ, so its integral is eˣ + C.'},
+{t:'basic',q:'Evaluate ∫ 3x² dx.',o:['6x + C','x³ + C','3x³ + C','x² + C'],a:1,e:'∫3x² dx = 3(x³/3) = x³ + C.'},
+{t:'basic',q:'Evaluate ∫ (2x+3)³ dx.',o:['(2x+3)⁴/4 + C','(2x+3)⁴/8 + C','3(2x+3)² + C','(2x+3)³/2 + C'],a:1,e:'Divide by 2×4, giving (2x+3)⁴/8 + C.'},
+{t:'basic',q:'Evaluate ∫ 5ˣ dx.',o:['5ˣ + C','5ˣ/ln 5 + C','5ˣ ln 5 + C','x·5ˣ + C'],a:1,e:'∫aˣ dx = aˣ/ln(a) + C.'},
+{t:'trig',q:'Evaluate ∫ cos x dx.',o:['−sin x + C','sin x + C','−cos x + C','tan x + C'],a:1,e:'The derivative of sin x is cos x.'},
+{t:'trig',q:'Evaluate ∫ sin x dx.',o:['cos x + C','−cos x + C','sin x + C','−sin x + C'],a:1,e:'The derivative of −cos x is sin x.'},
+{t:'trig',q:'Evaluate ∫ sec²x dx.',o:['sec x + C','cot x + C','tan x + C','−tan x + C'],a:2,e:'The derivative of tan x is sec²x.'},
+{t:'trig',q:'Evaluate ∫ csc²x dx.',o:['cot x + C','−cot x + C','csc x + C','−csc x + C'],a:1,e:'The derivative of cot x is −csc²x.'},
+{t:'trig',q:'Evaluate ∫ tan x dx.',o:['ln|sin x| + C','ln|cos x| + C','−ln|cos x| + C','sec x + C'],a:2,e:'∫tan x dx = −ln|cos x| + C.'},
+{t:'trig',q:'Evaluate ∫ cot x dx.',o:['ln|sin x| + C','−ln|sin x| + C','ln|cos x| + C','tan x + C'],a:0,e:'∫cot x dx = ln|sin x| + C.'},
+{t:'trig',q:'Evaluate ∫ sec x tan x dx.',o:['tan x + C','sec x + C','−sec x + C','ln|sec x| + C'],a:1,e:'The derivative of sec x is sec x tan x.'},
+{t:'trig',q:'Evaluate ∫ sin x cos x dx.',o:['sin²x + C','cos²x + C','sin²x/2 + C','−cos x + C'],a:2,e:'Using u = sin x, the integral is sin²x/2 + C.'},
+{t:'trig',q:'Evaluate ∫ sin²x dx.',o:['x/2 − sin(2x)/4 + C','x + C','sin³x/3 + C','x/2 + sin(2x)/4 + C'],a:0,e:'Use the identity sin²x = (1 − cos 2x)/2.'},
+{t:'rational',q:'Evaluate ∫ 1/(x−2) dx.',o:['ln|x−2| + C','1/(x−2) + C','ln|x|−2 + C','−1/(x−2) + C'],a:0,e:'The standard form is ∫1/(x−a) dx = ln|x−a| + C.'},
+{t:'rational',q:'Evaluate ∫ 1/(x−3)² dx.',o:['ln|x−3| + C','−1/(x−3) + C','1/(x−3) + C','−2/(x−3)³ + C'],a:1,e:'Rewrite as (x−3)⁻² and apply the power rule.'},
+{t:'rational',q:'Evaluate ∫ 1/(x²+4) dx.',o:['tan⁻¹(x/2) + C','½ tan⁻¹(x/2) + C','2 tan⁻¹x + C','ln(x²+4) + C'],a:1,e:'∫dx/(x²+a²) = (1/a)tan⁻¹(x/a) + C; here a = 2.'},
+{t:'rational',q:'Evaluate ∫ 1/(x²−9) dx.',o:['(1/6)ln|(x−3)/(x+3)| + C','(1/3)ln|x²−9| + C','tan⁻¹(x/3) + C','ln|x²−9| + C'],a:0,e:'Use the standard form (1/2a) ln|(x−a)/(x+a)| + C.'},
+{t:'special',q:'Evaluate ∫ dx/√(9−x²).',o:['sin⁻¹(x/3) + C','cos⁻¹(x/3) + C','ln|x+√(x²+9)| + C','tan⁻¹(x/3) + C'],a:0,e:'∫dx/√(a²−x²) = sin⁻¹(x/a) + C.'},
+{t:'special',q:'Evaluate ∫ dx/√(x²+4).',o:['sin⁻¹(x/2) + C','ln|x+√(x²+4)| + C','tan⁻¹(x/2) + C','√(x²+4) + C'],a:1,e:'∫dx/√(x²+a²) = ln|x+√(x²+a²)| + C.'},
+{t:'special',q:'Which is the standard form for ∫ dx/√(x²−a²), where |x| > a?',o:['sin⁻¹(x/a)+C','ln|x+√(x²−a²)|+C','tan⁻¹(x/a)+C','ln|x²−a²|+C'],a:1,e:'This is the standard antiderivative for the given integral.'},
+{t:'challenge',q:'Evaluate ∫ (6x)/(3x²+1) dx.',o:['ln|3x²+1| + C','2ln|3x²+1| + C','3x²+1 + C','1/(3x²+1) + C'],a:0,e:'The numerator is the derivative of the denominator, so the result is ln|3x²+1| + C.'},
+{t:'challenge',q:'Evaluate ∫ 2(2x+1)⁴ dx.',o:['(2x+1)⁵/5 + C','(2x+1)⁵/10 + C','2(2x+1)⁵/5 + C','(2x+1)⁴ + C'],a:0,e:'Let u = 2x+1, so du = 2dx. The integral becomes ∫u⁴du.'}
+];
+let current=[], selected={}, showAll=false;
+function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+function generate(){
+ const topic=document.getElementById('topic').value, count=+document.getElementById('count').value, level=document.getElementById('level').value;
+ let pool=bank.filter(x=>(topic==='all'||x.t===topic)&&(level!=='easy'||x.t!=='challenge')&&(level!=='challenge'||['challenge','rational','special'].includes(x.t)));
+ if(!pool.length) pool=bank;
+ current=shuffle(pool).slice(0,Math.min(count,pool.length)); selected={};showAll=false;document.getElementById('score').textContent='';render();
+}
+function render(){document.getElementById('questions').innerHTML=current.map((q,i)=>`<article class="question" id="q${i}"><div class="qtitle">${i+1}. ${q.q}</div><div class="choices">${q.o.map((v,j)=>`<button class="choice" id="c${i}_${j}" onclick="choose(${i},${j})">${String.fromCharCode(65+j)}. ${v}</button>`).join('')}</div><div class="answer ${showAll?'show':''}" id="a${i}"><b>Correct answer:</b> ${q.o[q.a]}<br><b>Explanation:</b> ${q.e}</div></article>`).join('')}
+function choose(i,j){selected[i]=j;current[i].o.forEach((_,k)=>document.getElementById(`c${i}_${k}`).classList.toggle('selected',k===j));document.getElementById('score').textContent=''}
+function checkAnswers(){if(!current.length)return;let score=0;current.forEach((q,i)=>{q.o.forEach((_,j)=>{let el=document.getElementById(`c${i}_${j}`);el.classList.remove('correct','wrong');if(j===q.a)el.classList.add('correct');if(selected[i]===j&&j!==q.a)el.classList.add('wrong')});if(selected[i]===q.a)score++;document.getElementById(`a${i}`).classList.add('show')});document.getElementById('score').textContent=`Your score: ${score} out of ${current.length}`}
+function toggleAnswers(){showAll=!showAll;current.forEach((_,i)=>document.getElementById(`a${i}`).classList.toggle('show',showAll))}
+generate();
+</script>
+</body>
+</html>
