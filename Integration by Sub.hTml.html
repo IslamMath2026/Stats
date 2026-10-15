@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Integration by Substitution</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;800&family=Lora:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f5fb;--card:#fff;--ink:#19237a;--text:#1b2140;--muted:#5b6490;--ok:#1c7c4d;--bad:#b3261e;--line:#dfe5f6;--mar:#e0867f;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10142b;--card:#181e3d;--ink:#a9b7ff;--text:#e6e9fb;--muted:#98a1cf;--ok:#5fd59b;--bad:#ff8f86;--line:#232b55;--mar:#8a4f5c;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#10142b;--card:#181e3d;--ink:#a9b7ff;--text:#e6e9fb;--muted:#98a1cf;--ok:#5fd59b;--bad:#ff8f86;--line:#232b55;--mar:#8a4f5c;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg) repeating-linear-gradient(transparent 0 31px,var(--line) 31px 32px);color:var(--text);font:400 17px/1.65 "Nunito Sans",system-ui,sans-serif;min-height:100vh}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+main{max-width:640px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:1.7rem;font-weight:800;color:var(--ink);margin:0;line-height:1.3}
+.sub{color:var(--muted);margin:4px 0 18px}
+.ctl{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.seg{display:flex;border:1.5px solid var(--ink);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:transparent;color:var(--ink);padding:6px 14px;font:inherit;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+select{font:inherit;color:var(--text);background:var(--card);border:1.5px solid var(--ink);border-radius:10px;padding:6px 10px;flex:1;min-width:200px}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+#card{background:var(--card);border:1px solid var(--line);border-inline-start:4px solid var(--mar);border-radius:6px;padding:18px 20px}
+.topic{margin:0;font-weight:800;color:var(--ink);font-size:1.1rem}
+.hint{margin:2px 0 12px;color:var(--muted);font-size:.95rem}
+.stmt{margin:0 0 12px;font-size:1.1rem}
+.m{display:inline-block;font:500 1.12em/1.4 Lora,Georgia,serif}
+.m sub,.m sup{font-size:.7em;line-height:0}
+ol{list-style:none;margin:0;padding:0}
+li{padding:10px 0;border-top:1px dashed var(--line)}
+li.done .res{color:var(--ok);font-weight:600}
+li.done small{color:var(--muted);font-weight:400;margin-inline-start:8px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.opt{border:1.5px solid var(--ink);background:var(--card);color:var(--text);border-radius:10px;padding:9px 10px;text-align:center}
+.opt:hover:not(:disabled){background:var(--line)}
+.opt:disabled{opacity:.55;border-color:var(--bad);color:var(--bad);text-decoration:line-through}
+#msg{min-height:1.6em;margin:4px 0 0;color:var(--bad);font-size:.95rem}
+.fin{border-top:2px solid var(--ink);padding-top:12px;margin-top:6px}
+.fin button{border:0;border-radius:10px;padding:7px 18px;background:var(--ink);color:var(--bg);font-weight:600}
+.big{font-size:2.2rem;font-weight:800;color:var(--ink);margin:6px 0}
+.score{margin-top:14px;color:var(--muted);font-size:.95rem}
+</style>
+</head>
+<body>
+<main>
+<h1>Integration by Substitution</h1>
+<p class="sub">Choose the correct option for each step before its solution is revealed.</p>
+<div class="ctl">
+<div class="seg" id="lv" role="group" aria-label="Level">
+<button aria-pressed="true" data-l="0">Easy</button><button aria-pressed="false" data-l="1">Medium</button><button aria-pressed="false" data-l="2">Hard</button>
+</div>
+<div class="seg" id="cnt" role="group" aria-label="Number of exercises">
+<button aria-pressed="false" data-n="5">5</button><button aria-pressed="true" data-n="10">10</button><button aria-pressed="false" data-n="15">15</button><button aria-pressed="false" data-n="20">20</button>
+</div>
+<select id="topic" aria-label="Type">
+<option value="all">All types (random)</option>
+<option value="0">1. Power: f(t) = tⁿ</option>
+<option value="1">2. Trigonometric</option>
+<option value="2">3. Exponential</option>
+<option value="3">4. Logarithmic: dt/t</option>
+<option value="4">5. Definite (change of limits)</option>
+</select>
+</div>
+<div id="card"></div>
+<p class="score" id="score"></p>
+</main>
+<script>
+const R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a,P=a=>a[R(0,a.length-1)],sg=(L,x)=>L==2&&R(0,1)?-x:x;
+const gcd=(a,b)=>b?gcd(b,a%b):a;
+const Q=(n,d=1)=>{if(d<0){n=-n;d=-d}const g=gcd(Math.abs(n),d)||1;return{n:n/g,d:d/g}};
+const add=(x,y)=>Q(x.n*y.d+y.n*x.d,x.d*y.d),sub=(x,y)=>add(x,Q(-y.n,y.d)),mul=(x,y)=>Q(x.n*y.n,x.d*y.d),eq=(x,y)=>x.n==y.n&&x.d==y.d;
+const S=x=>(x.n<0?'−':'')+Math.abs(x.n)+(x.d==1?'':'/'+x.d);
+const cs=x=>x.n==1&&x.d==1?'':x.n==-1&&x.d==1?'−':(x.d==1?S(x):'('+S(x)+')');
+const m=s=>'<span class="m">'+s+'</span>';
+const T=(c,p,first)=>{c=typeof c=='number'?Q(c):c;const neg=c.n<0,a=Q(Math.abs(c.n),c.d);
+let co=(a.n==1&&a.d==1&&p>0)?'':(a.d==1?a.n:'('+a.n+'/'+a.d+')');
+let b=p==0?(co||1):co+'x'+(p==1?'':'<sup>'+p+'</sup>');
+return first?(neg?'−':'')+b:' '+(neg?'−':'+')+' '+b};
+const poly=l=>l.map(t=>[typeof t[0]=='number'?Q(t[0]):t[0],t[1]]).filter(t=>t[0].n).map((t,i)=>T(t[0],t[1],!i)).join('');
+const xp=(c,p)=>poly([[c,p]]),I=(lo,hi,b)=>`∫<sub>${lo}</sub><sup>${hi}</sup> ${b} dx`;
+const RULE=m('∫ f(g(x))·g′(x) dx = ∫ f(t) dt')+' with '+m('t = g(x)');
+const TITLES=['Power substitution','Trigonometric substitution','Exponential substitution','Logarithmic substitution','Definite integral'];
+
+function g0(L){const p=P(L?[1,2]:[1]),a=sg(L,R(1,2+L)),b=R(1,4),c=sg(L,R(1,3+L)),n=R(2,3+(L?1:0)),t=poly([[a,p+1],[b,0]]),d=a*(p+1),k=Q(c,d*(n+1));
+return{hint:RULE,st:`Use ${m('t = '+t)} to find ${m('∫ '+xp(c,p)+'('+t+')<sup>'+n+'</sup> dx')}`,
+steps:[{q:`dt = ? · ${m(xp(1,p))} dx. Find ?`,a:Q(d),show:`d/dx(${t}) = ${poly([[d,p]])}`},{q:`${m(xp(c,p))} dx = ? · dt. Find ?`,a:Q(c,d),show:`${c}/${d}`},{q:`Exponent after integrating ${m('t<sup>'+n+'</sup>')}`,a:Q(n+1),show:`${n} + 1`},{q:`Coefficient of ${m('t<sup>'+(n+1)+'</sup>')} in the result`,a:k,show:`${S(Q(c,d))} × 1/${n+1}`}],
+end:m('= '+cs(k)+'('+t+')<sup>'+(n+1)+'</sup> + C')}}
+
+function g1(L){const v=R(0,1),n=R(2,3+L),c=sg(L,R(1,4+L)),cc=c==1?'':c==-1?'−':c,g=v?'sin x':'cos x',h=v?'cos x':'sin x',e=v?-1:1,k=Q(c*e,n+1);
+return{hint:RULE,st:`Use ${m('t = '+h)} to find ${m('∫ '+cc+g+' '+h+'<sup>'+n+'</sup> x dx').replace(h+'<sup>'+n+'</sup> x',h.split(' ')[0]+'<sup>'+n+'</sup> x')}`,
+steps:[{q:`dt = ? · ${m(g)} dx. Find ?`,a:Q(e),show:`d/dx(${h}) = ${e<0?'−':''}${g}`},{q:`${m(cc+g)} dx = ? · dt. Find ?`,a:Q(c*e),show:`${c} × ${e}`},{q:`Exponent after integrating ${m('t<sup>'+n+'</sup>')}`,a:Q(n+1),show:`${n} + 1`},{q:`Coefficient of ${m('t<sup>'+(n+1)+'</sup>')} in the result`,a:k,show:`${c*e}/${n+1}`}],
+end:m('= '+cs(k)+h.split(' ')[0]+'<sup>'+(n+1)+'</sup> x + C')}}
+
+function g2(L){const p=P(L?[1,2]:[1]),a=sg(L,R(1,2+L)),c=sg(L,R(1,4+L)),t=xp(a,p+1),d=a*(p+1);
+return{hint:RULE+', and '+m('∫ eᵗ dt = eᵗ + C'),st:`Use ${m('t = '+t)} to find ${m('∫ '+xp(c,p)+' e<sup>'+t+'</sup> dx')}`,
+steps:[{q:`dt = ? · ${m(xp(1,p))} dx. Find ?`,a:Q(d),show:`d/dx(${t}) = ${poly([[d,p]])}`},{q:`${m(xp(c,p))} dx = ? · dt. Find ?`,a:Q(c,d),show:`${c}/${d}`},{q:`Coefficient of ${m('eᵗ')} in the final answer`,a:Q(c,d),show:`∫ eᵗ dt = eᵗ`}],
+end:m('= '+cs(Q(c,d))+'e<sup>'+t+'</sup> + C')}}
+
+function g3(L){const p=P(L?[1,2]:[1]),a=R(1,2+L),b=R(1,4),c=sg(L,R(1,4+L)),t=poly([[a,p+1],[b,0]]),d=a*(p+1);
+return{hint:RULE+', and '+m('∫ dt/t = ln|t| + C'),st:`Use ${m('t = '+t)} to find ${m('∫ '+xp(c,p)+' / ('+t+') dx')}`,
+steps:[{q:`dt = ? · ${m(xp(1,p))} dx. Find ?`,a:Q(d),show:`d/dx(${t}) = ${poly([[d,p]])}`},{q:`Coefficient of ${m('ln|t|')} in the final answer`,a:Q(c,d),show:`${c}/${d}`}],
+end:m('= '+cs(Q(c,d))+' ln|'+t+'| + C')}}
+
+function g4(L){const a=R(1,2+(L>1?1:0)),b=R(1,2),q=R(1,2),n=R(1,2),c=R(1,3),t=poly([[a,2],[b,0]]),d=2*a,U=a*q*q+b,v=mul(Q(c,d*(n+1)),Q(U**(n+1)-b**(n+1)));
+return{hint:RULE+'. Change the limits to match t.',st:`Use ${m('t = '+t)} to evaluate ${m(I(0,q,xp(c,1)+'('+t+')<sup>'+n+'</sup>'))}`,
+steps:[{q:`dt = ? · ${m('x')} dx. Find ?`,a:Q(d),show:`d/dx(${t}) = ${d}x`},{q:`New lower limit: t at x = 0`,a:Q(b),show:`${a}·0 + ${b}`},{q:`New upper limit: t at x = ${q}`,a:Q(U),show:`${a}·${q*q} + ${b}`},{q:'Value of the integral',a:v,show:`${S(Q(c,d*(n+1)))} × (${U}^${n+1} − ${b}^${n+1})`}],
+end:m(I(0,q,'…')+' = '+S(v))}}
+
+const G=[g0,g1,g2,g3,g4];
+let level=0,N=10,qn=1,cur,idx=0,tries=0,ok=0,tot=0;
+const $=s=>document.querySelector(s);
+function start(){qn=1;ok=0;tot=0;newQ()}
+function newQ(){const t=$('#topic').value,i=t=='all'?R(0,4):+t;cur=G[i](level);cur.topic=TITLES[i];idx=0;tries=0;render()}
+function opts(i){const s=cur.steps[i];if(s.o)return s.o;const a=s.a,c=[Q(-a.n,a.d),add(a,Q(1)),sub(a,Q(1)),mul(a,Q(2)),mul(a,Q(1,2)),Q(a.n+1,a.d),Q(a.n,a.d+1),Q(0),add(a,Q(2)),add(a,Q(3))],w=[];
+c.forEach(x=>{if(!eq(x,a)&&!w.some(y=>eq(x,y)))w.push(x)});
+const o=w.sort(()=>Math.random()-.5).slice(0,3);o.push(a);o.sort(()=>Math.random()-.5);return s.o=o}
+function render(){let h=`<p class="topic">Question ${qn} of ${N} · ${cur.topic}</p><p class="hint">Rule: ${cur.hint}</p><p class="stmt">${cur.st}</p><ol>`;
+cur.steps.forEach((s,i)=>{if(i<idx)h+=`<li class="done"><div>${s.q}</div><div class="res">= ${m(S(s.a))} ✓<small>${s.show}</small></div></li>`;
+else if(i==idx)h+=`<li><div>${s.q}</div><div class="opts">${opts(i).map((o,j)=>`<button class="opt" data-j="${j}">${m(S(o))}</button>`).join('')}</div><p id="msg" role="status"></p></li>`});
+h+='</ol>';if(idx>=cur.steps.length)h+=`<div class="fin"><p>${cur.end}</p><button id="nxt">${qn<N?'Next question':'Finish'}</button></div>`;
+$('#card').innerHTML=h;$('#score').textContent=tot?`First-try correct steps: ${ok} of ${tot}`:'';
+document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>pick(b));
+const n=$('#nxt');if(n)n.onclick=()=>{if(qn<N){qn++;newQ()}else done()}}
+function pick(b){const s=cur.steps[idx],v=opts(idx)[+b.dataset.j];
+if(eq(v,s.a)){if(!tries)ok++;tot++;idx++;tries=0;render()}
+else{tries++;b.disabled=true;$('#msg').textContent='Not quite. Check the rule and try again.'}}
+function done(){const p=tot?Math.round(100*ok/tot):0;
+$('#card').innerHTML=`<p class="topic">Session complete</p><p class="big">${p}%</p><p>${ok} of ${tot} steps answered correctly on the first try across ${N} exercises.</p><div class="fin"><button id="again">Start again</button></div>`;
+$('#score').textContent='';$('#again').onclick=start}
+$('#lv').onclick=e=>{const b=e.target.closest('button');if(!b)return;level=+b.dataset.l;document.querySelectorAll('#lv button').forEach(x=>x.setAttribute('aria-pressed',x===b));start()};
+$('#cnt').onclick=e=>{const b=e.target.closest('button');if(!b)return;N=+b.dataset.n;document.querySelectorAll('#cnt button').forEach(x=>x.setAttribute('aria-pressed',x===b));start()};
+$('#topic').onchange=start;start();
+</script>
+</body>
+</html>
