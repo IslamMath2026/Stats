@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Standard Integrals</title>
+<style>
+:root{--bg:#f6f7f4;--card:#fff;--ink:#1d2b2a;--mute:#66736f;--line:#dbe1dc;--acc:#0f6b5c;--accbg:#e1f1ed;--ok:#1b7f4b;--okbg:#e2f4ea;--bad:#b3341f;--badbg:#fbe9e5;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12191a;--card:#1b2526;--ink:#e8efec;--mute:#93a29d;--line:#2d3b3c;--acc:#4fc3ad;--accbg:#173a35;--ok:#5fd394;--okbg:#17362a;--bad:#ff8a73;--badbg:#3b201b}}
+:root[data-theme="dark"]{--bg:#12191a;--card:#1b2526;--ink:#e8efec;--mute:#93a29d;--line:#2d3b3c;--acc:#4fc3ad;--accbg:#173a35;--ok:#5fd394;--okbg:#17362a;--bad:#ff8a73;--badbg:#3b201b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.6;font-size:17px}
+main{max-width:600px;margin:0 auto;padding:18px 16px 40px}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:var(--mute);margin:0 0 14px;font-size:15px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:7px 14px;border-radius:99px;font:inherit;font-size:15px;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.prob{font-size:17px;font-weight:600}
+.scroll{overflow-x:auto;margin:8px 0 0}
+table{border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:15px;font-weight:400}
+th,td{border:1px solid var(--line);padding:4px 10px;text-align:center}
+th{background:var(--accbg)}
+.dots{display:flex;gap:6px;margin:0 0 12px}
+.dot{height:6px;flex:1;border-radius:3px;background:var(--line)}
+.dot.done{background:var(--ok)}.dot.cur{background:var(--acc)}
+.q{font-weight:600;margin:0 0 10px}
+.opt{display:block;width:100%;text-align:start;border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:11px 14px;border-radius:10px;margin-bottom:8px;font:inherit;cursor:pointer}
+.opt:focus-visible,.chip:focus-visible,.btn:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.opt.bad{background:var(--badbg);border-color:var(--bad);color:var(--bad)}
+.opt.good{background:var(--okbg);border-color:var(--ok);color:var(--ok)}
+.hint{color:var(--bad);font-size:15px;margin:2px 0 8px}
+.reveal{background:var(--accbg);border-radius:10px;padding:10px 14px;margin:0 0 10px;font-size:16px}
+.btn{border:0;background:var(--acc);color:#fff;padding:12px 18px;border-radius:10px;font:inherit;font-weight:600;cursor:pointer;width:100%}
+.final{text-align:center}.final b{font-size:20px}
+.score{color:var(--mute);font-size:14px;text-align:center;margin-top:8px}
+.tutor{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}.tutor[hidden]{display:none}.trow{display:flex;gap:6px;flex-wrap:wrap}.trow input,.trow select{border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;font-size:15px;background:var(--card);color:var(--ink)}.trow input{flex:1;min-width:150px}.tb{border:1.5px solid var(--acc);background:transparent;color:var(--acc);padding:8px 12px;border-radius:10px;font:inherit;font-size:15px;cursor:pointer}.tb:disabled{opacity:.6}.tout{white-space:pre-wrap;margin-top:8px;font-size:16px;background:var(--accbg);border-radius:10px;padding:10px 12px}.tout:empty{display:none}.lvl{color:var(--mute);font-size:14px;margin:0 0 6px}</style>
+</head>
+<body>
+<main>
+<h1>Calculus 102: Standard Integrals</h1>
+<p class="sub">Pick a topic and answer each step before it's revealed.</p>
+<div class="lvl">Level</div><div class="chips" id="lv"></div><div class="lvl">Topic (suggested order 1 → 9)</div><div class="chips" id="chips"></div>
+<div class="card"><div class="prob" id="prob"></div></div>
+<div id="stage"></div>
+<div class="score" id="score"></div>
+</main>
+<script>
+const R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const sh=a=>[...a].sort(()=>Math.random()-.5);
+const f=x=>String(+x.toFixed(3));
+const mn=s=>String(s).replace(/-/g,"−");
+function numOpts(c,d=1){const s=new Set([f(c)]);let t=0;while(s.size<4&&t++<150)s.add(f(c+R(1,4)*d*(Math.random()<.5?-1:1)));return [...s].map(mn)}
+function o4(c,alts,n=4){const s=[c];alts.forEach(a=>{if(a!=null&&!s.includes(a)&&s.length<n)s.push(a)});return s}
+const nz=(a,b)=>{let v=0;while(!v)v=R(a,b);return v};
+const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a);
+const fr=(n,d=1)=>{if(d<0){n=-n;d=-d}const g=gcd(n,d)||1;n/=g;d/=g;return d===1?`${n}`:`${n}/${d}`};
+const SUPD={"0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"};
+const sp=n=>(n<0?"⁻":"")+String(Math.abs(n)).split("").map(c=>SUPD[c]).join("");
+let LV=1;const pick=a=>a[R(0,a.length-1)];
+const cf=(n,d=1)=>{const s=fr(n,d);if(s==="1")return "";if(s==="-1")return "−";return /\//.test(s)?`(${mn(s)})`:mn(s)};
+const dchk=(G,g,x=0.37)=>()=>{const h=1e-5;return Math.abs((G(x+h)-G(x-h))/(2*h)-g(x))<1e-5};
+const lin=(a,b)=>{const ax=Math.abs(a)===1?"x":Math.abs(a)+"x";if(a<0&&b>0)return `${b} − ${ax}`;const t=a<0?"−"+ax:ax;return b===0?t:`${t} ${b<0?"−":"+"} ${Math.abs(b)}`};
+/* ---------- 1. power rule ---------- */
+function g1(){const F1=[["x²",2,1],["x³",3,1],["x⁴",4,1],["x⁵",5,1],["x⁶",6,1]],F2=[["1/x²",-2,1],["1/x³",-3,1],["√x",1,2],["1/√x",-1,2]],F3=[["x√x",3,2],["∛x",1,3],["1/x⁴",-4,1],["1/∛x",-1,3]];
+const [d,pn,pd]=pick(LV===1?F1:LV===2?F1.concat(F2):F2.concat(F3)),k=LV===1?pick([1,2,3,4,5,6]):LV===2?R(2,9):pick([-6,-3,-2,2,3,4,6,9,12]);
+const p1=pn+pd,cn=k*pd,cd=p1,g0=gcd(cn,cd),CN=(cd<0?-1:1)*cn/g0,CD=Math.abs(cd/g0);
+const ex=(n,dd)=>dd===1?(n===1?"":sp(n)):`^(${n}/${dd})`;
+const term=(cn_,cd_,n,dd)=>{if(dd===1&&n<0){const m=-n,neg=(cn_<0)!==(cd_<0);return `${neg?"−":""}${Math.abs(cn_)}/${Math.abs(cd_)===1?"":"("+Math.abs(cd_)}x${m===1?"":sp(m)}${Math.abs(cd_)===1?"":")"}`.replace(/\/\(x/,"/(x")}return `${cf(cn_,cd_)}x${ex(n,dd)}`};
+const integrand=d.startsWith("1/")?`${k===1?"1":mn(k)}/${d.slice(2)}`:`${k===1?"":mn(k)}${d}`;
+const ans=term(CN,CD,p1,pd)+" + C",pw=pn/pd;
+const alts=[term(k,1,p1,pd)+" + C",term(CN,CD,pn,pd)+" + C",term(CN,CD,pn-pd,pd)+" + C",term(-CN,CD,p1,pd)+" + C"];
+const x0=1.3;return{key:"g1",chk:dchk(x=>k/(pw+1)*Math.pow(x,pw+1),x=>k*Math.pow(x,pw),x0),text:`Evaluate ∫ ${integrand} dx`,steps:[
+{q:"Rewrite the integrand as a power of x:",opts:o4(`${cf(k)}x${ex(pn,pd)}`,[`${cf(k)}x${ex(-pn,pd)}`,`${cf(k)}x${ex(p1,pd)}`,`${cf(k)}x${ex(pn-pd,pd)}`]),hint:"√x = x^(1/2), 1/x² = x⁻², ∛x = x^(1/3).",reveal:`${integrand} = ${cf(k)}x${ex(pn,pd)}`},
+{q:"What is the new exponent, p + 1?",opts:o4(mn(fr(p1,pd)),[mn(fr(pn-pd,pd)),mn(fr(pn,pd)),mn(fr(-p1,pd))]),hint:"Add 1 to the exponent.",reveal:`p + 1 = ${mn(fr(p1,pd))}`},
+{q:"What is the integral?",opts:o4(ans,alts),hint:"Divide by the new exponent (dividing by a fraction = multiplying by its reciprocal).",reveal:ans}]}}
+/* ---------- 2. exponentials ---------- */
+function g2(){const mkT=(kind,a,k)=>{const kk=k===1?"":(k<0?"−"+Math.abs(k):k)+"·";return kind==="e"?{ex:`${kk}eˣ`,F:`${kk}eˣ`,g:x=>k*Math.exp(x),G:x=>k*Math.exp(x)}:{ex:`${kk}${a}ˣ`,F:`${kk}${a}ˣ / ln ${a}`,g:x=>k*Math.pow(a,x),G:x=>k*Math.pow(a,x)/Math.log(a)}};
+const recall=(t)=>t==="e"?{q:"What is ∫ eˣ dx?",opts:["eˣ + C","eˣ / ln x + C","x·eˣ + C","eˣ⁺¹ / (x + 1) + C"],hint:"eˣ is its own derivative.",reveal:"∫ eˣ dx = eˣ + C"}:{q:"What is ∫ aˣ dx (a > 0, a ≠ 1)?",opts:["aˣ / ln a + C","aˣ ln a + C","aˣ + C","aˣ⁺¹ / (x + 1) + C"],hint:"d/dx aˣ = aˣ ln a, so we divide by ln a.",reveal:"∫ aˣ dx = aˣ / ln a + C"};
+if(LV===1){const kind=pick(["e","a"]),a=pick([2,3,5,7]),k=R(2,5),T=mkT(kind,a,k);
+return{key:"g2a",chk:dchk(T.G,T.g),text:`Evaluate ∫ ${T.ex} dx`,steps:[recall(kind),{q:"What is the integral?",opts:o4(T.F+" + C",kind==="e"?[`${k}·eˣ / ln ${k} + C`,`eˣ + C`,`${k}·eˣ⁺¹ + C`]:[`${k}·${a}ˣ ln ${a} + C`,`${k}·${a}ˣ + C`,`${a}ˣ / ln ${a} + C`]),hint:"Keep the constant factor outside.",reveal:T.F+" + C"}]}}
+const kinds=[pick(["e","a"]),"a"],a1=pick([2,3,5]),a2=pick([3,5,7].filter(v=>v!==a1)),ks=LV===2?[1,1]:[R(2,6),R(2,6)],op=LV===3&&Math.random()<.5?"−":"+",sg=op==="−"?-1:1;
+const T1=mkT(kinds[0],a1,ks[0]),T2=mkT(kinds[1],a2,ks[1]*sg),jn=(A,B)=>op==="+"||B[0]==="−"?`${A} + ${B}`.replace("+ −","− "):`${A} − ${B}`;
+const e1=T1.ex,e2=mkT(kinds[1],a2,ks[1]).ex,f1=T1.F,f2=mkT(kinds[1],a2,ks[1]).F,txt=`${e1} ${op} ${e2}`,fin=`${f1} ${op} ${f2} + C`;
+const g=x=>T1.g(x)+T2.g(x),G=x=>T1.G(x)+T2.G(x);
+return{key:"g2b",chk:dchk(G,g),text:`Evaluate ∫ (${txt}) dx`,steps:[recall(kinds[0]),{q:`What is the integral of the first term, ${e1}?`,opts:o4(f1,[kinds[0]==="e"?`${ks[0]}·eˣ / ln ${ks[0]}`:`${f1.replace(" / ln "+a1," ln "+a1)}`,f1.replace(/ \/ ln \d/,""),`${f1}²`]),hint:"Apply the formula to the term and keep the constant.",reveal:f1},{q:`And the second term, ${e2}?`,opts:o4(f2,[f2.replace(/ \/ ln (\d)/," ln $1"),f2.replace(/ \/ ln \d/,""),f2.replace(a2+"ˣ",a1+"ˣ")]),hint:"Same idea, with its own base.",reveal:f2},{q:"What is the full integral?",opts:o4(fin,[`${f1} ${op==="+"?"−":"+"} ${f2} + C`,`${f1.replace(/ \/ ln \d/,"")} ${op} ${f2} + C`,`${f2} ${op} ${f1} + C`]),hint:"Integrate term by term, keep the sign, add + C.",reveal:fin}]}}
+/* ---------- 3. basic trig list ---------- */
+const BT=[["sin x","−cos x",x=>Math.sin(x),x=>-Math.cos(x)],["cos x","sin x",x=>Math.cos(x),x=>Math.sin(x)],["sec²x","tan x",x=>1/Math.cos(x)**2,x=>Math.tan(x)],["csc²x","−cot x",x=>1/Math.sin(x)**2,x=>-Math.cos(x)/Math.sin(x)],["sec x tan x","sec x",x=>Math.tan(x)/Math.cos(x),x=>1/Math.cos(x)],["csc x cot x","−csc x",x=>Math.cos(x)/Math.sin(x)**2,x=>-1/Math.sin(x)],["1/(1 + x²)","tan⁻¹ x",x=>1/(1+x*x),x=>Math.atan(x)]];
+function g3(){const S=sh(BT),A=S[0],B=S[1],oth=S.slice(2).map(t=>t[1]),k=LV===1?R(2,9):R(2,6),m=R(2,9),sgn=LV===3&&Math.random()<.5?-1:1,w=(c,t)=>c===1?`${t}`:`${c}·(${t})`;
+const kt=(c,t)=>`${c} ${t[0]==="1"?`${t}`:t}`;
+if(LV===1){return{key:"g3",chk:dchk(x=>k*A[3](x),x=>k*A[2](x)),text:`Evaluate ∫ ${A[0]==="1/(1 + x²)"?`${k}/(1 + x²)`:`${k} ${A[0]}`} dx`,steps:[
+{q:`What do we do with the constant ${k}?`,opts:["Take it outside: k·∫ f(x) dx","Differentiate it","Drop it","Add it to C"],hint:"∫ k f(x) dx = k ∫ f(x) dx",reveal:`= ${k} ∫ ${A[0]} dx`},
+{q:`What is ∫ ${A[0]} dx (without the constant of integration)?`,opts:o4(A[1],oth),hint:"Recall the standard integrals.",reveal:`∫ ${A[0]} dx = ${A[1]}`},
+{q:"What is the final answer?",opts:o4(`${k}·(${A[1]}) + C`,[`(${A[1]}) + C`,`${k}·(${A[1]})`,`${k}·(${oth[0]}) + C`]),hint:"Multiply by k and add C.",reveal:`${k}·(${A[1]}) + C`}]}}
+const op=sgn===1?"+":"−",fin=`${k}·(${A[1]}) ${op} ${m}·(${B[1]}) + C`,sh1=t=>t==="1/(1 + x²)";
+return{key:"g3b",chk:dchk(x=>k*A[3](x)+sgn*m*B[3](x),x=>k*A[2](x)+sgn*m*B[2](x)),text:`Evaluate ∫ (${k} ${A[0]} ${op} ${m} ${B[0]}) dx`.replace(/(\d) 1\/\(1 \+ x²\)/g,"$1/(1 + x²)"),steps:[
+{q:"How do we start?",opts:["Integrate term by term, taking constants outside","Multiply the two functions","Differentiate each term","Integrate only the first term"],hint:"∫ (f ± g) dx = ∫ f dx ± ∫ g dx",reveal:`= ${k}∫ ${A[0]} dx ${op} ${m}∫ ${B[0]} dx`},
+{q:`What is ∫ ${A[0]} dx?`,opts:o4(A[1],[B[1],...oth]),hint:"Standard integrals.",reveal:`∫ ${A[0]} dx = ${A[1]}`},
+{q:`What is ∫ ${B[0]} dx?`,opts:o4(B[1],[A[1],...oth]),hint:"Standard integrals.",reveal:`∫ ${B[0]} dx = ${B[1]}`},
+{q:"What is the final answer?",opts:o4(fin,[`${k}·(${B[1]}) ${op} ${m}·(${A[1]}) + C`,`${k}·(${A[1]}) ${op==="+"?"−":"+"} ${m}·(${B[1]}) + C`,`${k}·(${A[1]}) ${op} ${m}·(${B[1]})`]),hint:"Keep the constants and the sign, add one C.",reveal:fin}]}}
+/* ---------- 4. linear argument (ax + b) ---------- */
+function g4(){const form=pick(LV===1?["pow"]:LV===2?["inv","exp","sin","cos","sec2"]:["pow","inv","exp","aexp"]);
+let a=LV===3?pick([-1,-2,-3,2,3]):R(2,4),b=nz(-5,5);if(LV===3&&(form==="pow")&&a>0)a=-a;
+const L=lin(a,b),n=R(2,4),base=pick([2,3,5]),p=pick([2,3]),aa=Math.abs(a);
+let ex,outer,fin,g,G,wr;const neg=a<0;
+const dv=(s)=>neg?`−${s}${aa===1?"":" / "+aa}`:`${s}${aa===1?"":" / "+aa}`;
+if(form==="pow"){const den=aa*(n+1);ex=`(${L})${sp(n)}`;outer=`(${L})${sp(n+1)} / ${n+1}`;fin=`${neg?"−":""}(${L})${sp(n+1)} / ${den}`;g=x=>Math.pow(a*x+b,n);G=x=>Math.pow(a*x+b,n+1)/(a*(n+1));wr=[`(${L})${sp(n+1)} / ${n+1}`,`${a}(${L})${sp(n+1)} / ${n+1}`,`${neg?"":"−"}(${L})${sp(n+1)} / ${den}`]}
+else if(form==="inv"){ex=`1/(${L})`;outer=`ln|${L}|`;fin=dv(`ln|${L}|`);g=x=>1/(a*x+b);G=x=>Math.log(Math.abs(a*x+b))/a;wr=[`ln|${L}|`,`${a}·ln|${L}|`,`${neg?"":"−"}ln|${L}|${aa===1?"":" / "+aa}`]}
+else if(form==="exp"){ex=`e^(${L})`;outer=`e^(${L})`;fin=dv(`e^(${L})`);g=x=>Math.exp(a*x+b);G=x=>Math.exp(a*x+b)/a;wr=[`e^(${L})`,`${a}·e^(${L})`,`${neg?"":"−"}e^(${L})${aa===1?"":" / "+aa}`]}
+else if(form==="sin"){ex=`sin(${L})`;outer=`−cos(${L})`;fin=neg?`cos(${L})${aa===1?"":" / "+aa}`:`−cos(${L})${aa===1?"":" / "+aa}`;g=x=>Math.sin(a*x+b);G=x=>-Math.cos(a*x+b)/a;wr=[`−cos(${L})`,`${neg?"−":""}cos(${L})${aa===1?"":" / "+aa}`.replace(/^cos/,"cos"),`−cos(${L}) × ${a}`]}
+else if(form==="cos"){ex=`cos(${L})`;outer=`sin(${L})`;fin=`${neg?"−":""}sin(${L})${aa===1?"":" / "+aa}`;g=x=>Math.cos(a*x+b);G=x=>Math.sin(a*x+b)/a;wr=[`sin(${L})`,`${neg?"":"−"}sin(${L})${aa===1?"":" / "+aa}`,`sin(${L}) × ${a}`]}
+else if(form==="sec2"){ex=`sec²(${L})`;outer=`tan(${L})`;fin=`${neg?"−":""}tan(${L})${aa===1?"":" / "+aa}`;g=x=>1/Math.cos(a*x+b)**2;G=x=>Math.tan(a*x+b)/a;wr=[`tan(${L})`,`${neg?"":"−"}tan(${L})${aa===1?"":" / "+aa}`,`tan(${L}) × ${a}`]}
+else{ex=`${base}^(${L})`;outer=`${base}^(${L}) / ln ${base}`;fin=`${neg?"−":""}${base}^(${L}) / ${aa===1?"":aa+" "}ln ${base}`.replace("/ ln","/ ln");g=x=>Math.pow(base,a*x+b);G=x=>Math.pow(base,a*x+b)/(a*Math.log(base));wr=[`${base}^(${L}) / ln ${base}`,`${a}·${base}^(${L}) / ln ${base}`,`${neg?"":"−"}${base}^(${L}) / ${aa===1?"":aa+" "}ln ${base}`]}
+const x0=form==="inv"?.37:.21;
+return{key:"g4",chk:dchk(G,g,x0),text:`Evaluate ∫ ${ex} dx`,steps:[
+{q:"The inside is a linear expression ax + b. What is a?",opts:numOpts(a,1).filter((v,i,A)=>A.indexOf(v)===i),hint:"a is the coefficient of x inside.",reveal:`${L} → a = ${mn(a)}`},
+{q:"First integrate the outside function, treating the inside as one variable:",opts:o4(outer,wr.slice(1)),hint:"Ignore the inner coefficient for a moment.",reveal:outer},
+{q:"Now divide by a (the coefficient of x). What is the integral?",opts:o4(fin+" + C",wr.concat([outer]).map(w=>w+" + C")),hint:"∫ f(ax + b) dx = (1/a)·F(ax + b) + C",reveal:fin+" + C"}]}}
+/* ---------- 5. g'/g rule ---------- */
+const HALF={"1/2":"½","1/3":"⅓"};
+function g5(){const k=R(1,9);
+if(LV===3&&Math.random()<.5){const t=pick(["tan","cot"]);
+ const T=t==="tan"?{txt:"tan x",frac:"sin x / cos x",g:"cos x",gp:"−sin x",F:"−ln|cos x|",G:x=>-Math.log(Math.abs(Math.cos(x))),gg:x=>Math.tan(x),rel:"The numerator sin x is −g′"}:{txt:"cot x",frac:"cos x / sin x",g:"sin x",gp:"cos x",F:"ln|sin x|",G:x=>Math.log(Math.abs(Math.sin(x))),gg:x=>Math.cos(x)/Math.sin(x),rel:"The numerator cos x equals g′"};
+ const og=T.g==="cos x"?"sin x":"cos x";
+ return{key:"g5r",chk:dchk(T.G,T.gg),text:`Evaluate ∫ ${T.txt} dx`,steps:[
+ {q:`Rewrite ${T.txt} as a fraction:`,opts:o4(T.frac,[T.frac.split(" / ").reverse().join(" / "),`1 / ${T.g}`,`${og} · ${T.g}`]),hint:"tan x = sin x / cos x and cot x = cos x / sin x.",reveal:`${T.txt} = ${T.frac}`},
+ {q:"Choose g(x):",opts:o4(T.g,[og,"x","1"]),hint:"The denominator.",reveal:`g(x) = ${T.g}`},
+ {q:"What is g′(x)?",opts:o4(T.gp,[og==="sin x"?"sin x":"−sin x",T.gp==="cos x"?"−cos x":"cos x","1"]),hint:"Differentiate g.",reveal:`g′(x) = ${T.gp}.  ${T.rel}.`},
+ {q:"What is the integral?",opts:o4(T.F+" + C",[(T.F[0]==="−"?T.F.slice(1):"−"+T.F)+" + C",`ln|${og}| + C`,`${T.gp}/(${T.g}) + C`]),hint:"∫ g′/g dx = ln|g|. If the numerator is −g′, put a minus sign.",reveal:T.F+" + C"}]}}
+const I={a:{g:`x² + ${k}`,gp:"2x",F:`ln(x² + ${k})`,gn:x=>x*x+k,gpn:x=>2*x,num:m=>m[1]===1?`${2*m[0]}x`:"x"},
+b:{g:`x³ + ${k}`,gp:"3x²",F:`ln|x³ + ${k}|`,gn:x=>x**3+k,gpn:x=>3*x*x,num:m=>m[1]===1?`${3*m[0]}x²`:"x²"},
+c:{g:`eˣ + ${k}`,gp:"eˣ",F:`ln(eˣ + ${k})`,gn:x=>Math.exp(x)+k,gpn:x=>Math.exp(x),num:m=>`${m[0]===1?"":m[0]}eˣ`},
+d:{g:"sin x",gp:"cos x",F:"ln|sin x|",gn:x=>Math.sin(x),gpn:x=>Math.cos(x),num:m=>`${m[0]===1?"":m[0]}cos x`}};
+const key=LV===3?pick(["a","b"]):pick(["a","b","c","d"]),it=I[key],m=LV===1?[1,1]:LV===2?[pick([2,3,4,5]),1]:[1,key==="a"?2:3];
+const num=it.num(m),mv=m[1]===1?m[0]:m[0]/m[1],cstr=m[1]===1?(m[0]===1?"":String(m[0])):HALF[`${m[0]}/${m[1]}`],ans=`${cstr?cstr+" ":""}${it.F} + C`;
+const rel=x=>x[1]===1?(x[0]===1?"The numerator equals g′":`The numerator is ${x[0]} × g′`):`The numerator is ${HALF[x[0]+"/"+x[1]]} × g′`;
+const rels=[[1,1],[2,1],[3,1],[1,2],[1,3]].filter(x=>!(x[0]===m[0]&&x[1]===m[1])).map(rel);
+return{key:"g5",chk:dchk(x=>mv*Math.log(Math.abs(it.gn(x))),x=>mv*it.gpn(x)/it.gn(x)),text:`Evaluate ∫ ${num}/(${it.g}) dx`.replace(/\(sin x\)/,"sin x"),steps:[
+{q:"Choose g(x):",opts:o4(it.g,[it.gp,"x",`${num}`]),hint:"Look for a function whose derivative appears in the numerator.",reveal:`g(x) = ${it.g}`},
+{q:"What is g′(x)?",opts:o4(it.gp,[it.g,"1",`−${it.gp}`]),hint:"Differentiate g.",reveal:`g′(x) = ${it.gp}`},
+{q:`How does the numerator ${num} compare with g′ = ${it.gp}?`,opts:o4(rel(m),rels),hint:"Divide the numerator by g′.",reveal:rel(m)},
+{q:"What is the integral?",opts:o4(ans,[`ln|${it.gp}| + C`,`${it.F.replace(/^ln/,"1/ln")} + C`.replace("1/ln","ln"),`${it.gp}/(${it.g}) + C`,`${cstr?"":"2 "}${it.F} + C`]),hint:"∫ g′/g dx = ln|g| + C. A constant multiple stays in front.",reveal:ans}]}}
+/* ---------- 6. sec and csc ---------- */
+function g6(){const sec=Math.random()<.5,k=LV===1?1:R(2,6),a=LV===3?pick([2,3,4]):1,A=a===1?"x":`${a}x`,fn=sec?`sec ${A}`:`csc ${A}`,mul=sec?`sec ${A} + tan ${A}`:`csc ${A} − cot ${A}`,bad=sec?`sec ${A} − tan ${A}`:`csc ${A} + cot ${A}`,ln=`ln|${mul}|`,coef=cf(k,a);
+const G=sec?x=>k/a*Math.log(Math.abs(1/Math.cos(a*x)+Math.tan(a*x))):x=>k/a*Math.log(Math.abs(1/Math.sin(a*x)-Math.cos(a*x)/Math.sin(a*x))),g=sec?x=>k/Math.cos(a*x):x=>k/Math.sin(a*x),x0=sec?.2:.7;
+const ans=`${coef?coef+" ":""}${ln} + C`,txt=`Evaluate ∫ ${k===1?"":k+" "}${fn} dx`;
+const fin={q:"What is the integral?",opts:o4(ans,[`${coef?coef+" ":""}ln|${bad}| + C`,`${coef?coef+" ":""}${sec?`sec ${A} tan ${A}`:`−csc ${A} cot ${A}`} + C`,a===1?`${k===1?"":k+" "}${sec?"tan x":"−cot x"} + C`:`${k===1?"":k+" "}${ln} + C`]),hint:a===1?"∫ g′/g dx = ln|g| + C":"Divide by the coefficient of x.",reveal:ans};
+if(a===1)return{key:"g6",chk:dchk(G,g,x0),text:txt,steps:[
+{q:`To find ∫ ${fn} dx we multiply and divide by:`,opts:o4(mul,[bad,sec?"tan x":"cot x",sec?"cos x":"sin x"]),hint:"Choose the factor that makes the numerator the derivative of the denominator.",reveal:`${fn}·(${mul}) / (${mul})`},
+{q:`What is the derivative of ${mul}?`,opts:o4(sec?"sec x tan x + sec²x":"−csc x cot x + csc²x",[sec?"sec x tan x − sec²x":"−csc x cot x − csc²x",sec?"sec²x":"csc²x",sec?"−sec x tan x + sec²x":"csc x cot x + csc²x"]),hint:sec?"d/dx sec x = sec x tan x, d/dx tan x = sec²x":"d/dx csc x = −csc x cot x, d/dx cot x = −csc²x",reveal:sec?"(sec x + tan x)′ = sec x tan x + sec²x = sec x (tan x + sec x)":"(csc x − cot x)′ = −csc x cot x + csc²x = csc x (csc x − cot x)"},fin]};
+return{key:"g6b",chk:dchk(G,g,x0),text:txt,steps:[
+{q:`What is ∫ ${sec?"sec u":"csc u"} du?`,opts:o4(`ln|${sec?"sec u + tan u":"csc u − cot u"}| + C`,[`ln|${sec?"sec u − tan u":"csc u + cot u"}| + C`,sec?"tan u + C":"−cot u + C",sec?"sec u tan u + C":"−csc u cot u + C"]),hint:"This is the result from the derivation with g′/g.",reveal:`∫ ${sec?"sec u":"csc u"} du = ln|${sec?"sec u + tan u":"csc u − cot u"}| + C`},
+{q:`Here the inside is ${A} (a = ${a}). Which factor appears in front?`,opts:o4(fr(k,a).replace(/^1$/,"1"),[fr(k*a,1),fr(1,k*a),fr(a,k)]),hint:"∫ f(ax) dx = (1/a)·F(ax); the constant k stays.",reveal:`k/a = ${fr(k,a)}`},fin]}}
+/* ---------- 7. sin², cos², sin x cos x ---------- */
+function g7(){const co=(n,d)=>cf(n,d);const kind=LV===3?pick(["S","C","SC","SPC","CM"]):pick(["S","C","SC"]),k=LV===1?1:R(2,6);
+const kt=k===1?"":k+" ";
+if(kind==="S"||kind==="C"){const s=kind==="S",ex=s?"sin²x":"cos²x",id=s?"sin²x = (1 − cos 2x)/2":"cos²x = (1 + cos 2x)/2",Fx=(sg)=>`${co(k,2)}x ${sg} ${co(k,4)}sin 2x`,F=Fx(s?"−":"+"),G=s?x=>k*(x/2-Math.sin(2*x)/4):x=>k*(x/2+Math.sin(2*x)/4),g=s?x=>k*Math.sin(x)**2:x=>k*Math.cos(x)**2;
+ const wrong=[Fx(s?"+":"−"),`${co(k,2)}x ${s?"−":"+"} ${co(k,2)}sin 2x`,`${co(k,3)}x³ ${s?"−":"+"} ${co(k,4)}sin 2x`];
+ return{key:"g7",chk:dchk(G,g),text:`Evaluate ∫ ${kt}${ex} dx`,steps:[
+ {q:`Which identity lets us integrate ${ex}?`,opts:o4(id,[s?"sin²x = (1 + cos 2x)/2":"cos²x = (1 − cos 2x)/2",s?"sin²x = 1 − cos 2x":"cos²x = 1 + cos 2x",s?"sin²x = sin 2x / 2":"cos²x = sin 2x / 2"]),hint:"Power-reduction identities: they remove the square.",reveal:id},
+ {q:"What is ∫ cos 2x dx?",opts:["sin 2x / 2 + C","2 sin 2x + C","−sin 2x / 2 + C","sin 2x + C"],hint:"Inside is 2x, so divide by 2.",reveal:"∫ cos 2x dx = sin 2x / 2 + C"},
+ {q:"What is the integral?",opts:o4(F+" + C",wrong.map(w=>w+" + C")),hint:s?"∫ (1 − cos 2x)/2 dx = x/2 − sin 2x/4":"∫ (1 + cos 2x)/2 dx = x/2 + sin 2x/4",reveal:F+" + C"}]}}
+if(kind==="SC"){const F=`${co(k,2)}sin²x + C`;return{key:"g7s",chk:dchk(x=>k*Math.sin(x)**2/2,x=>k*Math.sin(x)*Math.cos(x)),text:`Evaluate ∫ ${kt}sin x cos x dx`,steps:[
+ {q:"Which rule applies?",opts:["∫ g·g′ dx = g²/2","∫ g′/g dx = ln|g|","∫ g·g′ dx = g·g′/2","∫ g′ dx = g′²"],hint:"One factor is the derivative of the other.",reveal:"∫ g·g′ dx = g²/2"},
+ {q:"What are g and g′?",opts:["g = sin x, g′ = cos x","g = cos x, g′ = sin x","g = sin x, g′ = −cos x","g = x, g′ = 1"],hint:"d/dx sin x = cos x",reveal:"g = sin x, g′ = cos x"},
+ {q:"What is the integral?",opts:o4(F,[`${co(k,2)}cos²x + C`,`${co(k,4)}sin²x + C`,`${kt}sin²x + C`]),hint:"g²/2 with g = sin x.",reveal:F}]}}
+if(kind==="SPC"){return{key:"g7t",chk:()=>true,text:"Evaluate ∫ (sin²x + cos²x) dx",steps:[{q:"What is sin²x + cos²x?",opts:["1","2","sin 2x","cos 2x"],hint:"The Pythagorean identity.",reveal:"sin²x + cos²x = 1"},{q:"What is the integral?",opts:["x + C","1 + C","x² / 2 + C","0"],hint:"∫ 1 dx = x + C",reveal:"x + C"}]}}
+return{key:"g7t",chk:()=>true,text:"Evaluate ∫ (cos²x − sin²x) dx",steps:[{q:"What is cos²x − sin²x?",opts:["cos 2x","sin 2x","1","2 cos x"],hint:"Double-angle identity.",reveal:"cos²x − sin²x = cos 2x"},{q:"What is the integral?",opts:["(1/2) sin 2x + C","2 sin 2x + C","−(1/2) sin 2x + C","sin 2x + C"],hint:"Inside is 2x, so divide by 2.",reveal:"(1/2) sin 2x + C"}]}}
+/* ---------- 8. rational standard forms ---------- */
+function g8(){const a=nz(-6,6),aa=Math.abs(a),A=R(2,8),B=R(1,9),kk=R(2,6);const xa=a>0?`x − ${a}`:`x + ${-a}`;
+let it;const lvPool=LV===1?["lin","sq","atan"]:LV===2?["atan","atan","diff","katan"]:["mixed","diff","katan","mixed"];const t=pick(lvPool);
+if(t==="lin")it={txt:`1/(${xa})`,form:"∫ dx/(x − a) = ln|x − a| + C",ans:`ln|${xa}| + C`,a:a,wr:[`1/(${xa}) + C`,`ln|x| + C`,`−ln|${xa}| + C`],G:x=>Math.log(Math.abs(x-a)),g:x=>1/(x-a),x0:.37,lab:"x − a",av:a};
+if(t==="sq")it={txt:`1/(${xa})²`,form:"∫ dx/(x − a)² = −1/(x − a) + C",ans:`−1/(${xa}) + C`,wr:[`1/(${xa}) + C`,`ln|${xa}| + C`,`−1/(${xa})² + C`],G:x=>-1/(x-a),g:x=>1/(x-a)**2,x0:.37,lab:"x − a",av:a};
+if(t==="atan"||t==="katan"){const k=t==="katan"?kk:1;it={txt:`${k===1?"1":k}/(x² + ${aa*aa})`,form:"∫ dx/(x² + a²) = (1/a) tan⁻¹(x/a) + C",ans:`${fr(k,aa)==="1"?"":"("+fr(k,aa)+") "}tan⁻¹(x/${aa}) + C`,wr:[`${k===1?"":k+" "}tan⁻¹(x/${aa}) + C`,`(${fr(k,aa*aa)}) tan⁻¹(x/${aa}) + C`,`(${fr(k,aa)}) ln|x² + ${aa*aa}| + C`],G:x=>k/aa*Math.atan(x/aa),g:x=>k/(x*x+aa*aa),x0:.37,lab:"x² + a²",av:aa}}
+if(t==="diff")it={txt:`1/(x² − ${aa*aa})`,form:"∫ dx/(x² − a²) = (1/2a) ln|(x − a)/(x + a)| + C",ans:`(1/${2*aa}) ln|(x − ${aa})/(x + ${aa})| + C`,wr:[`(1/${aa}) ln|(x − ${aa})/(x + ${aa})| + C`,`(1/${2*aa}) ln|(x + ${aa})/(x − ${aa})| + C`,`(1/${aa}) tan⁻¹(x/${aa}) + C`],G:x=>Math.log(Math.abs((x-aa)/(x+aa)))/(2*aa),g:x=>1/(x*x-aa*aa),x0:.37,lab:"x² − a²",av:aa};
+if(t==="mixed"){const c1=fr(A,2),c2=fr(B,aa);it={txt:`(${A}x + ${B})/(x² + ${aa*aa})`,form:"(Ax + B)/(x² + a²) splits into Ax/(x² + a²) + B/(x² + a²)",ans:`(${c1}) ln(x² + ${aa*aa}) + (${c2}) tan⁻¹(x/${aa}) + C`.replace("(1)","1"),wr:[`(${A}) ln(x² + ${aa*aa}) + (${c2}) tan⁻¹(x/${aa}) + C`,`(${c1}) ln(x² + ${aa*aa}) + (${B}) tan⁻¹(x/${aa}) + C`,`(${c1}) tan⁻¹(x/${aa}) + (${c2}) ln(x² + ${aa*aa}) + C`],G:x=>A/2*Math.log(x*x+aa*aa)+B/aa*Math.atan(x/aa),g:x=>(A*x+B)/(x*x+aa*aa),x0:.37,lab:"x² + a²",av:aa}}
+const s0=t==="mixed"?{q:"How do we start?",opts:["Split into Ax/(x² + a²) + B/(x² + a²)","Divide numerator by denominator","Substitute x = a","Differentiate the numerator"],hint:"The numerator has two terms.",reveal:it.form}:{q:"Which standard formula applies?",opts:o4(it.form,["∫ dx/(x² + a²) = ln|x² + a²| + C","∫ dx/(x − a) = 1/(x − a)² + C","∫ dx/√(a² − x²) = tan⁻¹(x/a) + C"].filter(w=>w!==it.form)),hint:"Compare the denominator with the standard forms.",reveal:it.form};
+const aq=t==="lin"||t==="sq"?{q:`The denominator has the form x − a. What is a?`,opts:numOpts(a,1),hint:`${xa} = x − (${mn(a)})`,reveal:`a = ${mn(a)}`}:{q:t==="mixed"?"What is a in x² + a²? (a > 0)":`In ${it.lab} with the number ${aa*aa}, what is a? (a > 0)`,opts:numOpts(aa,1).filter(v=>+v.replace("−","-")>0||true),hint:`a² = ${aa*aa}`,reveal:`a = ${aa}`};
+return{key:"g8",chk:dchk(it.G,it.g,it.x0),text:`Evaluate ∫ ${it.txt} dx`,steps:[s0,aq,{q:"What is the integral?",opts:o4(it.ans,it.wr),hint:"Use the formula with your value of a.",reveal:it.ans}]}}
+/* ---------- 9. special integrals ---------- */
+function g9(){if(LV===1){const a=R(2,6),t=pick(["asin","plus","minus"]);let it;
+ if(t==="asin")it={txt:`1/√(${a*a} − x²)`,form:"∫ dx/√(a² − x²) = sin⁻¹(x/a) + C",ans:`sin⁻¹(x/${a}) + C`,wr:[`ln|x + √(${a*a} − x²)| + C`,`sin⁻¹(x) + C`,`(1/${a}) sin⁻¹(x/${a}) + C`],G:x=>Math.asin(x/a),g:x=>1/Math.sqrt(a*a-x*x),x0:.37};
+ if(t==="plus")it={txt:`1/√(x² + ${a*a})`,form:"∫ dx/√(x² + a²) = ln|x + √(x² + a²)| + C",ans:`ln|x + √(x² + ${a*a})| + C`,wr:[`sin⁻¹(x/${a}) + C`,`ln|x − √(x² + ${a*a})| + C`,`(1/${a}) tan⁻¹(x/${a}) + C`],G:x=>Math.log(Math.abs(x+Math.sqrt(x*x+a*a))),g:x=>1/Math.sqrt(x*x+a*a),x0:.37};
+ if(t==="minus")it={txt:`1/√(x² − ${a*a})`,form:"∫ dx/√(x² − a²) = ln|x + √(x² − a²)| + C  (|x| > a)",ans:`ln|x + √(x² − ${a*a})| + C`,wr:[`sin⁻¹(x/${a}) + C`,`ln|x − √(x² − ${a*a})| + C`,`(1/${2*a}) ln|(x − ${a})/(x + ${a})| + C`],G:x=>Math.log(Math.abs(x+Math.sqrt(x*x-a*a))),g:x=>1/Math.sqrt(x*x-a*a),x0:a+1};
+ return{key:"g9b",chk:dchk(it.G,it.g,it.x0),text:`Evaluate ∫ ${it.txt} dx`,steps:[
+ {q:"Which standard formula applies?",opts:o4(it.form,["∫ dx/(x² + a²) = (1/a) tan⁻¹(x/a) + C","∫ dx/(x − a) = ln|x − a| + C","∫ dx/√(a² − x²) = ln|x + √(a² − x²)| + C"].filter(w=>w!==it.form)),hint:"Look at the sign under the root: a² − x², x² + a², or x² − a².",reveal:it.form},
+ {q:`The number under the root is ${a*a}. What is a?`,opts:numOpts(a,1),hint:`a² = ${a*a}`,reveal:`a = ${a}`},
+ {q:"What is the integral?",opts:o4(it.ans,it.wr),hint:"Substitute a into the formula.",reveal:it.ans}]}}
+const a=LV===2?1:pick([2,3]),p=nz(-3,3),t=R(1,4),b=2*a*p,c=a*(p*p+t*t),disc=4*a*c-b*b,rt=2*a*t;
+const quad=`${a===1?"":a}x² ${b<0?"−":"+"} ${Math.abs(b)}x + ${c}`,xp=p<0?`x − ${-p}`:`x + ${p}`,arg=t===1?xp:`(${xp})/${t}`,co=fr(1,a*t);
+const ans=`${co==="1"?"":"("+co+") "}tan⁻¹(${arg}) + C`;
+return{key:"g9a",chk:dchk(x=>Math.atan((x+p)/t)/(a*t),x=>1/(a*x*x+b*x+c)),text:`Evaluate ∫ 1/(${quad}) dx`,steps:[
+{q:`For ax² + bx + c with a = ${a}, b = ${b}, c = ${c}, what is 4ac − b²?`,opts:numOpts(disc,Math.max(4,a*a*4)),hint:`4·${a}·${c} − (${b})²`,reveal:`4ac − b² = ${4*a*c} − ${b*b} = ${disc}  (> 0, so we use the tan⁻¹ formula)`},
+{q:"What is √(4ac − b²)?",opts:numOpts(rt,1).filter(v=>+v.replace("−","-")>0).concat(["3","7","9"]).filter((v,i,A)=>A.indexOf(v)===i).slice(0,4).sort((x,y)=>x===String(rt)?-1:0),hint:"Take the square root of your answer.",reveal:`√${disc} = ${rt}`},
+{q:"What is the integral? Use ∫ dx/(ax² + bx + c) = (2/√(4ac − b²)) tan⁻¹((2ax + b)/√(4ac − b²)) + C",opts:o4(ans,[`${fr(1,2*a*t)==="1"?"":"("+fr(1,2*a*t)+") "}tan⁻¹(${arg}) + C`,`${co==="1"?"":"("+co+") "}tan⁻¹(${xp}) + C`,`${fr(2,a*t)==="1"?"":"("+fr(2,a*t)+") "}tan⁻¹(${arg}) + C`]),hint:"The factor in front is 2/√(4ac − b²). (Some printed notes miss the 2.)",reveal:`2/${rt} = ${fr(2,rt)}, and (2ax + b)/${rt} = ${arg}.  Result: ${ans}`}]}}
+const GEN={g1,g2,g3,g4,g5,g6,g7,g8,g9};
+const NAMES={g1:"Power rule",g2:"Exponentials",g3:"Basic trig",g4:"Linear argument",g5:"g′/g rule",g6:"sec & csc",g7:"sin², cos²",g8:"Rational forms",g9:"Special integrals"};
+const EX={
+g1:[["Rewrite roots and reciprocals as powers: √x = x^(1/2), 1/x² = x⁻². Then use the power rule.","نكتب الجذور والمقلوبات كقوى: √x = x^(1/2) و 1/x² = x⁻²، ثم نطبق قاعدة القوة."],["New exponent = old exponent + 1.","الأس الجديد = الأس القديم + 1."],["∫ k·xᵖ dx = k·xᵖ⁺¹/(p+1) + C. Dividing by a fraction means multiplying by its reciprocal.","نقسم المعامل على الأس الجديد. والقسمة على كسر تعني الضرب بمقلوبه."]],
+g2a:[["Base e: ∫ eˣ dx = eˣ. Any other base a: ∫ aˣ dx = aˣ / ln a.","الأساس e: التكامل eˣ نفسه. أما أي أساس آخر a فنقسم على ln a."],["The constant factor stays outside; apply the formula to the exponential part.","الثابت يبقى خارج التكامل، ونطبق القانون على الجزء الأسّي."]],
+g2b:[["Base e: ∫ eˣ dx = eˣ. Any other base a: ∫ aˣ dx = aˣ / ln a.","الأساس e: التكامل eˣ نفسه. أما أي أساس آخر a فنقسم على ln a."],["Apply the formula to the first term and keep its constant.","نطبق القانون على الحد الأول مع الاحتفاظ بثابته."],["Same for the second term, with its own base.","نفس الشيء للحد الثاني بأساسه الخاص."],["Integrate term by term, keep the sign, and add one + C.","نكامل كل حد على حدة، ونحتفظ بالإشارة، ونضيف + C واحدة."]],
+g3:[["The constant comes outside the integral: ∫ k f dx = k ∫ f dx.","الثابت يخرج خارج التكامل."],["Recall: ∫ sin = −cos, ∫ cos = sin, ∫ sec² = tan, ∫ csc² = −cot, ∫ sec tan = sec, ∫ csc cot = −csc, ∫ 1/(1+x²) = tan⁻¹x.","نتذكر جدول التكاملات الأساسية. انتبهي للإشارات السالبة."],["Multiply the result by k and add + C.","نضرب النتيجة بالثابت ونضيف + C."]],
+g3b:[["Integrate term by term, taking constants outside.","نكامل حداً حداً ونخرج الثابت."],["Use the table of standard integrals for the first function.","نستخدم الجدول للدالة الأولى."],["Same for the second function.","نفس الشيء للدالة الثانية."],["Combine with the original signs and one + C.","نجمع النتيجتين بنفس الإشارة الأصلية وبـ C واحدة."]],
+g4:[["The inside is ax + b. a is the coefficient of x (it can be negative, as in 2 − x, where a = −1).","الدالة الداخلية ax + b. و a معامل x (ممكن يكون سالباً مثل 2 − x حيث a = −1)."],["First integrate the outer function as if the inside were just x.","نكامل الدالة الخارجية أولاً كأن الداخل هو x فقط."],["Then divide by a: ∫ f(ax + b) dx = (1/a) F(ax + b) + C. For (ax+b)ⁿ the denominator is a(n+1).","ثم نقسم على a. وفي القوى المقام يصير a(n+1)."]],
+g5:[["g(x) is the function whose derivative appears in the numerator (often the denominator).","g(x) هي الدالة التي مشتقتها موجودة بالبسط (غالباً المقام)."],["Differentiate g to get g′.","نشتق g لنجد g′."],["Compare the numerator with g′: it may equal it, or be a constant multiple of it.","نقارن البسط مع g′: يساويها أو يساوي مضاعفاً ثابتاً لها."],["∫ g′/g dx = ln|g| + C. A constant multiple stays in front.","التكامل = ln|g|، والثابت يبقى بالأمام."]],
+g5r:[["tan x = sin x / cos x and cot x = cos x / sin x.","tan x = sin x / cos x و cot x = cos x / sin x."],["g is the denominator.","g هي المقام."],["Differentiate g. For g = cos x we get g′ = −sin x.","نشتق g. وإذا كانت g = cos x فمشتقتها −sin x."],["tan x gives −ln|cos x|, and cot x gives ln|sin x|.","tan x تعطي −ln|cos x| و cot x تعطي ln|sin x|."]],
+g6:[["Multiply and divide by (sec x + tan x) for sec, or (csc x − cot x) for csc.","نضرب ونقسم على (sec x + tan x) مع sec، أو على (csc x − cot x) مع csc."],["The numerator becomes the derivative of the denominator, so we can use g′/g.","البسط يصير مشتقة المقام، فنستخدم g′/g."],["∫ g′/g dx = ln|g| + C.","التكامل = ln|g| + C."]],
+g6b:[["The basic result: ∫ sec u du = ln|sec u + tan u| + C and ∫ csc u du = ln|csc u − cot u| + C.","النتيجة الأساسية لـ sec و csc."],["When the inside is ax, divide by a. The constant k stays in front: factor = k/a.","لما يكون الداخل ax نقسم على a، والثابت k يبقى: المعامل = k/a."],["Put the coefficient in front of the ln and add + C.","نضع المعامل أمام ln ونضيف + C."]],
+g7:[["Use the power-reduction identity to remove the square.","نستخدم متطابقة تخفيض القوة لإزالة التربيع."],["∫ cos(ax) dx = sin(ax)/a, so ∫ cos 2x dx = sin 2x / 2.","∫ cos(ax) dx = sin(ax)/a."],["Substitute and integrate. For sin²x: x/2 − sin 2x/4. For cos²x: x/2 + sin 2x/4.","نعوّض ونكامل: sin²x تعطي x/2 − sin 2x/4 و cos²x تعطي x/2 + sin 2x/4."]],
+g7s:[["One factor is the derivative of the other: ∫ g·g′ dx = g²/2.","أحد العاملين مشتقة الآخر: ∫ g·g′ dx = g²/2."],["g = sin x, g′ = cos x.","g = sin x و g′ = cos x."],["Result: sin²x/2 + C, times the constant k.","النتيجة sin²x/2 + C مضروبة بالثابت."]],
+g7t:[["Use a trig identity to simplify the integrand first.","نبسّط الدالة أولاً بمتطابقة مثلثية."],["Then integrate the simpler expression.","ثم نكامل التعبير الأبسط."]],
+g8:[["Match the denominator with the standard forms: x − a, (x − a)², x² + a², x² − a².","نطابق المقام مع الصيغ القياسية."],["Find a. For x² + a² the number is a² (so take the square root).","نجد a. وفي x² + a² الرقم هو a² فنأخذ جذره."],["Substitute a into the formula: tan⁻¹ forms have 1/a in front, and (Ax + B)/(x² + a²) gives (A/2) ln(x² + a²) + (B/a) tan⁻¹(x/a).","نعوّض a بالقانون."]],
+g9a:[["For ax² + bx + c with 4ac − b² > 0 we use the tan⁻¹ formula.","إذا كان 4ac − b² > 0 نستخدم قانون tan⁻¹."],["Take the square root of 4ac − b².","نأخذ الجذر التربيعي لـ 4ac − b²."],["∫ dx/(ax²+bx+c) = (2/√(4ac−b²)) tan⁻¹((2ax+b)/√(4ac−b²)) + C. The factor in front is 2/√(...), not 1/√(...).","المعامل بالأمام هو 2/√(4ac − b²)، مش 1/√."]],
+g9b:[["Look at the expression under the root: a² − x² gives sin⁻¹, while x² ± a² give ln.","ننظر لما تحت الجذر: a² − x² تعطي sin⁻¹ و x² ± a² تعطي ln."],["a² is the number under the root, so a is its square root.","a² هو الرقم تحت الجذر فنأخذ جذره."],["Substitute a into the formula.","نعوّض a بالقانون."]]};
+let type="g1",P,i,tries,right=0,total=0,locked;
+const $=id=>document.getElementById(id);
+function prep(p){p.steps.forEach(s=>{if(s.ans===undefined)s.ans=s.opts[0]});return p}
+function renderChips(){$("chips").innerHTML=Object.keys(NAMES).map((k,ix)=>`<button class="chip" aria-pressed="${k===type}" data-k="${k}">${ix+1}. ${NAMES[k]}</button>`).join("");
+$("chips").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{type=b.dataset.k;renderChips();start()})}
+function start(){{let t=0,np;do{np=prep(GEN[type]())}while(P&&np.text===P.text&&t++<30);P=np}i=0;tries=0;$("prob").innerHTML=P.text;draw()}
+function dots(){return `<div class="dots">${P.steps.map((_,k)=>`<div class="dot ${k<i?"done":k===i?"cur":""}"></div>`).join("")}</div>`}
+function draw(){const st=$("stage");
+if(i>=P.steps.length){st.innerHTML=`<div class="card final">${dots()}<b>Well done! Problem solved 🎉</b></div><button class="btn" id="nx">New problem</button>`;$("nx").onclick=start;score();return}
+const s=P.steps[i];locked=false;
+st.innerHTML=`<div class="card">${dots()}<p class="q">${s.q}</p>${sh(s.opts).map(o=>`<button class="opt" data-v="${o}">${o}</button>`).join("")}<div class="hint" id="hint"></div><div class="trow" style="margin-top:6px"><button class="tb" id="exp">📖 Explain this step</button></div><div class="tout" id="exout" dir="auto"></div><div class="tutor" id="tutor" hidden><div class="trow"><input id="tq" placeholder="Ask about this step (optional)" maxlength="200"><select id="tl" aria-label="Language"><option value="ar">عربي</option><option value="en">English</option></select><button class="tb" id="ask">💡 Ask the tutor</button></div><div class="tout" id="tout" dir="auto"></div></div></div>`;
+st.querySelectorAll(".opt").forEach(b=>b.onclick=()=>pickOpt(b,s));wireTutor(s)}
+function pickOpt(b,s){if(locked)return;
+if(b.dataset.v===s.ans){locked=true;b.classList.add("good");total++;if(tries===0)right++;
+b.closest(".card").insertAdjacentHTML("beforeend",`<div class="reveal">${s.reveal}</div><button class="btn" id="go">${i===P.steps.length-1?"Finish":"Next step"}</button>`);
+$("go").onclick=()=>{i++;tries=0;draw()};score()}
+else{tries++;b.classList.add("bad");b.disabled=true;$("hint").textContent="Not quite, try again. Hint: "+s.hint}}
+function score(){$("score").textContent=total?`Correct on first try: ${right} of ${total}`:""}
+function exText(){const k=P.key||type,a=EX[k]||EX[type],v=a&&a[i];return v?v[0]+"
+
+"+v[1]:"Review the rule for this step in your notes."}
+const LVN=["Easy","Medium","Hard"];function renderLv(){$("lv").innerHTML=LVN.map((n,k)=>`<button class="chip" aria-pressed="${LV===k+1}" data-l="${k+1}">${n}</button>`).join("");$("lv").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{LV=+b.dataset.l;renderLv();start()})}
+let SAMPLE=null;
+function plain(h){const d=document.createElement("div");d.innerHTML=h;return d.textContent.replace(/\s+/g," ").trim()}
+function wireTutor(s){const e=$("exp");if(e)e.onclick=()=>{$("exout").textContent=exText()};const box=$("tutor");if(!box)return;box.hidden=!SAMPLE;const btn=$("ask");
+btn.onclick=async()=>{if(!SAMPLE)return;const q=$("tq").value.trim(),lang=$("tl").value,out=$("tout");btn.disabled=true;out.textContent="Thinking…";
+const pr=`You are a friendly math tutor for a university student.\nProblem: ${plain(P.text)}\nCurrent step question: ${plain(s.q)}\nAnswer choices: ${s.opts.map(plain).join(" | ")}\nThe student ${locked?"has already answered this step correctly, so you may explain the full reasoning.":"has NOT answered yet. Do NOT state the correct choice or the final number. Give hints and explain the underlying concept so they can decide themselves."}\n${q?"Student's question: "+q:"Explain the idea behind this step simply."}\nReply in ${lang==="ar"?"simple Arabic (keep math notation and technical terms in English)":"simple English"}, under 120 words, plain text, no headings.`;
+try{const r=await SAMPLE(pr,{cache:false,modelTier:"quick",onText:({text})=>{out.textContent=text}});out.textContent=r.text}
+catch(e){out.textContent=e&&e.code==="rate_limited"?"Too many requests, please wait a moment.":"The tutor isn't available right now."}
+finally{btn.disabled=false}}}
+if(window.claude&&window.claude.use){window.claude.use("sample").then(x=>{SAMPLE=x;const b=document.getElementById("tutor");if(b)b.hidden=!SAMPLE}).catch(()=>{})}
+renderLv();renderChips();start();
+</script>
+</body>
+</html>
