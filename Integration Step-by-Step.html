@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Integration Step-by-Step</title>
+<style>
+:root{--bg:#f7f7f4;--card:#fff;--tx:#1d1d1f;--mut:#6b6b70;--bd:#dcdcd6;--ac:#2f5bea;--ok:#1f8a4c;--okb:#e3f5ea;--no:#c23b3b;--nob:#fbe6e6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17181b;--card:#222428;--tx:#ececee;--mut:#9a9aa2;--bd:#383a40;--ac:#7d9bff;--ok:#5fd48d;--okb:#17301f;--no:#ff8585;--nob:#3a1d1d}}
+:root[data-theme="dark"]{--bg:#17181b;--card:#222428;--tx:#ececee;--mut:#9a9aa2;--bd:#383a40;--ac:#7d9bff;--ok:#5fd48d;--okb:#17301f;--no:#ff8585;--nob:#3a1d1d}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:640px;margin:0 auto;padding:16px}
+h1{font-size:1.4rem;margin:8px 0 2px}p.s{color:var(--mut);margin:0 0 14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+label{font-size:.8rem;color:var(--mut);display:flex;flex-direction:column;gap:3px;flex:1;min-width:140px}
+select,button{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:9px 10px}
+button{cursor:pointer}button.p{background:var(--ac);color:#fff;border-color:var(--ac)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:12px}
+.prob{font-size:1.5rem;text-align:center;padding:18px 8px;overflow-x:auto}
+.q{font-weight:600;margin-bottom:8px}
+.opts{display:grid;gap:8px}
+.opts button{text-align:left;font-size:1.05rem;min-height:44px}
+.opts button.ok{background:var(--okb);border-color:var(--ok);color:var(--ok)}
+.opts button.bad{background:var(--nob);border-color:var(--no);color:var(--no)}
+.why{color:var(--mut);font-size:.9rem;margin-top:8px}
+.fin{border-color:var(--ok);background:var(--okb)}
+.stats{color:var(--mut);font-size:.85rem;display:flex;justify-content:space-between;margin:4px 2px 12px}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 2px;font-size:.92em;line-height:1.25}
+.fr>span:first-child{border-bottom:1.5px solid currentColor;padding:0 3px}.fr>span:last-child{padding:0 3px}
+sup{font-size:.72em;line-height:0}
+.help{border-color:var(--ac)}.help summary{font-weight:600;cursor:pointer}
+.hb{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.hb button{flex:1;min-width:110px;font-size:.9rem}
+.ask{display:flex;gap:8px}.ask input{flex:1;font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:9px 10px;min-width:0}
+#ans{white-space:pre-wrap;margin-top:10px;line-height:1.6}#ans:empty{display:none}
+</style></head><body><main>
+<h1>Calculus 102: Integration</h1>
+<p class="s">Pick a topic and answer each step before it's revealed.</p>
+<div class="row">
+<label>Level<select id="lv"><option value="0">Easy</option><option value="1" selected>Medium</option><option value="2">Hard</option></select></label>
+<label>Topic (suggested order 1 → 9)<select id="tp"></select></label>
+</div>
+<div class="row"><button class="p" id="nw" style="flex:1">New problem</button></div>
+<div class="stats"><span id="st1"></span><span id="st2"></span></div>
+<details class="card help" open><summary>🧑‍🏫 Question helper</summary>
+<div class="hb"><button id="h1">💡 Hint</button><button id="h2">📖 Explain this step</button><button id="h3">✅ Full solution</button></div>
+<div class="ask"><input id="qi" placeholder="Ask anything about this question…" enterkeyhint="send"><button class="p" id="qs">Ask</button></div>
+<div id="ans"></div></details>
+<div id="out"></div>
+</main>
+<script>
+const $=s=>document.querySelector(s),rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1)),pick=a=>a[rnd(0,a.length-1)];
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=rnd(0,i);[a[i],a[j]]=[a[j],a[i]]}return a};
+const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a),M=n=>n<0?"−"+(-n):""+n,uniq=a=>[...new Set(a)];
+const fx=s=>s.replace(/\^\{([^}]*)\}/g,"<sup>$1</sup>");
+const F=(n,d)=>`<span class="fr"><span>${n}</span><span>${d}</span></span>`;
+const rat=(n,d)=>{if(d<0){n=-n;d=-d}const g=gcd(n,d)||1;return[n/g,d/g]};
+const coef=(n,d)=>{[n,d]=rat(n,d);if(d==1)return n==1?"":n==-1?"−":M(n);return(n<0?"−":"")+F(Math.abs(n),d)};
+const cf=(n,d)=>{[n,d]=rat(n,d);return d==1?M(n):(n<0?"−":"")+F(Math.abs(n),d)};
+const mono=(n,d,p)=>p==0?cf(n,d):coef(n,d)+(p==1?"x":`x^{${p}}`);
+const signed=c=>c>0?"+"+c:c<0?"−"+(-c):"";
+const lin=(a,b)=>(a==1?"":a==-1?"−":M(a))+"x"+signed(b);
+const numOpts=a=>[M(a),...uniq(shuf([-a,a+1,a-1,a+2,a-2,2*a,3*a].filter(v=>v!=a&&v!=0))).slice(0,3).map(M)];
+const S=(q,o,why)=>({q,o:[o[0],...uniq(o.slice(1)).filter(x=>x!==o[0]).slice(0,3)],why});
+
+function g1(l){const k=l==0?1:rnd(2,l==1?6:9),n=l==2?pick([-5,-4,-3,-2,2,3,4,5,6,7]):rnd(2,6),m=n+1;
+return{expr:`∫ ${k==1?"":k}x^{${n}} dx`,steps:[
+S("Which rule applies?",["Power rule: ∫ x^{n} dx = "+F("x^{n+1}","n+1"),"Log rule: ∫ 1/x dx = ln|x|","Exponential rule: ∫ e^{x} dx = e^{x}","Constant rule: ∫ dx = x"],"Works for every n except −1."),
+S("n + 1 = ?",numOpts(m)),
+S("Raise the power and divide by it:",[mono(k,m,m)+" + C",mono(k,1,m)+" + C",mono(k,m,n)+" + C",mono(k*n,1,n-1)+" + C"],"Divide by the NEW power, and the power goes up by one.")]}}
+
+function g2(l){const t=l==0?pick([0,1]):pick([0,2,2]);
+if(t==0){const a=pick([2,3,5,10]);return{expr:`∫ ${a}^{x} dx`,steps:[
+S("Which rule applies?",["∫ a^{x} dx = "+F("a^{x}","ln a"),"∫ a^{x} dx = a^{x}","∫ a^{x} dx = "+F("a^{x+1}","x+1"),"∫ a^{x} dx = a^{x} ln a"],"Differentiating a^x gives a^x·ln a, so divide by ln a."),
+S("Apply it with a = "+a+":",[`${F(a+"^{x}","ln "+a)} + C`,`${a}^{x} ln ${a} + C`,`${a}^{x} + C`,`${F(a+"^{x+1}","x+1")} + C`])]}}
+if(t==1){const k=rnd(2,7);return{expr:`∫ ${k}e^{x} dx`,steps:[
+S("∫ e^{x} dx = ?",["e^{x} + C","xe^{x} + C",F("e^{x+1}","x+1")+" + C","e^{x}/x + C"]),
+S("Pull out the constant "+k+":",[`${k}e^{x} + C`,`e^{x} + C`,`${k+1}e^{x} + C`,`${k}xe^{x} + C`])]}}
+const a=rnd(2,l==1?4:6)*(l==2&&Math.random()<.4?-1:1),b=rnd(-5,5)||1,L=lin(a,b);
+return{expr:`∫ e^{${L}} dx`,steps:[S("Inner coefficient a = ?",numOpts(a)),
+S("Divide by a:",[`${coef(1,a)}e^{${L}} + C`,`e^{${L}} + C`,`${coef(a,1)}e^{${L}} + C`,`${coef(1,a)}e^{x} + C`],"∫ e^{ax+b} dx = e^{ax+b}/a")]}}
+
+const TR=[["sin x","−cos x"],["cos x","sin x"],["sec^{2}x","tan x"],["csc^{2}x","−cot x"],["sec x tan x","sec x"],["csc x cot x","−csc x"]];
+function g3(l){const[f,A]=pick(TR),k=l==0?1:rnd(2,l==1?5:9),neg=A[0]=="−",body=neg?A.slice(1):A;
+const mk=(n,c)=>(n?"−":"")+(c==1?"":c)+body;
+const st=[S(`Antiderivative of ${f}?`,[A,neg?body:"−"+A,...shuf(TR.map(t=>t[1]).filter(x=>x!=A))],"Check by differentiating.")];
+if(k>1)st.push(S(`Multiply by ${k}:`,[mk(neg,k)+" + C",mk(!neg,k)+" + C",mk(neg,k+1)+" + C",mk(neg,1)+" + C"]));
+return{expr:`∫ ${k==1?"":k}${f} dx`,steps:st}}
+
+function g4(l){const t=pick(["tan","cot","sec","csc"]);let st;
+if(t=="tan")st=[S("Rewrite tan x:",[F("sin x","cos x"),F("cos x","sin x"),F("1","cos x"),F("sec x","sin x")]),S("Let u = cos x. Then du = ?",["−sin x dx","sin x dx","−cos x dx","cos x dx"]),S("Result:",["−ln|cos x| + C","ln|cos x| + C","−ln|sin x| + C","ln|sin x| + C"],"∫ du/u with the minus sign from du.")];
+if(t=="cot")st=[S("Rewrite cot x:",[F("cos x","sin x"),F("sin x","cos x"),F("1","sin x"),F("csc x","cos x")]),S("Let u = sin x. Then du = ?",["cos x dx","−cos x dx","sin x dx","−sin x dx"]),S("Result:",["ln|sin x| + C","−ln|sin x| + C","ln|cos x| + C","−ln|cos x| + C"])];
+if(t=="sec")st=[S("Multiply by (sec x + tan x)/(sec x + tan x). The numerator becomes:",["sec²x + sec x tan x","sec x + tan x","sec x tan x","sec²x − sec x tan x"]),S("Let u = sec x + tan x. Then du = ?",["(sec x tan x + sec²x) dx","(sec x tan x − sec²x) dx","sec²x dx","sec x tan x dx"],"The numerator is exactly du."),S("Result:",["ln|sec x + tan x| + C","ln|sec x − tan x| + C","ln|sec x| + C","−ln|sec x + tan x| + C"])];
+if(t=="csc")st=[S("Multiply by (csc x − cot x)/(csc x − cot x). The numerator becomes:",["csc²x − csc x cot x","csc²x + csc x cot x","csc x − cot x","csc x cot x"]),S("Let u = csc x − cot x. Then du = ?",["(−csc x cot x + csc²x) dx","(−csc x cot x − csc²x) dx","csc²x dx","−csc x cot x dx"]),S("Result:",["ln|csc x − cot x| + C","ln|csc x + cot x| + C","−ln|csc x − cot x| + C","ln|csc x| + C"])];
+return{expr:`∫ ${t} x dx`,steps:st}}
+
+function g5(l){const t=l==0?pick([0,1]):pick([0,0,1,2,3]),a=l==0?rnd(2,4):rnd(2,6)*(l==2&&Math.random()<.3?-1:1),b=l==0?rnd(1,5):(rnd(-6,6)||2),L=lin(a,b),A=S("Inner function ax + b: a = ?",numOpts(a));
+if(t==0){const n=l==2&&Math.random()<.4?pick([-2,-3,-4]):rnd(2,6),m=n+1,d=a*m;
+return{expr:`∫ (${L})^{${n}} dx`,steps:[A,S("n + 1 = ?",numOpts(m)),S("Denominator a(n + 1) = ?",numOpts(d)),
+S("Result:",[`${coef(1,d)}(${L})^{${m}} + C`,`${coef(1,m)}(${L})^{${m}} + C`,`${coef(1,a)}(${L})^{${m}} + C`,`${coef(1,d)}(${L})^{${n}} + C`],"∫ (ax+b)ⁿ dx = (ax+b)ⁿ⁺¹ / [a(n+1)]")]}}
+if(t==1)return{expr:`∫ ${F(1,L)} dx`,steps:[A,S("Result:",[`${coef(1,a)}ln|${L}| + C`,`ln|${L}| + C`,`${coef(a,1)}ln|${L}| + C`,`${coef(1,a)}ln|x| + C`],"Divide by a.")]};
+if(t==2)return{expr:`∫ cos(${L}) dx`,steps:[A,S("Result:",[`${coef(1,a)}sin(${L}) + C`,`sin(${L}) + C`,`${coef(-1,a)}sin(${L}) + C`,`${coef(a,1)}sin(${L}) + C`])]};
+return{expr:`∫ sin(${L}) dx`,steps:[A,S("Result:",[`${coef(-1,a)}cos(${L}) + C`,`${coef(1,a)}cos(${L}) + C`,`${coef(1,a)}sin(${L}) + C`,`${coef(a,1)}cos(${L}) + C`])]}}
+
+function g6(l){let g,gp,num,r,m;const kx=k=>k==1?"+x":k==-1?"−x":(k>0?"+"+k+"x":"−"+(-k)+"x");
+if(l==0){m=rnd(1,9);g=`x^{2}+${m}`;gp=num="2x";r=[1,1]}
+else if(l==1||Math.random()<.4){const k=pick([-4,-3,-2,-1,1,2,3,4,5]);m=rnd(1,8);g=`x^{2}${kx(k)}+${m}`;gp=num=`2x${signed(k)}`;r=[1,1]}
+else if(Math.random()<.5){m=rnd(1,9);g=`x^{2}+${m}`;gp="2x";num="x";r=[1,2]}
+else{m=rnd(1,9);g=`x^{3}+${m}`;gp="3x^{2}";num="x^{2}";r=[1,3]}
+const c=coef(...r);
+return{expr:`∫ ${F(num,g)} dx`,steps:[S("Let g(x) = the denominator. g(x) = ?",[g,gp,num,"x"]),S("g′(x) = ?",[gp,g,"1","x"]),
+S("Numerator ÷ g′(x) = ?",[cf(...r),"1","2",cf(1,2),cf(1,3)],"The integral is (that constant) × ln|g|."),
+S("Result:",[`${c}ln|${g}| + C`,`ln|${g}| + C`,`2ln|${g}| + C`,`ln|${gp}| + C`,`${F(1,g)} + C`],"∫ g′/g dx = ln|g| + C")]}}
+
+function g7(){const t=pick([0,1,2]),f2=(s,d)=>F(s,d);
+if(t<2){const s=t==0;return{expr:`∫ ${s?"sin":"cos"}^{2}x dx`,steps:[
+S(`Power-reducing identity: ${s?"sin":"cos"}²x = ?`,[F(s?"1 − cos 2x":"1 + cos 2x",2),F(s?"1 + cos 2x":"1 − cos 2x",2),F("1 − sin 2x",2),F("cos 2x − 1",2)]),
+S("∫ cos 2x dx = ?",[F("sin 2x",2),"sin 2x",F("−sin 2x",2),"2 sin 2x"],"Divide by the inner coefficient 2."),
+S("Result:",[`${F("x",2)} ${s?"−":"+"} ${F("sin 2x",4)} + C`,`${F("x",2)} ${s?"+":"−"} ${F("sin 2x",4)} + C`,`${F("x",2)} ${s?"−":"+"} ${F("sin 2x",2)} + C`,`x ${s?"−":"+"} ${F("sin 2x",4)} + C`])]}}
+return{expr:"∫ sin x cos x dx",steps:[S("Let u = sin x. Then du = ?",["cos x dx","−cos x dx","sin x dx","−sin x dx"]),S("∫ u du = ?",[F("u^{2}",2),"u^{2}",F("u^{3}",3),"2u"]),
+S("Result:",[`${F("sin^{2}x",2)} + C`,`sin²x + C`,`${F("sin^{3}x",3)} + C`,`${F("cos^{2}x",2)} + C`])]}}
+
+function g8(l){const a=rnd(2,l==0?5:9),N=a*a,f=[
+{i:`∫ ${F(1,"x^{2}+"+N)} dx`,r:`${F(1,a)}tan^{−1}(${F("x",a)}) + C`},
+{i:`∫ ${F(1,"x^{2}−"+N)} dx`,r:`${F(1,2*a)}ln|${F("x − "+a,"x + "+a)}| + C`},
+{i:`∫ ${F(1,`√(${N}−x^{2})`)} dx`,r:`sin^{−1}(${F("x",a)}) + C`},
+{i:`∫ ${F(1,`√(x^{2}+${N})`)} dx`,r:`ln|x + √(x^{2}+${N})| + C`},
+{i:`∫ ${F(1,`√(x^{2}−${N})`)} dx`,r:`ln|x + √(x^{2}−${N})| + C`}];
+const k=l==0?pick([0,2]):rnd(0,4),w=shuf(f.filter((_,j)=>j!=k).map(x=>x.r));if(k==0)w.unshift(`tan^{−1}(${F("x",a)}) + C`);
+return{expr:f[k].i,steps:[S(`Write ${N} as a². a = ?`,numOpts(a)),S("Match the standard form and substitute a:",[f[k].r,...w],"Compare with the formula sheet, section 4 and 5.")]}}
+
+function g9(l){let r,s;do{r=rnd(-4,4);s=rnd(-4,4)}while(!r||!s||r==s);
+const m=l==0?3:5,A=rnd(1,m)*(Math.random()<.4?-1:1),B=rnd(1,m)*(Math.random()<.4?-1:1),c1=A+B,c0=-(A*s+B*r);
+const N=c1==0?M(c0):(c1==1?"":c1==-1?"−":M(c1))+"x"+signed(c0),fac=q=>q>0?`(x−${q})`:`(x+${-q})`,la=q=>"x"+(q>0?"−"+q:"+"+(-q));
+const fin=(A,B,r,s)=>`${coef(A,1)}ln|${la(r)}|${B<0?" − ":" + "}${Math.abs(B)==1?"":Math.abs(B)}ln|${la(s)}| + C`;
+return{expr:`∫ ${F(N,fac(r)+fac(s))} dx`,steps:[
+S("Decompose into partial fractions:",[`${F("A",fac(r))} + ${F("B",fac(s))}`,`${F("A",fac(r))} · ${F("B",fac(s))}`,`${F("A",fac(r)+"^{2}")} + ${F("B",fac(s)+"^{2}")}`,F("Ax + B",fac(r)+" + "+fac(s))]),
+S(`Cover-up at x = ${r}: A = ?`,numOpts(A),"Cover the factor (x − r), plug in x = r."),S(`Cover-up at x = ${s}: B = ?`,numOpts(B)),
+S("Integrate each term:",[fin(A,B,r,s),fin(B,A,r,s),fin(-A,-B,r,s),fin(A,-B,r,s)],"Each term is ∫ dx/(x − a) = ln|x − a|.")]}}
+
+const TOP=[["Power rule",g1],["Exponentials a^x, e^(ax+b)",g2],["Basic trig integrals",g3],["tan, cot, sec, csc",g4],["Linear substitution (ax+b)",g5],["g′/g → ln|g|",g6],["sin², cos², sin·cos",g7],["Standard forms 1/(x²±a²), √",g8],["Partial fractions",g9]];
+$("#tp").innerHTML=TOP.map((t,i)=>`<option value="${i}">${i+1}. ${t[0]}</option>`).join("")+'<option value="m">Mixed</option>';
+let solved=0,mist=0,cur=0;
+function newP(){const tv=$("#tp").value,g=tv=="m"?pick(TOP)[1]:TOP[+tv][1],p=g(+$("#lv").value);cur=0;ctx={p,i:0};$("#ans").textContent="";
+$("#out").innerHTML=`<div class="card prob">${fx(p.expr)}</div><div id="stp"></div>`;step(p,0);stats()}
+function step(p,i){ctx={p,i};const s=p.steps[i],d=document.createElement("div");d.className="card";
+d.innerHTML=`<div class="q">Step ${i+1}/${p.steps.length}: ${fx(s.q)}</div><div class="opts"></div><div class="why"></div>`;
+const box=d.querySelector(".opts");
+shuf(s.o).forEach(o=>{const b=document.createElement("button");b.innerHTML=fx(o);b.onclick=()=>{
+if(o===s.o[0]){b.className="ok";box.querySelectorAll("button").forEach(x=>x.disabled=true);d.querySelector(".why").innerHTML=s.why?fx(s.why):"";
+if(i+1<p.steps.length)step(p,i+1);else{ctx.done=1;solved++;stats();const f=document.createElement("div");f.className="card fin";f.innerHTML=`<div class="q">✓ Solved</div><div style="font-size:1.2rem">${fx(p.expr)} = ${fx(s.o[0])}</div>`;$("#stp").appendChild(f);f.scrollIntoView({behavior:"smooth",block:"nearest"})}}
+else{b.className="bad";b.disabled=true;mist++;stats()}};box.appendChild(b)});
+$("#stp").appendChild(d);d.scrollIntoView({behavior:"smooth",block:"nearest"})}
+function stats(){$("#st1").textContent="Solved: "+solved;$("#st2").textContent="Wrong tries: "+mist}
+let ctx=null,busy=false;
+const T=s=>s.replace(/<span class="fr"><span>(.*?)<\/span><span>(.*?)<\/span><\/span>/g,"($1)/($2)").replace(/\^\{([^}]*)\}/g,"^($1)");
+async function askAI(req){if(!ctx||busy)return;const out=$("#ans");let sample=null;
+try{sample=await claude.use("sample")}catch(e){}
+if(!sample){out.textContent="The helper isn't available in this view.";return}
+const p=ctx.p,st=p.steps[Math.min(ctx.i,p.steps.length-1)];
+const solved_=p.steps.slice(0,ctx.i).map((s,j)=>`Step ${j+1}: ${T(s.q)} -> ${T(s.o[0])}`).join("\n")||"none yet";
+const prompt=`You are a friendly calculus tutor (Calculus 102, integration) helping a student who is practising with a step-by-step multiple-choice trainer.
+Rules: answer in the language the student writes in (default: simple Arabic, math terms in English). Be short and clear (max ~8 lines). Plain text math only, no LaTeX. Give hints and guiding questions; do NOT reveal the correct option of the current step unless the student explicitly asks for the full solution.
+Problem: ${T(p.expr)}
+Steps already solved: ${solved_}
+Current step ${ctx.done?"(all steps finished)":(ctx.i+1)+" of "+p.steps.length}: ${T(st.q)}
+Options shown to student: ${st.o.map(T).join(" | ")}
+Correct option (secret): ${T(st.o[0])}
+All steps with answers (secret, for your reference): ${p.steps.map(s=>T(s.q)+" -> "+T(s.o[0])).join(" ;; ")}
+Student request: ${req}`;
+busy=true;out.textContent="…";
+try{await sample(prompt,{cache:false,onText:({text})=>{out.textContent=text}})}
+catch(e){out.textContent=e&&e.code=="rate_limited"?"Too many requests, wait a moment.":"Couldn't get a reply, try again."}
+busy=false}
+$("#h1").onclick=()=>askAI("Give me a hint for the current step, without the answer.");
+$("#h2").onclick=()=>askAI("Explain the idea behind the current step and why the rule applies.");
+$("#h3").onclick=()=>askAI("Show me the full worked solution of the whole problem, step by step.");
+const sendQ=()=>{const v=$("#qi").value.trim();if(v){$("#qi").value="";askAI(v)}};
+$("#qs").onclick=sendQ;$("#qi").onkeydown=e=>{if(e.key=="Enter")sendQ()};
+$("#nw").onclick=newP;$("#lv").onchange=newP;$("#tp").onchange=newP;newP();
+</script></body></html>
