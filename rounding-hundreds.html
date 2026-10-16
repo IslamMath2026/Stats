@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>التقريب إلى أقرب مئة</title>
+<style>
+:root{--bg:#fff8e8;--ink:#2b2a4c;--mute:#6b6a8c;--card:#fff;--line:#e6dcc3;--acc:#ff7a3d;--accT:#fff;--blue:#3a7bd5;--good:#1b8a4b;--goodBg:#dff5e8;--bad:#c0392b;--badBg:#fde7e4;--infoBg:#eaf1ff;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#1c1b33;--ink:#f4f1ff;--mute:#aaa8cc;--card:#26254a;--line:#3c3b6b;--acc:#ff9461;--accT:#2a1204;--blue:#79aaf5;--good:#6fdc9c;--goodBg:#16382a;--bad:#ff9b90;--badBg:#40201f;--infoBg:#2a3a66;color-scheme:dark}}
+*{box-sizing:border-box}
+html{height:100%}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font:500 18px/1.7 system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;padding:max(16px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
+main{max-width:600px;margin:0 auto}
+h1{font-size:1.6rem;margin:.2em 0 .1em}
+p.sub{margin:0 0 1rem;color:var(--mute)}
+.card{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px}
+label{display:block;font-weight:700;margin:.6em 0 .25em}
+select{width:100%;font:inherit;padding:12px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--ink)}
+button{font:inherit;font-weight:700;border:2px solid var(--line);background:var(--card);color:var(--ink);padding:12px 16px;border-radius:14px;cursor:pointer}
+button.main{background:var(--acc);color:var(--accT);border-color:var(--acc)}
+button:disabled{opacity:.5;cursor:default}
+:focus-visible{outline:4px solid var(--blue);outline-offset:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.row>*{flex:1 1 auto}
+.top{display:flex;justify-content:space-between;color:var(--mute);font-size:.95rem;margin-bottom:8px}
+.bar{height:10px;background:var(--line);border-radius:6px;overflow:hidden;margin-bottom:12px}
+.bar i{display:block;height:100%;background:var(--acc);transition:width .3s;float:right}
+.q{font-size:1.3rem;text-align:center;margin:4px 0 8px}
+#num{direction:ltr;display:flex;justify-content:center;gap:8px;margin:10px 0 6px}
+.dg{width:64px;height:84px;display:grid;place-items:center;font-size:3rem;font-weight:700;border:3px solid var(--line);border-radius:14px;transition:background .2s,border-color .2s}
+.dg.h{border-color:var(--blue);background:var(--infoBg);color:var(--blue)}
+.dg.t{border-color:var(--acc);background:#ffe9dc;color:var(--acc)}
+@media (prefers-color-scheme:dark){.dg.t{background:#4a2a18}}
+.legend{display:flex;justify-content:center;gap:14px;font-size:.9rem;color:var(--mute);min-height:1.6em}
+.legend .h{color:var(--blue)}.legend .t{color:var(--acc)}
+#opts{direction:ltr;margin-top:12px;display:grid;gap:10px}
+.opt{font-size:1.8rem;padding:18px 6px;border-width:3px}
+.opt.right{border-color:var(--good);background:var(--goodBg);color:var(--good)}
+.opt.wrong{border-color:var(--bad);background:var(--badBg);color:var(--bad)}
+.opt:disabled{opacity:1}.opt.wrong:disabled{opacity:.6}
+.fb{margin-top:12px;padding:10px 12px;border-radius:12px;font-weight:700}
+.fb.ok{background:var(--goodBg);color:var(--good)}.fb.bad{background:var(--badBg);color:var(--bad)}.fb.info{background:var(--infoBg)}
+.big{font-size:2.4rem;font-weight:700;text-align:center}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<h1>🎯 التقريب إلى أقرب مئة</h1>
+<p class="sub">انظر إلى العدد، ثم اختر أقرب مئة له.</p>
+
+<section id="setup" class="card">
+<label for="level">المستوى</label>
+<select id="level"><option value="0">سهل (العدد قريب بوضوح من إحدى المئتين)</option><option value="1" selected>متوسط (أي عدد)</option><option value="2">صعب (أعداد قريبة من المنتصف)</option></select>
+<label for="count">عدد الأسئلة</label>
+<select id="count"><option>5</option><option selected>10</option><option>15</option><option>20</option></select>
+<div class="row"><button class="main" id="go">ابدأ!</button></div>
+</section>
+
+<section id="play" hidden>
+<div class="top"><span id="prog"></span><span id="score"></span></div>
+<div class="bar"><i id="barfill"></i></div>
+<div class="card">
+<div class="q">قرّب هذا العدد إلى أقرب مئة:</div>
+<div id="num" aria-live="polite"></div>
+<div class="legend" id="legend"></div>
+<div id="opts" role="group" aria-label="الإجابات"></div>
+<div class="row">
+<button id="hint">تلميح</button>
+<button id="show">أظهر الجواب</button>
+</div>
+<div id="hints" style="margin-top:10px"></div>
+<div id="fb" role="status"></div>
+<div class="row"><button class="main" id="nxt" hidden>التالي</button></div>
+</div>
+</section>
+
+<section id="end" class="card" hidden>
+<div class="big" id="stars"></div>
+<div class="big" id="final" dir="ltr"></div>
+<p id="endmsg" style="text-align:center"></p>
+<div class="row"><button class="main" id="again">العب مرة أخرى</button></div>
+</section>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[R(0,a.length-1)];
+const shuf=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(x=>x[1]);
+
+function gen(L){
+ let lower,off;
+ if(L===0){lower=R(1,8)*100;off=Math.random()<.5?R(1,39):R(70,99)}
+ else if(L===1){lower=R(1,8)*100;do{off=R(1,99)}while(off===50)}
+ else{lower=R(0,9)*100;off=Math.random()<.6?R(40,60):R(1,99);if(lower===0&&off<10)off+=10}
+ const n=lower+off,upper=lower+100,near=off>=50?upper:lower;
+ const set=new Set([lower,upper]);
+ let d=Math.round(n/10)*10;
+ if(set.has(d))d=near===upper?upper+100:(Math.max(lower-100,0)||upper+100);
+ set.add(d);
+ return{n,lower,upper,near,ten:d,off,tens:Math.floor(off/10),opts:shuf([...set])};
+}
+let S,Q;
+function fb(m,c){$('#fb').innerHTML=m?`<div class="fb ${c}">${m}</div>`:''}
+function showNum(){
+ const s=String(Q.n),len=s.length;
+ $('#num').innerHTML=[...s].map((ch,i)=>{const pos=len-1-i;return`<span class="dg${pos===2&&Q.hl>=1?' h':''}${pos===1&&Q.hl>=2?' t':''}">${ch}</span>`}).join('');
+ const hasH=len>=3;
+ $('#legend').innerHTML=(Q.hl>=1&&hasH?'<span class="h">■ خانة المئات</span>':'')+(Q.hl>=2?'<span class="t">■ خانة العشرات (هي التي تقرّر)</span>':'');
+}
+function render(){
+ $('#prog').textContent=`السؤال ${S.i} من ${S.n}`;$('#score').textContent=`⭐ ${S.score}`;
+ $('#barfill').style.width=((S.i-1)/S.n*100)+'%';
+ showNum();
+ $('#opts').innerHTML=Q.opts.map(v=>`<button class="opt" data-v="${v}">${v}</button>`).join('');
+ $('#opts').style.gridTemplateColumns=`repeat(${Q.opts.length},1fr)`;
+ $('#hint').disabled=false;$('#show').disabled=false;$('#hints').innerHTML='';fb('');$('#nxt').hidden=true;
+ $('#nxt').textContent=S.i===S.n?'عرض النتيجة':'التالي';
+}
+function next(){
+ if(S.i>=S.n)return finish();
+ S.i++;Q=gen(S.L);Q.hl=0;Q.done=false;Q.tries=0;render();
+}
+function lock(){
+ document.querySelectorAll('.opt').forEach(b=>b.disabled=true);
+ $('#hint').disabled=true;$('#show').disabled=true;$('#nxt').hidden=false;$('#nxt').focus();
+ $('#score').textContent=`⭐ ${S.score}`;
+}
+function explain(){
+ const t=Q.tens;
+ return `العدد ${Q.n} يقع بين ${Q.lower} و ${Q.upper}. رقم العشرات هو ${t}، وهو ${t>=5?'5 أو أكثر، لذلك نقرّب لأعلى':'أقل من 5، لذلك نقرّب لأسفل'}. الجواب: <b>${Q.near}</b>.`;
+}
+$('#opts').addEventListener('click',e=>{
+ const b=e.target.closest('.opt');if(!b||b.disabled||Q.done)return;
+ const v=+b.dataset.v;
+ if(v===Q.near){
+  Q.done=true;b.classList.add('right');if(Q.tries===0)S.score++;
+  fb(Q.tries===0?'🎉 إجابة صحيحة! أحسنت!':'✅ صحيح! حاول أن تصيب من المحاولة الأولى.','ok');lock();
+ }else{
+  Q.tries++;b.classList.add('wrong');b.disabled=true;
+  fb(v===Q.ten?'هذا تقريب إلى أقرب عشرة. المطلوب أقرب مئة. حاول مرة أخرى!':`هل ${Q.n} أقرب إلى ${Q.lower} أم إلى ${Q.upper}؟ حاول مرة أخرى!`,'bad');
+ }
+});
+$('#hint').onclick=()=>{
+ if(Q.hl>=3)return;Q.hl++;const t=Q.tens;showNum();
+ const txt=[
+  `العدد ${Q.n} يقع بين ${Q.lower} و ${Q.upper}. هذان هما الجوابان المحتملان.`,
+  `انظر إلى رقم العشرات (الملوّن بالبرتقالي). إذا كان 5 أو أكثر نقرّب لأعلى، وإذا كان 4 أو أقل نقرّب لأسفل.`,
+  `رقم العشرات في ${Q.n} هو ${t}، وهو ${t>=5?'5 أو أكثر':'أقل من 5'}، إذن نقرّب ${t>=5?'لأعلى إلى '+Q.upper:'لأسفل إلى '+Q.lower}.`
+ ][Q.hl-1];
+ $('#hints').insertAdjacentHTML('beforeend',`<div class="fb info">تلميح ${Q.hl}: ${txt}</div>`);
+ if(Q.hl>=3)$('#hint').disabled=true;
+};
+$('#show').onclick=()=>{
+ if(Q.done)return;Q.done=true;Q.hl=2;showNum();
+ document.querySelectorAll('.opt').forEach(b=>{if(+b.dataset.v===Q.near)b.classList.add('right')});
+ $('#hints').insertAdjacentHTML('beforeend',`<div class="fb info">${explain()}</div>`);
+ fb('هذا السؤال لا يُحتسب. إلى السؤال التالي!','info');lock();
+};
+function finish(){
+ $('#play').hidden=true;$('#end').hidden=false;
+ const p=S.score/S.n,st=p>=.9?3:p>=.6?2:1;
+ $('#stars').textContent='⭐'.repeat(st)+'☆'.repeat(3-st);
+ $('#final').textContent=`${S.score} / ${S.n}`;
+ $('#endmsg').textContent=p>=.9?'رائع! أنت بطل التقريب!':p>=.6?'أحسنت! تدرّب أكثر لتحصل على كل النجوم.':'استمر في المحاولة! انظر دائماً إلى رقم العشرات.';
+}
+$('#go').onclick=()=>{S={L:+$('#level').value,n:+$('#count').value,i:0,score:0};$('#setup').hidden=true;$('#end').hidden=true;$('#play').hidden=false;next()};
+$('#again').onclick=()=>{$('#end').hidden=true;$('#setup').hidden=false};
+$('#nxt').onclick=next;
+</script>
+</body>
+</html>
