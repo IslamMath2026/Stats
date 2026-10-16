@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>الأعداد الزوجية والفردية</title>
+<style>
+:root{--bg:#eefaf3;--ink:#23324a;--mute:#5f7088;--card:#fff;--line:#cfe5d8;--acc:#ff7a3d;--accT:#fff;--blue:#3a7bd5;--good:#1b8a4b;--goodBg:#dff5e8;--bad:#c0392b;--badBg:#fde7e4;--infoBg:#eaf1ff;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#12261d;--ink:#eef8f2;--mute:#9ab5a6;--card:#1b382b;--line:#2f5642;--acc:#ff9461;--accT:#2a1204;--blue:#79aaf5;--good:#6fdc9c;--goodBg:#16382a;--bad:#ff9b90;--badBg:#40201f;--infoBg:#24406a;color-scheme:dark}}
+*{box-sizing:border-box}
+html{height:100%}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font:500 18px/1.7 system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;padding:max(16px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
+main{max-width:600px;margin:0 auto}
+h1{font-size:1.6rem;margin:.2em 0 .1em}
+p.sub{margin:0 0 1rem;color:var(--mute)}
+.card{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px}
+label{display:block;font-weight:700;margin:.6em 0 .25em}
+select{width:100%;font:inherit;padding:12px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--ink)}
+button{font:inherit;font-weight:700;border:2px solid var(--line);background:var(--card);color:var(--ink);padding:12px 16px;border-radius:14px;cursor:pointer}
+button.main{background:var(--acc);color:var(--accT);border-color:var(--acc)}
+button:disabled{opacity:.5;cursor:default}
+:focus-visible{outline:4px solid var(--blue);outline-offset:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.row>*{flex:1 1 auto}
+.top{display:flex;justify-content:space-between;color:var(--mute);font-size:.95rem;margin-bottom:8px}
+.bar{height:10px;background:var(--line);border-radius:6px;overflow:hidden;margin-bottom:12px}
+.bar i{display:block;height:100%;background:var(--acc);transition:width .3s;float:right}
+.q{font-size:1.3rem;text-align:center;margin:4px 0 8px}
+#num{direction:ltr;display:flex;justify-content:center;gap:8px;margin:10px 0 6px}
+.dg{width:64px;height:84px;display:grid;place-items:center;font-size:3rem;font-weight:700;border:3px solid var(--line);border-radius:14px;transition:background .2s,border-color .2s}
+.dg.t{border-color:var(--acc);background:#ffe9dc;color:var(--acc)}
+@media (prefers-color-scheme:dark){.dg.t{background:#4a2a18}}
+.legend{text-align:center;font-size:.9rem;color:var(--acc);min-height:1.6em}
+#dots{direction:ltr;display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:8px 0}
+.pair{display:flex;gap:4px;padding:5px 7px;border-radius:20px;background:var(--infoBg)}
+.pair.one{background:#ffe9dc}
+@media (prefers-color-scheme:dark){.pair.one{background:#4a2a18}}
+.dot{width:20px;height:20px;border-radius:50%;background:var(--blue)}
+.pair.one .dot{background:var(--acc)}
+#opts{direction:ltr;margin-top:12px;display:grid;gap:10px;grid-template-columns:repeat(2,1fr)}
+#opts.cls{direction:rtl}
+.opt{font-size:1.8rem;padding:18px 6px;border-width:3px}
+.opt .od{color:var(--acc);text-decoration:underline;text-decoration-thickness:3px}
+.opt.right{border-color:var(--good);background:var(--goodBg);color:var(--good)}
+.opt.wrong{border-color:var(--bad);background:var(--badBg);color:var(--bad)}
+.opt:disabled{opacity:1}.opt.wrong:disabled{opacity:.6}
+.fb{margin-top:12px;padding:10px 12px;border-radius:12px;font-weight:700}
+.fb.ok{background:var(--goodBg);color:var(--good)}.fb.bad{background:var(--badBg);color:var(--bad)}.fb.info{background:var(--infoBg)}
+.big{font-size:2.4rem;font-weight:700;text-align:center}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<h1>🔢 الأعداد الزوجية والفردية</h1>
+<p class="sub">هل العدد زوجي أم فردي؟ ميّز بينهما!</p>
+
+<section id="setup" class="card">
+<label for="level">المستوى</label>
+<select id="level"><option value="0">سهل (المئات الأولى: من 100 إلى 299)</option><option value="1" selected>متوسط (من 100 إلى 599)</option><option value="2">صعب (من 100 إلى 999)</option></select>
+<label for="count">عدد الأسئلة</label>
+<select id="count"><option>5</option><option selected>10</option><option>15</option><option>20</option></select>
+<div class="row"><button class="main" id="go">ابدأ!</button></div>
+</section>
+
+<section id="play" hidden>
+<div class="top"><span id="prog"></span><span id="score"></span></div>
+<div class="bar"><i id="barfill"></i></div>
+<div class="card">
+<div class="q" id="ask"></div>
+<div id="num" aria-live="polite"></div>
+<div class="legend" id="legend"></div>
+<div id="dots" aria-hidden="true"></div>
+<div id="opts" role="group" aria-label="الإجابات"></div>
+<div class="row">
+<button id="hint">تلميح</button>
+<button id="show">أظهر الجواب</button>
+</div>
+<div id="hints" style="margin-top:10px"></div>
+<div id="fb" role="status"></div>
+<div class="row"><button class="main" id="nxt" hidden>التالي</button></div>
+</div>
+</section>
+
+<section id="end" class="card" hidden>
+<div class="big" id="stars"></div>
+<div class="big" id="final" dir="ltr"></div>
+<p id="endmsg" style="text-align:center"></p>
+<div class="row"><button class="main" id="again">العب مرة أخرى</button></div>
+</section>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[R(0,a.length-1)];
+const shuf=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(x=>x[1]);
+const par=n=>n%2===0?'even':'odd';
+const AR={even:'زوجي',odd:'فردي'};
+
+function gen(L){
+ const [lo,hi]=L===0?[100,299]:L===1?[100,599]:[100,999];
+ const type=L===0||Math.random()<.5?'cls':'pick';
+ if(type==='cls'){const n=R(lo,hi);return{type,L,n,ans:par(n)}}
+ const target=pick(['even','odd']),other=target==='even'?'odd':'even';
+ const one=(p)=>{let n;do{n=R(lo,hi)}while(par(n)!==p);return n};
+ const correct=one(target),set=new Set([correct]);
+ while(set.size<4)set.add(one(other));
+ return{type,L,target,ans:correct,opts:shuf([...set])};
+}
+let S,Q;
+function fb(m,c){$('#fb').innerHTML=m?`<div class="fb ${c}">${m}</div>`:''}
+function od(n,on){const s=String(n);return on?`${s.slice(0,-1)}<span class="od">${s.slice(-1)}</span>`:s}
+function showNum(){
+ if(Q.type==='cls'){
+  const s=String(Q.n);
+  $('#num').innerHTML=[...s].map((ch,i)=>`<span class="dg${i===s.length-1&&Q.hl>=1?' t':''}">${ch}</span>`).join('');
+  $('#legend').textContent=Q.hl>=1?'■ رقم الآحاد (آخر رقم): هو الذي يحدّد الجواب':'';
+  $('#dots').innerHTML='';
+
+ }else{
+  $('#num').innerHTML='';$('#dots').innerHTML='';
+  $('#legend').textContent=Q.hl>=1?'■ رقم الآحاد في كل عدد':'';
+  document.querySelectorAll('.opt').forEach(b=>{b.innerHTML=od(b.dataset.v,Q.hl>=1)});
+ }
+}
+function render(){
+ $('#prog').textContent=`السؤال ${S.i} من ${S.n}`;$('#score').textContent=`⭐ ${S.score}`;
+ $('#barfill').style.width=((S.i-1)/S.n*100)+'%';
+ if(Q.type==='cls'){
+  $('#ask').textContent='هل هذا العدد زوجي أم فردي؟';
+  $('#opts').className='cls';
+  $('#opts').innerHTML=['even','odd'].map(v=>`<button class="opt" data-v="${v}">${AR[v]}</button>`).join('');
+ }else{
+  $('#ask').textContent=`أي عدد من هذه الأعداد ${AR[Q.target]}؟`;
+  $('#opts').className='';
+  $('#opts').innerHTML=Q.opts.map(v=>`<button class="opt" data-v="${v}">${v}</button>`).join('');
+ }
+ showNum();
+ $('#hint').disabled=false;$('#show').disabled=false;$('#hints').innerHTML='';fb('');$('#nxt').hidden=true;
+ $('#nxt').textContent=S.i===S.n?'عرض النتيجة':'التالي';
+}
+function next(){
+ if(S.i>=S.n)return finish();
+ S.i++;Q=gen(S.L);Q.hl=0;Q.done=false;Q.tries=0;render();
+}
+function lock(){
+ document.querySelectorAll('.opt').forEach(b=>b.disabled=true);
+ $('#hint').disabled=true;$('#show').disabled=true;$('#nxt').hidden=false;$('#nxt').focus();
+ $('#score').textContent=`⭐ ${S.score}`;
+}
+const last=n=>n%10;
+function explain(){
+ if(Q.type==='cls'){
+  const d=last(Q.n),p=par(Q.n);
+  return `رقم آحاد العدد ${Q.n} هو ${d}، وهو ${p==='even'?'من الأرقام 0 و 2 و 4 و 6 و 8':'من الأرقام 1 و 3 و 5 و 7 و 9'}، إذن العدد <b>${AR[p]}</b>.`;
+ }
+ return `العدد الصحيح هو <b>${Q.ans}</b>، لأن رقم آحاده ${last(Q.ans)} فهو ${AR[Q.target]}.`;
+}
+$('#opts').addEventListener('click',e=>{
+ const b=e.target.closest('.opt');if(!b||b.disabled||Q.done)return;
+ const v=b.dataset.v,right=Q.type==='cls'?v===Q.ans:+v===Q.ans;
+ if(right){
+  Q.done=true;b.classList.add('right');if(Q.tries===0)S.score++;
+  fb(Q.tries===0?'🎉 إجابة صحيحة! أحسنت!':'✅ صحيح! حاول أن تصيب من المحاولة الأولى.','ok');lock();
+ }else{
+  Q.tries++;b.classList.add('wrong');b.disabled=true;
+  fb('انظر إلى رقم الآحاد: هل هو 0 أو 2 أو 4 أو 6 أو 8؟ حاول مرة أخرى!','bad');
+ }
+});
+$('#hint').onclick=()=>{
+ if(Q.hl>=3)return;Q.hl++;showNum();
+ const cls=Q.type==='cls';
+ const txt=[
+  cls?'انظر إلى رقم الآحاد، وهو آخر رقم في العدد (الملوّن بالبرتقالي). لا تهتم برقمَي المئات والعشرات.':'انظر إلى رقم الآحاد، وهو آخر رقم في كل عدد (تحته خط برتقالي).',
+  'العدد زوجي إذا كان رقم آحاده 0 أو 2 أو 4 أو 6 أو 8. والعدد فردي إذا كان رقم آحاده 1 أو 3 أو 5 أو 7 أو 9.',
+  cls?`رقم الآحاد في ${Q.n} هو ${last(Q.n)}، إذن العدد ${AR[Q.ans]}.`:`ابحث عن العدد الذي رقم آحاده ${Q.target==='even'?'0 أو 2 أو 4 أو 6 أو 8':'1 أو 3 أو 5 أو 7 أو 9'}.`
+ ][Q.hl-1];
+ $('#hints').insertAdjacentHTML('beforeend',`<div class="fb info">تلميح ${Q.hl}: ${txt}</div>`);
+ if(Q.hl>=3)$('#hint').disabled=true;
+};
+$('#show').onclick=()=>{
+ if(Q.done)return;Q.done=true;Q.hl=Math.max(Q.hl,1);showNum();
+ document.querySelectorAll('.opt').forEach(b=>{const v=b.dataset.v;if(Q.type==='cls'?v===Q.ans:+v===Q.ans)b.classList.add('right')});
+ $('#hints').insertAdjacentHTML('beforeend',`<div class="fb info">${explain()}</div>`);
+ fb('هذا السؤال لا يُحتسب. إلى السؤال التالي!','info');lock();
+};
+function finish(){
+ $('#play').hidden=true;$('#end').hidden=false;
+ const p=S.score/S.n,st=p>=.9?3:p>=.6?2:1;
+ $('#stars').textContent='⭐'.repeat(st)+'☆'.repeat(3-st);
+ $('#final').textContent=`${S.score} / ${S.n}`;
+ $('#endmsg').textContent=p>=.9?'رائع! أنت بطل الأعداد الزوجية والفردية!':p>=.6?'أحسنت! تدرّب أكثر لتحصل على كل النجوم.':'استمر في المحاولة! انظر دائماً إلى رقم الآحاد.';
+}
+$('#go').onclick=()=>{S={L:+$('#level').value,n:+$('#count').value,i:0,score:0};$('#setup').hidden=true;$('#end').hidden=true;$('#play').hidden=false;next()};
+$('#again').onclick=()=>{$('#end').hidden=true;$('#setup').hidden=false};
+$('#nxt').onclick=next;
+</script>
+</body>
+</html>
