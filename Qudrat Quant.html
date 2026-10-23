@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>مولّد اختبار القدرات – الكمّي</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f4ee;--card:#fff;--tx:#1d2a2a;--mu:#667;--pr:#0b6b5c;--prt:#fff;--bd:#d9d5c8;--ok:#1b8a4b;--okb:#e2f4e8;--no:#c23b3b;--nob:#fbe6e6;--hn:#fff4d6;--hnt:#6b5200;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121a19;--card:#1b2625;--tx:#e8efed;--mu:#9ab;--pr:#3cc5ad;--prt:#08201c;--bd:#33423f;--ok:#4cd68a;--okb:#143324;--no:#ff7b7b;--nob:#3a1b1b;--hn:#3a3213;--hnt:#f2d98a}}
+:root[data-theme="dark"]{--bg:#121a19;--card:#1b2625;--tx:#e8efed;--mu:#9ab;--pr:#3cc5ad;--prt:#08201c;--bd:#33423f;--ok:#4cd68a;--okb:#143324;--no:#ff7b7b;--nob:#3a1b1b;--hn:#3a3213;--hnt:#f2d98a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:'Tajawal',Tahoma,Arial,sans-serif;font-size:17px;line-height:1.7}
+main{max-width:620px;margin:0 auto;padding:16px}
+h1{font-size:22px;margin:8px 0 4px}
+.sub{color:var(--mu);margin:0 0 16px;font-size:15px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:16px;margin-bottom:14px}
+.lbl{font-weight:700;margin:6px 0}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.chip{flex:1;min-width:70px;padding:10px;border:1.5px solid var(--bd);border-radius:12px;background:var(--card);color:var(--tx);font:inherit;cursor:pointer}
+.chip.on{border-color:var(--pr);background:var(--pr);color:var(--prt);font-weight:700}
+.btn{width:100%;padding:13px;border:0;border-radius:12px;background:var(--pr);color:var(--prt);font:inherit;font-weight:700;cursor:pointer}
+.btn.sec{background:transparent;color:var(--pr);border:1.5px solid var(--pr)}
+.btn:disabled{opacity:.4}
+.top{display:flex;justify-content:space-between;color:var(--mu);font-size:14px;margin-bottom:6px}
+.bar{height:6px;background:var(--bd);border-radius:6px;overflow:hidden;margin-bottom:12px}
+.bar i{display:block;height:100%;background:var(--pr)}
+.q{font-size:19px;font-weight:500;margin:4px 0 12px}
+.tag{display:inline-block;font-size:12px;padding:1px 10px;border-radius:20px;background:var(--bd);color:var(--mu)}
+.opt{display:flex;align-items:center;gap:12px;width:100%;text-align:right;padding:10px 12px;margin-bottom:8px;border:1.5px solid var(--bd);border-radius:12px;background:var(--card);color:var(--tx);font:inherit;cursor:pointer}
+.bub{flex:none;width:34px;height:34px;border-radius:50%;border:2px solid var(--mu);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--mu)}
+.opt.sel{border-color:var(--pr)}
+.opt.sel .bub{background:var(--pr);border-color:var(--pr);color:var(--prt)}
+.opt.ok{border-color:var(--ok);background:var(--okb)}
+.opt.ok .bub{background:var(--ok);border-color:var(--ok);color:#fff}
+.opt.no{border-color:var(--no);background:var(--nob)}
+.opt.no .bub{background:var(--no);border-color:var(--no);color:#fff}
+.hint,.ex{border-radius:12px;padding:10px 12px;margin:8px 0;font-size:16px}
+.hint{background:var(--hn);color:var(--hnt)}
+.ex{background:var(--okb)}
+.sc{font-size:44px;font-weight:700;text-align:center;color:var(--pr);margin:0}
+.rv{border-bottom:1px solid var(--bd);padding:10px 0;font-size:15px}
+.hide{display:none}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script>
+const AR='٠١٢٣٤٥٦٧٨٩';
+const ar=s=>String(s).replace(/\d/g,d=>AR[d]).replace(/\./g,'٫').replace(/-/g,'−');
+const r=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=a=>a[r(0,a.length-1)];
+const sh=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=r(0,i);[a[i],a[j]]=[a[j],a[i]]}return a};
+const rd=n=>Math.round(n*100)/100;
+const fr=(a,b)=>`<bdi dir="ltr">${ar(a)}/${ar(b)}</bdi>`;
+const bd=s=>`<bdi dir="ltr">${s}</bdi>`;
+const L4=['أ','ب','ج','د'];
+
+function numQ(t,q,c,h,e,unit=''){
+  const isInt=Number.isInteger(c);const d=isInt?Math.max(1,Math.round(Math.abs(c)*0.1)):0.5;
+  const s=new Set([c]);let k=0;
+  while(s.size<4&&k++<80){const v=rd(c+pick([-3,-2,-1,1,2,3,4])*d*(isInt?r(1,2):1));if(v>0)s.add(v)}
+  let n=1;while(s.size<4)s.add(c+d*(10+n++));
+  const arr=sh([...s]);
+  return{t,q,o:arr.map(v=>ar(rd(v))+(unit?' '+unit:'')),a:arr.indexOf(c),h,e};
+}
+const CMP=['القيمة الأولى أكبر','القيمة الثانية أكبر','القيمتان متساويتان','المعطيات غير كافية'];
+function cmpQ(t,q,a,h,e){return{t,q,o:CMP,a,h,e}}
+
+const G={
+pct(L){let p,N,c,q,h,e;
+  if(L<3){p=pick(L==1?[10,20,50,25]:[15,30,35,45,60,75]);N=r(2,20)*20;c=p*N/100;
+    q=`ما قيمة ${ar(p)}٪ من ${ar(N)}؟`;h='حوّل النسبة إلى كسر عشري أو اعتيادي (النسبة ÷ ١٠٠) ثم اضرب في العدد.';
+    e=`${ar(p)}٪ × ${ar(N)} = ${ar(p)}/١٠٠ × ${ar(N)} = ${ar(c)}`}
+  else{p=pick([20,25,40,60]);N=r(2,15)*20;c=N;const x=p*N/100;
+    q=`إذا كانت ${ar(p)}٪ من عدد تساوي ${ar(x)}، فما العدد؟`;h='العدد الأصلي = الناتج ÷ النسبة. اقسم على النسبة ثم اضرب في ١٠٠.';
+    e=`العدد = ${ar(x)} × ١٠٠ ÷ ${ar(p)} = ${ar(c)}`}
+  return numQ('النسبة المئوية',q,c,h,e)},
+frac(L){let q,c,h,e;
+  if(L==1){const b=pick([2,3,4,5]),a=r(1,b-1),N=b*r(2,12);c=a*N/b;
+    q=`ما قيمة ${fr(a,b)} العدد ${ar(N)}؟`;h='اقسم العدد على المقام أولاً، ثم اضرب الناتج في البسط.';e=`${ar(N)} ÷ ${ar(b)} = ${ar(N/b)} ثم × ${ar(a)} = ${ar(c)}`}
+  else if(L==2){const [a,b,x,y]=pick([[2,3,3,4],[3,5,5,6],[1,2,2,3],[3,4,2,5]]),N=b*y*r(1,3);c=a*x*N/(b*y);
+    q=`ما قيمة ${fr(a,b)} من ${fr(x,y)} من ${ar(N)}؟`;h='"من" تعني ضرب. اختصر الكسور قبل الضرب لتسهّل الحساب.';e=`${fr(a,b)} × ${fr(x,y)} × ${ar(N)} = ${ar(c)}`}
+  else{const k=r(2,9);c=12*k;q=`ثلث عدد مضافاً إليه ربعه يساوي ${ar(7*k)}. فما العدد؟`;h='وحّد المقامات: ١/٣ + ١/٤ = ٧/١٢ من العدد.';e=`٧/١٢ × س = ${ar(7*k)} ⇒ س = ${ar(7*k)} × ١٢ ÷ ٧ = ${ar(c)}`}
+  return numQ('الكسور',q,c,h,e)},
+avg(L){let q,c,h,e;
+  if(L==1){const m=r(5,30),a=r(1,4),b=r(1,4),n=sh([m+a,m-a,m+b,m-b,m]);c=m;
+    q=`ما متوسط الأعداد: ${n.map(ar).join('، ')}؟`;h='المتوسط = المجموع ÷ العدد. لاحظ أن الأعداد متقاربة حول قيمة واحدة.';e=`المجموع = ${ar(m*5)} ÷ ٥ = ${ar(m)}`}
+  else if(L==2){const m=r(8,20),a=r(m-5,m+5),b=r(m-5,m+5),d=r(m-5,m+5);c=4*m-a-b-d;
+    if(c<=0){return G.avg(2)}
+    q=`متوسط أربعة أعداد ${ar(m)}، وثلاثة منها ${ar(a)}، ${ar(b)}، ${ar(d)}. ما العدد الرابع؟`;h='المجموع الكلي = المتوسط × عدد الأعداد، ثم اطرح الأعداد المعلومة.';e=`${ar(m)} × ٤ = ${ar(4*m)} ثم ${ar(4*m)} − ${ar(a+b+d)} = ${ar(c)}`}
+  else{const x=r(5,20),y=x+r(1,5);c=5*y-4*x;
+    q=`متوسط أربعة أعداد ${ar(x)}، وبإضافة عدد خامس أصبح المتوسط ${ar(y)}. ما العدد الخامس؟`;h='قارن بين المجموعين: مجموع الخمسة − مجموع الأربعة = العدد الخامس.';e=`${ar(5*y)} − ${ar(4*x)} = ${ar(c)}`}
+  return numQ('المتوسط',q,c,h,e)},
+spd(L){let q,c,h,e,u='كم';
+  if(L==1){const v=pick([40,60,80,90,120]),t=r(2,5);c=v*t;q=`سيارة تسير بسرعة ${ar(v)} كم/س. ما المسافة التي تقطعها في ${ar(t)} ساعات؟`;h='المسافة = السرعة × الزمن.';e=`${ar(v)} × ${ar(t)} = ${ar(c)} كم`}
+  else if(L==2){const a=pick([40,50,60]),t=r(1,3),b=pick([80,90,100]),s=r(1,3);c=a*t+b*s;
+    q=`قطع قطار ${ar(t)} ساعة بسرعة ${ar(a)} كم/س، ثم ${ar(s)} ساعة بسرعة ${ar(b)} كم/س. ما المسافة الكلية؟`;h='احسب مسافة كل مرحلة بشكل منفصل ثم اجمعها.';e=`${ar(a*t)} + ${ar(b*s)} = ${ar(c)} كم`}
+  else{const [a,b]=pick([[40,60],[60,90],[30,60],[20,30]]);c=2*a*b/(a+b);u='كم/س';
+    q=`قطع شخص مسافة بسرعة ${ar(a)} كم/س وعاد في نفس الطريق بسرعة ${ar(b)} كم/س. ما متوسط سرعته في الرحلة كاملة؟`;h='لا تأخذ متوسط السرعتين مباشرة! المتوسط = المسافة الكلية ÷ الزمن الكلي، وافرض مسافة مناسبة.';e=`المتوسط = ٢×${ar(a)}×${ar(b)} ÷ (${ar(a)}+${ar(b)}) = ${ar(c)} كم/س`}
+  return numQ('السرعة والمسافة',q,c,h,e,u)},
+geo(L){let q,c,h,e,u='سم²';
+  if(L==1){const l=r(4,15),w=r(2,l-1);c=l*w;q=`مستطيل طوله ${ar(l)} سم وعرضه ${ar(w)} سم. ما مساحته؟`;h='مساحة المستطيل = الطول × العرض.';e=`${ar(l)} × ${ar(w)} = ${ar(c)} سم²`}
+  else if(L==2){const s=r(3,12);c=s*s;q=`محيط مربع ${ar(4*s)} سم. ما مساحته؟`;h='أوجد طول الضلع أولاً (المحيط ÷ ٤) ثم ربّعه.';e=`الضلع = ${ar(s)}، المساحة = ${ar(s)}² = ${ar(c)} سم²`}
+  else{const l=r(6,14),w=r(2,l-2);c=l*w;q=`محيط مستطيل ${ar(2*(l+w))} سم وطوله ${ar(l)} سم. ما مساحته؟`;h='نصف المحيط = الطول + العرض. استخرج العرض ثم احسب المساحة.';e=`العرض = ${ar(l+w)} − ${ar(l)} = ${ar(w)}، المساحة = ${ar(c)} سم²`}
+  return numQ('الهندسة',q,c,h,e,u)},
+rat(L){let q,c,h,e;
+  if(L==1){const a=r(1,4),b=a+r(1,3),k=r(2,9);c=b*k;q=`قُسّم مبلغ ${ar((a+b)*k)} ريالاً بين شخصين بنسبة ${ar(a)}:${ar(b)}. كم نصيب الأكبر؟`;h='اجمع أجزاء النسبة، واقسم المبلغ على المجموع لتجد قيمة الجزء الواحد.';e=`الجزء = ${ar((a+b)*k)} ÷ ${ar(a+b)} = ${ar(k)}، الأكبر = ${ar(b)} × ${ar(k)} = ${ar(c)}`}
+  else if(L==2){const a=r(1,4),b=a+r(1,4),k=r(2,9);c=(b-a)*k;q=`قُسّم مبلغ ${ar((a+b)*k)} ريالاً بنسبة ${ar(a)}:${ar(b)}. كم الفرق بين النصيبين؟`;h='الفرق = (الفرق بين جزأي النسبة) × قيمة الجزء الواحد.';e=`الجزء = ${ar(k)}، الفرق = (${ar(b)}−${ar(a)}) × ${ar(k)} = ${ar(c)}`}
+  else{const a=pick([3,4,5]),b=2,m=r(3,9);c=(a+b)*m;q=`نسبة الطلاب إلى الطالبات في فصل ${ar(a)}:${ar(b)}، وعدد الطالبات ${ar(b*m)}. كم العدد الكلي؟`;h='من عدد الطالبات استخرج قيمة الجزء الواحد، ثم اضربها في مجموع الأجزاء.';e=`الجزء = ${ar(b*m)} ÷ ${ar(b)} = ${ar(m)}، الكلي = ${ar(a+b)} × ${ar(m)} = ${ar(c)}`}
+  return numQ('النسبة والتناسب',q,c,h,e)},
+eq(L){let q,c,h,e;
+  if(L==1){const x=r(2,12),a=r(2,9);c=x;q=`إذا كان ${bd(ar(a)+'س = '+ar(a*x))}، فما قيمة س؟`;h='اقسم الطرفين على معامل س.';e=`س = ${ar(a*x)} ÷ ${ar(a)} = ${ar(x)}`}
+  else if(L==2){const x=r(2,12),a=r(2,9),b=r(1,20);c=x;q=`إذا كان ${bd(ar(a)+'س + '+ar(b)+' = '+ar(a*x+b))}، فما قيمة س؟`;h='اطرح الثابت من الطرفين أولاً ثم اقسم.';e=`${ar(a)}س = ${ar(a*x)} ⇒ س = ${ar(x)}`}
+  else{const x=r(2,10),cc=r(2,6),a=cc+r(2,5),b=r(1,15),d=(a-cc)*x+b;c=x;q=`إذا كان ${bd(ar(a)+'س + '+ar(b)+' = '+ar(cc)+'س + '+ar(d))}، فما قيمة س؟`;h='اجمع حدود س في طرف والثوابت في الطرف الآخر.';e=`${ar(a-cc)}س = ${ar(d-b)} ⇒ س = ${ar(x)}`}
+  return numQ('الجبر',q,c,h,e)},
+cmp(L){
+  if(L==1){const P=[[12,[3,4],[2,6]],[24,[3,8],[4,6]],[18,[2,9],[3,6]],[36,[4,9],[6,6]],[20,[4,5],[2,10]],[30,[5,6],[3,10]]];
+    let A,B,a1,a2;
+    if(r(1,3)==1){const p=pick(P);a1=p[1];a2=p[2];A=B=p[0]}
+    else{a1=[r(2,9),r(2,9)];do{a2=[r(2,9),r(2,9)]}while(a1[0]*a1[1]==a2[0]*a2[1]);A=a1[0]*a1[1];B=a2[0]*a2[1]}
+    const a=A>B?0:A<B?1:2;
+    return cmpQ('المقارنة',`القيمة الأولى: ${bd(ar(a1[0])+' × '+ar(a1[1]))}<br>القيمة الثانية: ${bd(ar(a2[0])+' × '+ar(a2[1]))}`,a,'احسب كل قيمة بشكل منفصل ثم قارن.',`الأولى = ${ar(A)}، الثانية = ${ar(B)}`)}
+  if(L==2){let t=r(1,3)==1?pick([[20,150,15,200],[25,80,20,100],[10,300,30,100],[50,60,25,120]]):[pick([10,20,25,40]),r(2,9)*20,pick([15,30,50]),r(2,9)*20];
+    const A=t[0]*t[1]/100,B=t[2]*t[3]/100,a=A>B?0:A<B?1:2;
+    return cmpQ('المقارنة',`القيمة الأولى: ${ar(t[0])}٪ من ${ar(t[1])}<br>القيمة الثانية: ${ar(t[2])}٪ من ${ar(t[3])}`,a,'لا تحتاج لحساب دقيق دائماً، لكن احسب القيمتين هنا ثم قارن.',`الأولى = ${ar(A)}، الثانية = ${ar(B)}`)}
+  return pick([
+   ()=>cmpQ('المقارنة','س عدد حقيقي<br>القيمة الأولى: س²<br>القيمة الثانية: س',3,'جرّب قيماً مختلفة: ٠٫٥ ، ١ ، ٢ ، ثم قارن.','عند س=٢: ٤ > ٢. عند س=١: متساويتان. عند س=٠٫٥: ٠٫٢٥ < ٠٫٥. النتائج تختلف ⇒ المعطيات غير كافية'),
+   ()=>cmpQ('المقارنة','س > ٠<br>القيمة الأولى: س + ٣<br>القيمة الثانية: ٣',0,'بما أن س موجب، ماذا يحدث عند إضافته إلى ٣؟','س موجبة ⇒ س + ٣ > ٣ دائماً'),
+   ()=>cmpQ('المقارنة','س = ص<br>القيمة الأولى: ٢س<br>القيمة الثانية: س + ص',2,'عوّض ص بدلاً من س في إحدى القيمتين.','س + ص = س + س = ٢س ⇒ متساويتان'),
+   ()=>cmpQ('المقارنة','٠ < س < ١<br>القيمة الأولى: س²<br>القيمة الثانية: س',1,'جرّب س = ٠٫٥ فالتربيع يصغّر الكسر.','عند س=٠٫٥: ٠٫٢٥ < ٠٫٥ ⇒ الثانية أكبر دائماً'),
+   ()=>cmpQ('المقارنة','س > ٣<br>القيمة الأولى: س²<br>القيمة الثانية: ٩',0,'جرّب س = ٤ ثم فكّر: هل تزيد س² كلما زادت س؟','س > ٣ ⇒ س² > ٩ دائماً')
+  ])();
+}};
+const TOPICS=Object.keys(G);
+const LV={1:'سهل',2:'متوسط',3:'صعب'};
+
+let S={lv:0,n:10,qs:[],i:0,ans:[],done:[],hint:[],sel:null,view:'setup'};
+const $=id=>document.getElementById(id);
+const app=$('app');
+
+function setup(){
+  S.view='setup';
+  app.innerHTML=`<h1>🎯 مولّد اختبار القدرات – الكمّي</h1>
+  <p class="sub">أسئلة جديدة في كل مرة، بأرقام عربية، مع مرشد وشرح لكل سؤال.</p>
+  <div class="card">
+   <div class="lbl">المستوى</div>
+   <div class="row" id="lv">${[[1,'سهل'],[2,'متوسط'],[3,'صعب'],[0,'متدرّج']].map(([v,t])=>`<button class="chip ${S.lv==v?'on':''}" data-v="${v}">${t}</button>`).join('')}</div>
+   <div class="lbl">عدد الأسئلة</div>
+   <div class="row" id="nn">${[5,10,20,30].map(v=>`<button class="chip ${S.n==v?'on':''}" data-v="${v}">${ar(v)}</button>`).join('')}</div>
+   <button class="btn" id="go">ابدأ الاختبار</button>
+  </div>
+  <p class="sub">المواضيع: النسبة المئوية، الكسور، المتوسط، السرعة، الهندسة، النسبة والتناسب، الجبر، والمقارنة (بخيارات أ/ب/ج/د القياسية).</p>`;
+  $('lv').onclick=e=>{if(e.target.dataset.v!==undefined){S.lv=+e.target.dataset.v;setup()}};
+  $('nn').onclick=e=>{if(e.target.dataset.v){S.n=+e.target.dataset.v;setup()}};
+  $('go').onclick=start;
+}
+function start(){
+  S.qs=[];
+  for(let k=0;k<S.n;k++){
+    const L=S.lv||Math.min(3,1+Math.floor(k*3/S.n));
+    const t=TOPICS[k%TOPICS.length==0&&k>0?r(0,TOPICS.length-1):(k*3+r(0,2))%TOPICS.length];
+    const q=G[t](L);q.L=L;S.qs.push(q);
+  }
+  S.qs=sh(S.qs);
+  S.i=0;S.ans=[];S.done=[];S.hint=[];S.sel=null;quiz();
+}
+function quiz(){
+  S.view='quiz';
+  const q=S.qs[S.i],d=S.done[S.i],hn=S.hint[S.i];
+  const sel=d?S.ans[S.i]:S.sel;
+  app.innerHTML=`<div class="top"><span>سؤال ${ar(S.i+1)} من ${ar(S.n)}</span><span class="tag">${q.t} · ${LV[q.L]}</span></div>
+  <div class="bar"><i style="width:${(S.i/S.n)*100}%"></i></div>
+  <div class="card">
+   <div class="q">${q.q}</div>
+   ${q.o.map((o,k)=>{let c='opt';if(d){if(k==q.a)c+=' ok';else if(k==sel)c+=' no'}else if(k==sel)c+=' sel';
+     return `<button class="${c}" data-k="${k}" ${d?'disabled':''}><span class="bub">${L4[k]}</span><span>${o}</span></button>`}).join('')}
+   ${hn&&!d?`<div class="hint">💡 <b>المرشد:</b> ${q.h}</div>`:''}
+   ${d?`<div class="ex">${sel==q.a?'✅ إجابة صحيحة':'❌ الإجابة الصحيحة: '+L4[q.a]}<br><b>الشرح:</b> ${q.e}</div>`:''}
+  </div>
+  <div class="row">
+   ${d?'':`<button class="btn sec" id="hb" style="flex:1">💡 مرشد</button>`}
+   <button class="btn" id="nx" style="flex:2" ${(!d&&sel==null)?'disabled':''}>${d?(S.i==S.n-1?'عرض النتيجة':'التالي'):'تأكيد الإجابة'}</button>
+  </div>`;
+  app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{S.sel=+b.dataset.k;quiz()});
+  if($('hb'))$('hb').onclick=()=>{S.hint[S.i]=true;quiz()};
+  $('nx').onclick=()=>{
+    if(!d){S.ans[S.i]=S.sel;S.done[S.i]=true;quiz()}
+    else if(S.i==S.n-1)result();
+    else{S.i++;S.sel=null;quiz();window.scrollTo(0,0)}
+  };
+}
+function result(){
+  S.view='res';
+  const ok=S.qs.filter((q,k)=>S.ans[k]==q.a).length,p=Math.round(ok/S.n*100);
+  const by={};S.qs.forEach((q,k)=>{by[q.t]=by[q.t]||[0,0];by[q.t][1]++;if(S.ans[k]==q.a)by[q.t][0]++});
+  const wrong=S.qs.map((q,k)=>[q,k]).filter(([q,k])=>S.ans[k]!=q.a);
+  app.innerHTML=`<h1>النتيجة</h1>
+  <div class="card"><p class="sc">${ar(ok)} / ${ar(S.n)}</p><p class="sub" style="text-align:center">${ar(p)}٪ · ${p>=80?'ممتاز 🌟':p>=60?'جيد، كمّل تدريب 👍':'تحتاج مراجعة، لا تستسلم 💪'}</p>
+   ${Object.entries(by).map(([t,v])=>`<div class="rv">${t}: ${ar(v[0])} من ${ar(v[1])}</div>`).join('')}</div>
+  ${wrong.length?`<div class="card"><div class="lbl">مراجعة الأخطاء</div>${wrong.map(([q,k])=>`<div class="rv">${q.q}<br><b>الصحيح:</b> ${L4[q.a]}) ${q.o[q.a]}<br>${q.e}</div>`).join('')}</div>`:''}
+  <button class="btn" id="again">اختبار جديد</button>`;
+  $('again').onclick=setup;
+}
+setup();
+</script>
+</body>
+</html>
