@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>u-Substitution</title>
+<style>
+:root{--bg:#fff;--fg:#1a2b27;--mu:#6b7774;--bd:#dde3e1;--ac:#1f7a63;--ok:#e6f4ee;--bad:#fdeaea;--bc:#c0392b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#191c1b;--fg:#e8efec;--mu:#97a39f;--bd:#33403c;--ac:#5fc4a4;--ok:#1d3a31;--bad:#3d2321;--bc:#ff8a7a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#191c1b;--fg:#e8efec;--mu:#97a39f;--bd:#33403c;--ac:#5fc4a4;--ok:#1d3a31;--bad:#3d2321;--bc:#ff8a7a;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,"Segoe UI",Tahoma,sans-serif}
+#app{max-width:620px;margin:0 auto;padding:28px 18px 60px}
+h1{font-size:17px;margin:0 0 4px}
+.m{color:var(--mu);margin:0 0 16px;font-size:14px}
+.l{color:var(--mu);font-size:13px;margin:12px 0 6px}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+button{font:inherit;color:inherit;cursor:pointer}
+.pill{border:1px solid var(--bd);background:var(--bg);border-radius:20px;padding:6px 14px;font-size:14px}
+.pill.on{border-color:var(--ac);background:var(--ok);color:var(--ac)}
+.box{border:1px solid var(--bd);border-radius:12px;padding:14px;margin-top:14px}
+.box.done{background:var(--ok);border-color:var(--ac)}
+.pr{font-weight:700;margin-bottom:10px}
+.ans{direction:ltr;text-align:left}
+.opt{display:block;width:100%;direction:ltr;text-align:left;border:1px solid var(--bd);background:var(--bg);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.opt.bad{background:var(--bad);border-color:var(--bc);color:var(--bc);opacity:.85}
+.ex{border:1px solid var(--ac);color:var(--ac);background:var(--bg);border-radius:10px;padding:7px 12px;font-size:14px}
+.new{margin-top:16px;border:0;background:var(--ac);color:var(--bg);border-radius:10px;padding:10px 18px;font-weight:700}
+.exp{margin-top:10px;font-size:14px;color:var(--mu)}
+.msg{color:var(--bc);font-size:14px;margin:0 0 8px}
+bdi{unicode-bidi:isolate;direction:ltr}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const sup=n=>String(n).replace(/\d/g,d=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[d]),sub=n=>String(n).replace(/\d/g,d=>'₀₁₂₃₄₅₆₇₈₉'[d]);
+const xp=m=>m==1?'x':'x'+sup(m),R=(a,b)=>a+Math.floor(Math.random()*(b-a+1)),pick=a=>a[R(0,a.length-1)];
+const sh=a=>a.map(x=>[Math.random(),x]).sort((x,y)=>x[0]-y[0]).map(x=>x[1]);
+const g=(a,b)=>b?g(b,a%b):Math.abs(a);
+const fr=(p,q)=>{const d=g(p,q)||1;if(q<0){p=-p;q=-q}return[p/d,q/d]};
+const mul=(a,b)=>fr(a[0]*b[0],a[1]*b[1]),ng=f=>[-f[0],f[1]];
+const fs=f=>(f[1]==1?''+f[0]:f[0]+'/'+f[1]).replace('-','−');
+const co=f=>f[1]==1?(f[0]==1?'':f[0]==-1?'−':f[0]+' '):`(${fs(f)})`;
+const wr=v=>/^[\w²³⁴⁵⁶⁷⁸⁹]+$/.test(v)?v:`(${v})`,M=s=>`<bdi>${s}</bdi>`;
+const duS=e=>e=='1'?'du = dx':`du = ${e} dx`;
+const opts=(cor,c,p,ex)=>{const w=[...new Set(c)].filter(x=>x!=cor).slice(0,3),o=sh([cor,...w]);return{p,o,a:o.indexOf(cor),ex}};
+
+function mk(o){
+ const{k,c,F,S,u,d}=o,K=mul(k,c),iv=fr(k[1],k[0]),Su=S('u'),Sx=S(u),t=(f,s)=>`${co(f)}${s} + C`;
+ const up=sh([u.split(' + ')[0],'x',o.int,'x²','x + 1']).map(x=>'u = '+x);
+ return{int:`∫ ${o.int} dx`,steps:[
+  opts('u = '+u,up,'Choose u (the inner function):',`Pick u so its derivative (or a multiple of it) appears in the integrand. Here ${M('u = '+u)}, and its derivative appears in the remaining factor.`),
+  opts(duS(d),sh(['1','x','2x','x²',d+'x']).map(duS),'Find du:',`Differentiate u with respect to x to get ${M(duS(d))}.`),
+  opts(`${co(k)}∫ ${F} du`,[`${co(iv)}∫ ${F} du`,`∫ ${F} dx`,`${co(mul(k,[2,1]))}∫ ${F} du`,`${co(ng(k))}∫ ${F} du`,`${co(mul(k,[1,2]))}∫ ${F} du`,`∫ ${F} du`],'Rewrite the integral in terms of u:',`Substitute u and du. The remaining factor equals ${M(fs(k))} × du, so the integral becomes ${M(co(k)+'∫ '+F+' du')}.`),
+  opts(t(K,Su),[t(c,Su),t(k,Su),t(fr(K[1],K[0]),Su),t(ng(K),Su),t(mul(K,[2,1]),Su)],'Integrate with respect to u:',`Apply the basic rule to ${M(F)}, then multiply by the factor ${M(fs(k))}, giving the final coefficient ${M(fs(K))}.`),
+  opts(t(K,Sx),[t(c,Sx),t(k,Sx),t(K,Su),t(ng(K),Sx),t(mul(K,[2,1]),Sx)],'Substitute back u = '+M(u)+' to get the answer in x:',`The final answer must be in terms of x, so substitute ${M('u = '+u)} into the result.`)]}
+}
+
+function df(lv){
+ const m=lv?R(2,3):2,b=R(1,3),n=lv>1?R(2,4):R(2,3),x1=lv==2?R(0,1):0,x2=lv==2?2:lv?R(1,2):1,k=lv==2?[1,m]:[1,1];
+ const u=`${xp(m)} + ${b}`,d=`${m}${xp(m-1)}`,u1=x1**m+b,u2=x2**m+b;
+ const V=(l1,l2,K)=>fr(K[0]*(l2**(n+1)-l1**(n+1)),K[1]*(n+1)),cor=V(u1,u2,k);
+ const int=`${lv==2?'':m}${xp(m-1)}(${u})${sup(n)}`;
+ const up=sh([xp(m),'x',int,'x²']).map(x=>'u = '+x);
+ const lim=`${u1} → ${u2}`,val=fs(cor);
+ return{int:`∫${sub(x1)}${sup(x2)} ${int} dx`,steps:[
+  opts('u = '+u,up,'Choose u (the inner function):',`The inner function is ${M('u = '+u)}.`),
+  opts(duS(d),sh(['1','x','2x','x²',d+'x']).map(duS),'Find du:',`Differentiating u gives ${M(duS(d))}.`),
+  opts(lim,[`${x1} → ${x2}`,`${u2} → ${u1}`,`${x1+b} → ${x2+b}`,`${x1*m+b} → ${x2*m+b}`],`Change the limits: as x goes from ${M(x1)} to ${M(x2)}, u goes from:`,`Substitute the x-limits into ${M('u = '+u)}: ${M(`u(${x1}) = ${u1}`)} and ${M(`u(${x2}) = ${u2}`)}. With the new limits you never need to go back to x.`),
+  opts(val,[fs(V(x1,x2,k)),fs(V(u1,u2,[1,1])),fs(fr(k[0]*(u2**(n+1)-u1**(n+1)),k[1]*n)),fs(ng(cor))],'Evaluate the integral:',`The integral becomes ${M(co(k)+'∫'+sub(u1)+sup(u2)+' u'+sup(n)+' du')} = ${M(co(k)+'[u'+sup(n+1)+'/'+(n+1)+']')} between the new limits.`)]}
+}
+
+function G(ty,lv){
+ if(ty==5)return df(lv);
+ const m=R(2,3),a=R(2,5),b=R(1,6),n=R(2,5),f=pick(['sin','cos']);let cc;do cc=R(2,5);while(cc==m);
+ const xm=xp(m),x1=xp(m-1),I=lv?`${xm} + ${b}`:`${a}x + ${b}`,d=lv?`${m}${x1}`:`${a}`;
+ const k=lv==0?[1,a]:lv==1?[1,m]:fr(cc,m),P=lv==0?'':lv==1?x1:`${cc}${x1}`,B=s=>s.trim();
+ const o={u:I,d,k,c:[1,1]};
+ if(ty==0)Object.assign(o,{int:`${P}(${I})${sup(n)}`,F:`u${sup(n)}`,c:[1,n+1],S:v=>`${wr(v)}${sup(n+1)}`});
+ if(ty==1){
+  if(lv<2)Object.assign(o,{int:B(`${P} ${f}(${I})`),F:`${f} u`,c:f=='sin'?[-1,1]:[1,1],S:v=>`${f=='sin'?'cos':'sin'}(${v})`});
+  else{const s=f=='sin';Object.assign(o,{int:`${f}${sup(n)}x ${s?'cos':'sin'} x`,u:`${f} x`,d:s?'cos x':'−sin x',k:[s?1:-1,1],F:`u${sup(n)}`,c:[1,n+1],S:v=>`${wr(v)}${sup(n+1)}`})}}
+ if(ty==2)Object.assign(o,{int:B(`${P} e^(${I})`),F:'e^u',S:v=>`e^${wr(v)}`});
+ if(ty==3){Object.assign(o,{int:`${P||1}/(${I})`,F:'1/u',S:v=>`ln|${v}|`});
+  if(lv==2&&Math.random()<.5)Object.assign(o,{int:`${cc}cos x/(sin x + ${b})`,u:`sin x + ${b}`,d:'cos x',k:[cc,1]})}
+ if(ty==4){if(lv<2)Object.assign(o,{int:`${P}√(${I})`,F:'√u',c:[2,3],S:v=>`${wr(v)}^(3/2)`});
+  else Object.assign(o,{int:`${P}/√(${I})`,F:'1/√u',c:[2,1],S:v=>`√${wr(v)}`})}
+ return mk(o);
+}
+
+const LV=['Easy','Medium','Hard'],TY=['1. Powers','2. Trig','3. Exponential','4. Logarithms (f′/f)','5. Roots','6. Definite'];
+const S={lv:0,ty:0,q:null,st:0,sc:0,bad:[],ex:false};
+function nw(){S.q=G(S.ty,S.lv);S.st=0;S.sc=0;S.bad=[];S.ex=false;render()}
+function setLv(i){S.lv=i;nw()}function setTy(i){S.ty=i;nw()}
+function ch(j){const s=S.q.steps[S.st];if(j==s.a){if(!S.bad.length)S.sc++;S.st++;S.bad=[];S.ex=false}else S.bad.push(j);render()}
+function render(){
+ const q=S.q,pl=(arr,cur,fn)=>`<div class="pills">${arr.map((x,i)=>`<button class="pill ${i==cur?'on':''}" onclick="${fn}(${i})">${x}</button>`).join('')}</div>`;
+ let h=`<h1>u-Substitution</h1><p class="m">Pick a topic and answer each step before it's revealed.</p><div class="l">Level</div>${pl(LV,S.lv,'setLv')}<div class="l">Type (suggested order 1 → 6)</div>${pl(TY,S.ty,'setTy')}<div class="box"><b>Evaluate ${M(q.int)}</b></div>`;
+ q.steps.forEach((s,i)=>{
+  if(i<S.st)h+=`<div class="box done"><div class="pr">${s.p}</div><div class="ans">✓ ${M(s.o[s.a])}</div></div>`;
+  else if(i==S.st)h+=`<div class="box"><div class="pr">${s.p}</div>${s.o.map((o,j)=>{const b=S.bad.includes(j);return`<button class="opt ${b?'bad':''}" ${b?'disabled':''} onclick="ch(${j})">${M(o)}</button>`}).join('')}${S.bad.length?'<p class="msg">Not quite. Try again.</p>':''}<button class="ex" onclick="S.ex=!S.ex;render()">📖 Explain this step</button>${S.ex?`<div class="exp">${s.ex}</div>`:''}</div>`;
+ });
+ if(S.st>=q.steps.length)h+=`<div class="box done"><b>Well done!</b> You got ${S.sc} of ${q.steps.length} steps right on the first try.</div>`;
+ h+=`<button class="new" onclick="nw()">New question</button>`;
+ document.getElementById('app').innerHTML=h;
+}
+nw();
+</script>
+</body>
+</html>
