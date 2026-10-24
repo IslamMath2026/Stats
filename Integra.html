@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Integra</title>
+<style>
+:root{--bg:#f6f7f4;--card:#fff;--ink:#1d2b2a;--mute:#66736f;--line:#dbe1dc;--acc:#0f6b5c;--accbg:#e1f1ed;--ok:#1b7f4b;--okbg:#e2f4ea;--bad:#b3341f;--badbg:#fbe9e5;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12191a;--card:#1b2526;--ink:#e8efec;--mute:#93a29d;--line:#2d3b3c;--acc:#4fc3ad;--accbg:#173a35;--ok:#5fd394;--okbg:#17362a;--bad:#ff8a73;--badbg:#3b201b}}
+:root[data-theme="dark"]{--bg:#12191a;--card:#1b2526;--ink:#e8efec;--mute:#93a29d;--line:#2d3b3c;--acc:#4fc3ad;--accbg:#173a35;--ok:#5fd394;--okbg:#17362a;--bad:#ff8a73;--badbg:#3b201b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.6;font-size:17px}
+main{max-width:600px;margin:0 auto;padding:18px 16px 40px}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:var(--mute);margin:0 0 14px;font-size:15px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:7px 14px;border-radius:99px;font:inherit;font-size:15px;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.prob{font-size:17px;font-weight:600}
+.scroll{overflow-x:auto;margin:8px 0 0}
+table{border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:15px;font-weight:400}
+th,td{border:1px solid var(--line);padding:4px 10px;text-align:center}
+th{background:var(--accbg)}
+.dots{display:flex;gap:6px;margin:0 0 12px}
+.dot{height:6px;flex:1;border-radius:3px;background:var(--line)}
+.dot.done{background:var(--ok)}.dot.cur{background:var(--acc)}
+.q{font-weight:600;margin:0 0 10px}
+.opt{display:block;width:100%;text-align:start;border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:11px 14px;border-radius:10px;margin-bottom:8px;font:inherit;cursor:pointer}
+.opt:focus-visible,.chip:focus-visible,.btn:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.opt.bad{background:var(--badbg);border-color:var(--bad);color:var(--bad)}
+.opt.good{background:var(--okbg);border-color:var(--ok);color:var(--ok)}
+.hint{color:var(--bad);font-size:15px;margin:2px 0 8px}
+.reveal{background:var(--accbg);border-radius:10px;padding:10px 14px;margin:0 0 10px;font-size:16px}
+.btn{border:0;background:var(--acc);color:#fff;padding:12px 18px;border-radius:10px;font:inherit;font-weight:600;cursor:pointer;width:100%}
+.final{text-align:center}.final b{font-size:20px}
+.score{color:var(--mute);font-size:14px;text-align:center;margin-top:8px}
+.tutor{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}.tutor[hidden]{display:none}.trow{display:flex;gap:6px;flex-wrap:wrap}.trow input,.trow select{border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;font-size:15px;background:var(--card);color:var(--ink)}.trow input{flex:1;min-width:150px}.tb{border:1.5px solid var(--acc);background:transparent;color:var(--acc);padding:8px 12px;border-radius:10px;font:inherit;font-size:15px;cursor:pointer}.tb:disabled{opacity:.6}.tout{white-space:pre-wrap;margin-top:8px;font-size:16px;background:var(--accbg);border-radius:10px;padding:10px 12px}.tout:empty{display:none}.lvl{color:var(--mute);font-size:14px;margin:0 0 6px}
+.prob,.q,.opt,.reveal{direction:ltr}.hint,.tout{direction:rtl;text-align:right}.reveal{font-family:Cambria,'Times New Roman',serif}
+.opt,.prob,.q{font-family:Cambria,'Times New Roman',serif}.q,.prob{font-size:18px}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 3px;font-size:.95em}
+.fr>span{line-height:1.25;padding:0 3px}.fr>span:first-child{border-bottom:1.5px solid currentColor}
+sup{font-size:.65em;line-height:0}
+.lm{display:inline-flex;flex-direction:column;font-size:.6em;vertical-align:middle;line-height:1.15;margin:0 2px}
+</style>
+</head>
+<body>
+<main>
+<h1>Integra – Integration, Step by Step</h1>
+<p class="sub">Pick a level and a topic, then answer each step before it is revealed.</p>
+<div class="lvl">Level</div><div class="chips" id="lv"></div><div class="lvl">Topic (suggested order 1 → 6)</div><div class="chips" id="chips"></div>
+<div class="card"><div class="prob" id="prob"></div></div>
+<div id="stage"></div>
+<div class="score" id="score"></div>
+</main>
+<script>
+const R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a,pk=a=>a[R(0,a.length-1)],sh=a=>[...a].sort(()=>Math.random()-.5);
+const g=(a,b)=>b?g(b,a%b):Math.abs(a);
+const X=e=>e==0?'':e==1?'x':'x^{'+e+'}',pw=e=>e==1?'':'^{'+e+'}';
+const T=(p,q,b)=>{const d=g(p,q);p/=d;q/=d;return{n:p<0,t:(Math.abs(p)==1&&q==1&&b?'':q==1?Math.abs(p):'{'+Math.abs(p)+'|'+q+'}')+b}};
+const tt=(c,q,b)=>{const o=T(c,q,b);return(o.n?'−':'')+o.t};
+const J=a=>a.map((x,i)=>(i?(x.n?' − ':' + '):(x.n?'−':''))+x.t).join('');
+const Q=(p,q)=>{const d=g(p,q);p/=d;q/=d;return q==1?''+p:'{'+p+'|'+q+'}'};
+function H(s){s=String(s).replace(/∫_\{([^{}]*)\}\^\{([^{}]*)\}/g,'∫<span class=lm><sup>$2</sup><sub>$1</sub></span>');let p;do{p=s;s=s.replace(/\^\{([^{}]*)\}/g,'<sup>$1</sup>').replace(/\{([^{}|]*)\|([^{}|]*)\}/g,'<span class=fr><span>$1</span><span>$2</span></span>')}while(s!==p);return s}
+const txt=s=>{s=String(s).replace(/∫_\{([^{}]*)\}\^\{([^{}]*)\}/g,'∫[$1→$2]');let p;do{p=s;s=s.replace(/\^\{([^{}]*)\}/g,'^($1)').replace(/\{([^{}|]*)\|([^{}|]*)\}/g,'($1)/($2)')}while(s!==p);return s};
+const BL=[['cos x','sin x'],['sin x','−cos x'],['e^{x}','e^{x}'],['sec^{2}x','tan x'],['csc^{2}x','−cot x'],['sec x tan x','sec x'],['{1|x}','ln|x|']];
+const flip=s=>s[0]=='−'?s.slice(1):'−'+s,C=' + C';
+const S=(q,o,h,r)=>({q,opts:o.map(String),hint:h,reveal:r});
+const fin=(it,c)=>{const a=it[1]+c;return S('What is the final answer?',[a,...it.slice(2).map(x=>x+c)],'اجمع نتائج الخطوات السابقة بالترتيب، وانتبه للإشارة وللمقام، وأضف + C في التكامل غير المحدد.',it[0]+(it[0].endsWith('=')?' ':' = ')+a)};
+const mk=(it,c,steps,t)=>({text:t||'Find '+it[0],steps:[...steps,fin(it,c)]});
+const CN=S('Is the constant of integration needed in an indefinite integral?',['Yes, add + C','No, it is not needed','Only for definite integrals'],'التكامل غير المحدد يمثل عائلة من الدوال تختلف عن بعضها بثابت، لذلك نضيف + C دائمًا.','Always add + C for an indefinite integral.');
+let LV=1;
+const GEN={};
+GEN.pow=()=>[()=>{const n=R(2,4),k=R(1,3),a=k*(n+1),c=k==1?'':k;
+return mk([`∫ ${a}${X(n)} dx`,c+X(n+1),a*n+X(n-1),a+X(n+1),c+X(n)],C,[S('Which rule applies to ∫ a·xⁿ dx?',['Raise the power by 1, then divide by the new power','Lower the power by 1 and multiply by the old power','Keep the power and divide by the coefficient'],'التكامل عكس الاشتقاق: يزداد الأس بمقدار 1 ثم نقسم على الأس الجديد، بينما في الاشتقاق ينقص الأس.','∫ x^{n} dx = {x^{n+1}|n+1} + C'),S(`In ${a}${X(n)} the power is ${n}. What is the new power?`,[n+1,n-1,n,n+2],'الأس الجديد = الأس القديم + 1.',`${n} + 1 = ${n+1}`)])},
+()=>{const t=[2,1,0].map(e=>[pk([-1,1])*R(1,6),e]),[c,e]=t[0];
+return mk([`∫ (${J(t.map(([c,e])=>T(c,1,X(e))))}) dx`,J(t.map(([c,e])=>T(c,e+1,X(e+1)))),J(t.filter(x=>x[1]).map(([c,e])=>T(c*e,1,X(e-1)))),J(t.map(([c,e])=>T(c,1,X(e+1)))),J(t.map(([c,e])=>T(c,e+1,X(e))))],C,[S('How do we integrate a sum or difference of terms?',['Integrate each term separately','Integrate only the highest power','Multiply the terms first'],'خاصية المجموع: ∫(f ± g)dx = ∫f dx ± ∫g dx، فنتعامل مع كل حد وحده.','∫[f ± g] dx = ∫f dx ± ∫g dx'),S(`Integrate the first term: ${tt(c,1,X(e))}`,[tt(c,e+1,X(e+1)),tt(c,1,X(e+1)),tt(c*e,1,X(e-1)),tt(c,e+1,X(e))],'ارفع الأس بمقدار 1 ثم اقسم المعامل على الأس الجديد.',`${tt(c,1,X(e))} → ${tt(c,e+1,X(e+1))}`)])},
+()=>{const n=R(2,4),a=R(2,4),b=R(1,5),L=`(${a}x + ${b})`;
+return mk([`∫ ${L}^{${n}} dx`,`{${L}^{${n+1}}|${a*(n+1)}}`,`{${L}^{${n+1}}|${n+1}}`,`{${L}^{${n+1}}|${a*n}}`,`${n}${L}${pw(n-1)}`],C,[S('Which substitution simplifies this integral?',[`t = ${a}x + ${b}`,'t = x',`t = ${a}`,`t = ${b}`],'نعوّض عن العبارة الداخلية بين القوسين بالمتغير t.',`t = ${a}x + ${b}`),S('What is dt?',[`${a} dx`,'dx',`${a}x dx`,`${b} dx`],'اشتق t بالنسبة إلى x: المشتقة هي معامل x.',`dt = ${a} dx, so dx = {dt|${a}}`)])}][LV-1]();
+GEN.std=()=>[()=>{const i=R(0,6),o=sh(BL.filter((_,j)=>j!=i)).slice(0,3);return mk(['∫ '+BL[i][0]+' dx',BL[i][1],...o.map(x=>x[1])],C,[CN])},
+()=>{const i=R(0,6),k=R(2,6),F=BL[i][1],kf=s=>s[0]=='−'?'−'+k+' '+s.slice(1):k+' '+s;
+return mk([`∫ ${k} ${BL[i][0]} dx`,kf(F),F,kf(flip(F)),kf(BL[(i+1)%7][1])],C,[S('What can we do with the constant k?',['Take it outside the integral','Differentiate it first','Square it'],'خاصية: ∫k·f(x)dx = k·∫f(x)dx، فالثابت يخرج أمام التكامل.','∫ k f dx = k ∫ f dx'),S(`What is ∫ ${BL[i][0]} dx (without k, and without C)?`,[F,flip(F),BL[(i+1)%7][1],BL[(i+2)%7][1]],'راجع جدول التكاملات الأساسية: ابحث عن الدالة التي مشتقتها هي الدالة المعطاة.',`∫ ${BL[i][0]} dx = ${F}`)])},
+()=>{const a=R(2,5),r=pk([['sin','cos','−'],['cos','sin',''],['e','e',''],['sec^{2}','tan','']]),f=n=>n=='e'?`e^{${a}x}`:`${n} ${a}x`,d=`{${f(r[1])}|${a}}`;
+return mk([`∫ ${f(r[0])} dx`,r[2]+d,r[2]+f(r[1]),(r[2]?'':'−')+d,`${r[2]}${a} ${f(r[1])}`],C,[S('The argument is ax, not just x. What correction is needed?',[`Divide by a = ${a}`,`Multiply by a = ${a}`,'No change is needed',`Divide by a² = ${a*a}`],'مشتقة ax هي a، لذلك عند التكامل نقسم الناتج على a (معامل x).','∫ f(ax) dx = {1|a} F(ax) + C')])}][LV-1]();
+GEN.sub=()=>[()=>{const n=R(2,4),k=R(1,5),B=`(x^{2} + ${k})`;
+return mk([`∫ 2x ${B}^{${n}} dx`,`{${B}^{${n+1}}|${n+1}}`,`${B}^{${n+1}}`,`{${B}^{${n+1}}|${n}}`,`${n}${B}${pw(n-1)}`],C,[S('Choose the substitution t:',[`t = x^{2} + ${k}`,'t = 2x','t = x^{2}',`t = ${k}`],'اختر الدالة الداخلية التي مشتقتها (2x) موجودة في التكامل.',`t = x^{2} + ${k}`),S('What is dt?',['2x dx','x dx','dx','2 dx'],'dt = t′ dx، فاشتق x² + k.','dt = 2x dx'),S(`The integral becomes ∫ t^{${n}} dt. What is it (in t)?`,[`{t^{${n+1}}|${n+1}}`,`t^{${n+1}}`,`{t^{${n+1}}|${n}}`,`${n}t${pw(n-1)}`],'قاعدة القوة: ارفع الأس 1 واقسم على الأس الجديد.',`∫ t^{${n}} dt = {t^{${n+1}}|${n+1}}`)])},
+()=>{const m=R(2,4),E=`e^{x^{${m}}}`,x1=X(m-1);
+return mk([`∫ ${x1} ${E} dx`,`{${E}|${m}}`,E,`${m}${E}`,`{x^{${m}}${E}|${m}}`],C,[S('Choose the substitution t:',[`t = x^{${m}}`,'t = e^{x}',`t = x^{${m-1}}`,'t = x'],'اختر الأس الذي في الدالة الأسية، فمشتقته تظهر أمامها.',`t = x^{${m}}`),S('Which relation holds?',[`${x1} dx = {dt|${m}}`,`${x1} dx = ${m} dt`,`${x1} dx = dt`,`${x1} dx = {dt|${m+1}}`],`dt = ${m}${X(m-1)} dx، ثم اقسم على ${m}.`,`dt = ${m}${x1} dx`)])},
+()=>{const n=R(2,4);return R(0,1)?mk([`∫ sin x cos^{${n}} x dx`,`−{cos^{${n+1}} x|${n+1}}`,`{cos^{${n+1}} x|${n+1}}`,`−cos^{${n+1}} x`,`{sin^{${n+1}} x|${n+1}}`],C,[S('Choose t:',['t = cos x','t = sin x','t = x','t = cos^{'+n+'} x'],'اختر الدالة التي مشتقتها تظهر في التكامل (sin x مع إشارة).','t = cos x'),S('What is dt?',['−sin x dx','sin x dx','cos x dx','−cos x dx'],'مشتقة cos x هي − sin x.','dt = −sin x dx, so sin x dx = −dt')]):
+mk([`∫ {(ln x)^{${n}}|x} dx`,`{(ln x)^{${n+1}}|${n+1}}`,`(ln x)^{${n+1}}`,`{(ln x)^{${n+1}}|${n}}`,`{(ln x)^{${n}}|${n+1}}`],C,[S('Choose t:',['t = ln x','t = x','t = (ln x)^{'+n+'}','t = {1|x}'],'اختر ln x لأن مشتقتها 1/x موجودة في التكامل.','t = ln x'),S('What is dt?',['{dx|x}','dx','x dx','ln x dx'],'مشتقة ln x هي 1/x.','dt = {dx|x}')])}][LV-1]();
+GEN.trig=()=>[()=>pk([
+mk(['∫ tan x dx','−ln|cos x|','ln|cos x|','ln|sin x|','−ln|sin x|'],C,[S('Rewrite tan x:',['{sin x|cos x}','{cos x|sin x}','sin x cos x','{1|cos x}'],'تذكّر: tan x = sin x ÷ cos x.','tan x = {sin x|cos x}'),S('Let t = cos x. What is dt?',['−sin x dx','sin x dx','cos x dx','−cos x dx'],'مشتقة cos x هي − sin x.','dt = −sin x dx')]),
+mk(['∫ cot x dx','ln|sin x|','−ln|sin x|','ln|cos x|','−ln|cos x|'],C,[S('Rewrite cot x:',['{cos x|sin x}','{sin x|cos x}','cos x sin x','{1|sin x}'],'تذكّر: cot x = cos x ÷ sin x.','cot x = {cos x|sin x}'),S('Let t = sin x. What is dt?',['cos x dx','−cos x dx','sin x dx','−sin x dx'],'مشتقة sin x هي cos x.','dt = cos x dx')]),
+mk(['∫ sin x cos x dx','{sin^{2}x|2}','{sin x|2}','sin^{2}x','{cos 2x|2}'],C,[S('Choose t:',['t = sin x','t = x','t = sin x cos x','t = 2x'],'اختر sin x لأن مشتقتها cos x موجودة في التكامل.','t = sin x'),S('What is dt?',['cos x dx','−cos x dx','sin x dx','cos 2x dx'],'مشتقة sin x هي cos x.','dt = cos x dx, so ∫ t dt = {t^{2}|2}')])])
+,()=>{const s=R(0,1);return mk(s?['∫ sin^{2}x dx','{x|2} − {sin 2x|4}','{x|2} + {sin 2x|4}','{x|2} − {sin 2x|2}','{sin^{3}x|3}']:['∫ cos^{2}x dx','{x|2} + {sin 2x|4}','{x|2} − {sin 2x|4}','{x|2} + {sin 2x|2}','{cos^{3}x|3}'],C,[S(`Which identity helps with ${s?'sin':'cos'}²x?`,s?['sin^{2}x = {1 − cos 2x|2}','sin^{2}x = {1 + cos 2x|2}','sin^{2}x = 1 − cos 2x','sin^{2}x = {1 − sin 2x|2}']:['cos^{2}x = {1 + cos 2x|2}','cos^{2}x = {1 − cos 2x|2}','cos^{2}x = 1 + cos 2x','cos^{2}x = {1 + sin 2x|2}'],'استخدم متطابقة نصف الزاوية لتحويل المربع إلى cos 2x.',s?'sin²x = (1 − cos 2x)/2':'cos²x = (1 + cos 2x)/2'),S('What is ∫ cos 2x dx?',['{sin 2x|2}','sin 2x','−{sin 2x|2}','{cos 2x|2}'],'عند وجود 2x نقسم على 2 (مشتقة 2x).','∫ cos 2x dx = {sin 2x|2}')])},
+()=>{const s=R(0,1);return mk(s?['∫ tan^{2}x dx','tan x − x','tan x + x','{tan^{3}x|3}','sec x − x']:['∫ cot^{2}x dx','−cot x − x','−cot x + x','cot x − x','{cot^{3}x|3}'],C,[S(`Which identity helps with ${s?'tan':'cot'}²x?`,s?['tan^{2}x = sec^{2}x − 1','tan^{2}x = sec^{2}x + 1','tan^{2}x = 1 − sec^{2}x','tan^{2}x = {1|cos^{2}x}']:['cot^{2}x = csc^{2}x − 1','cot^{2}x = csc^{2}x + 1','cot^{2}x = 1 − csc^{2}x','cot^{2}x = {1|sin^{2}x}'],s?'من sin²+cos²=1 نحصل على tan²x = sec²x − 1.':'من sin²+cos²=1 نحصل على cot²x = csc²x − 1.',s?'tan²x = sec²x − 1':'cot²x = csc²x − 1'),S(`What is ∫ ${s?'sec':'csc'}^{2}x dx?`,s?['tan x','−cot x','sec x','{sec^{3}x|3}']:['−cot x','tan x','csc x','{csc^{3}x|3}'],'راجع جدول التكاملات الأساسية.',s?'∫ sec²x dx = tan x':'∫ csc²x dx = −cot x')])}][LV-1]();
+GEN.rat=()=>[()=>{const a=R(2,6);return R(0,1)?mk([`∫ {dx|x − ${a}}`,`ln|x − ${a}|`,`ln|x + ${a}|`,`−ln|x − ${a}|`,`{1|(x − ${a})^{2}}`],C,[S('Choose t:',[`t = x − ${a}`,'t = x',`t = ${a}`,`t = x + ${a}`],'اجعل المقام هو المتغير t.',`t = x − ${a}, dt = dx`),S('What is ∫ {dt|t}?',['ln|t|','{1|t^{2}}','−{1|t}','t'],'∫ 1/t dt = ln|t|.','∫ {dt|t} = ln|t|')]):
+mk([`∫ {dx|(x − ${a})^{2}}`,`−{1|x − ${a}}`,`{1|x − ${a}}`,`ln|x − ${a}|`,`{−2|(x − ${a})^{3}}`],C,[S('Rewrite as a power:',[`(x − ${a})^{-2}`,`(x − ${a})^{2}`,`−(x − ${a})`,`(x − ${a})^{-1}`],'انقل المقام إلى البسط بإشارة سالبة للأس.',`{1|(x − ${a})^{2}} = (x − ${a})^{-2}`),S('After raising the power by 1, the new power is:',['−1','−3','1','−2'],'−2 + 1 = −1.','−2 + 1 = −1, then divide by −1')])},
+()=>{const a=R(2,5);return mk([`∫ {dx|x^{2} + ${a*a}}`,`{1|${a}} tan^{-1}({x|${a}})`,`tan^{-1}({x|${a}})`,`{1|${a*a}} tan^{-1}({x|${a}})`,`{1|${2*a}} ln(x^{2} + ${a*a})`],C,[S(`The denominator is x² + ${a*a}. What is a in x² + a²?`,[a,a*a,2*a,a+1],'a² هو الرقم الثابت، فخذ جذره التربيعي.',`a² = ${a*a}, so a = ${a}`),S('Which formula applies?',['∫ {dx|x^{2} + a^{2}} = {1|a} tan^{-1}({x|a}) + C','∫ {dx|x^{2} + a^{2}} = ln|x^{2} + a^{2}| + C','∫ {dx|x^{2} + a^{2}} = {1|2a} ln|{x − a|x + a}| + C','∫ {dx|x^{2} + a^{2}} = {x|a^{2}} + C'],'مجموع المربعات في المقام يقود إلى دالة tan⁻¹.','∫ {dx|x^{2} + a^{2}} = {1|a} tan^{-1}({x|a}) + C')])},
+()=>{const a=R(2,5);return mk([`∫ {dx|x^{2} − ${a*a}}`,`{1|${2*a}} ln|{x − ${a}|x + ${a}}|`,`{1|${a}} ln|{x − ${a}|x + ${a}}|`,`{1|${2*a}} ln|{x + ${a}|x − ${a}}|`,`{1|${2*a}} tan^{-1}({x|${a}})`],C,[S(`The denominator is x² − ${a*a}. What is a in x² − a²?`,[a,a*a,2*a,a+1],'a² هو الرقم الثابت، فخذ جذره التربيعي.',`a² = ${a*a}, so a = ${a}`),S('Which formula applies?',['∫ {dx|x^{2} − a^{2}} = {1|2a} ln|{x − a|x + a}| + C','∫ {dx|x^{2} − a^{2}} = {1|a} tan^{-1}({x|a}) + C','∫ {dx|x^{2} − a^{2}} = {1|2a} ln|{x + a|x − a}| + C','∫ {dx|x^{2} − a^{2}} = ln|x^{2} − a^{2}| + C'],'فرق المربعات في المقام يقود إلى لوغاريتم، والبسط x − a والمقام x + a.','∫ {dx|x^{2} − a^{2}} = {1|2a} ln|{x − a|x + a}| + C')])}][LV-1]();
+const FB=S('How are the limits used?',['F(b) − F(a)','F(a) − F(b)','F(a) + F(b)','F(b) ÷ F(a)'],'التكامل المحدد = F(الحد العلوي) − F(الحد السفلي).','∫_{a}^{b} f dx = F(b) − F(a)');
+const bank=rows=>{const r=pk(rows);return[r,mk([r[0],...r[2]],'',[...(LV==3?[FB]:[]),S('Find an antiderivative F(x) (no C needed):',r[1],'ابحث عن الدالة التي مشتقتها هي الدالة داخل التكامل.',`F(x) = ${r[1][0]}`)])][1]};
+GEN.def=()=>[()=>{const n=R(1,2),k=R(1,3),a=R(1,2),b=R(a+1,4),c=k*(n+1),u=b**(n+1),v=a**(n+1),kk=k==1?'':k;
+return mk([`∫_{${a}}^{${b}} ${c}${X(n)} dx`,k*(u-v),k*(u+v),c*(u-v),k*u],'',[S('Find an antiderivative F(x):',[kk+X(n+1),c+X(n+1),c*n+X(n-1),kk+X(n)],'ارفع الأس 1 واقسم المعامل على الأس الجديد.',`F(x) = ${kk+X(n+1)}`),S(`Compute F(${b}) and F(${a}):`,[`F(${b}) = ${k*u}, F(${a}) = ${k*v}`,`F(${b}) = ${k*v}, F(${a}) = ${k*u}`,`F(${b}) = ${c*u}, F(${a}) = ${c*v}`,`F(${b}) = ${k*b}, F(${a}) = ${k*a}`],'عوّض كل حد في F(x) بشكل منفصل.',`F(${b}) = ${k*u}, F(${a}) = ${k*v}`)])},
+()=>bank([['∫_{0}^{π} sin x dx',['−cos x','cos x','sin x','−sin x'],['2','0','1','−2']],['∫_{0}^{π/2} (sin x + cos x) dx',['−cos x + sin x','cos x − sin x','−cos x − sin x','cos x + sin x'],['2','1','0','−2']],['∫_{0}^{π/6} cos x dx',['sin x','−sin x','cos x','tan x'],['{1|2}','{√3|2}','−{1|2}','1']]]),
+()=>bank([['∫_{1}^{e} {dx|x}',['ln|x|','−{1|x^{2}}','x ln|x|','{x^{2}|2}'],['1','e','e − 1','0']],['∫_{0}^{ln 2} e^{x} dx',['e^{x}','x e^{x}','ln x','{e^{x}|2}'],['1','2','ln 2','e']],['∫_{0}^{1} x e^{x^{2}} dx',['{e^{x^{2}}|2}','e^{x^{2}}','{x^{2}e^{x^{2}}|2}','2e^{x^{2}}'],['{e − 1|2}','e − 1','{e|2}','{e + 1|2}']],['∫_{0}^{1} 2x(x^{2}+1)^{2} dx',['{(x^{2}+1)^{3}|3}','(x^{2}+1)^{3}','{(x^{2}+1)^{3}|6}','{(x^{2}+1)^{2}|2}'],['{7|3}','7','{8|3}','{1|3}']]])][LV-1]();
+const NAMES={pow:'Power rule & sum',std:'Standard integrals',sub:'Substitution',trig:'Trigonometric integrals',rat:'Rational functions',def:'Definite integrals'};
+let type='pow',P,i,tries,right=0,total=0,locked;
+const $=id=>document.getElementById(id);
+function prep(p){p.steps.forEach(s=>{s.opts=[...new Set(s.opts)]});return p}
+function renderChips(){$("chips").innerHTML=Object.keys(NAMES).map((k,ix)=>`<button class="chip" aria-pressed="${k===type}" data-k="${k}">${ix+1}. ${NAMES[k]}</button>`).join("");
+$("chips").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{type=b.dataset.k;renderChips();start()})}
+function start(){{let t=0,np;do{np=prep(GEN[type]())}while(P&&np.text===P.text&&t++<30);P=np}i=0;tries=0;$("prob").innerHTML=H(P.text);draw()}
+function dots(){return `<div class="dots">${P.steps.map((_,k)=>`<div class="dot ${k<i?"done":k===i?"cur":""}"></div>`).join("")}</div>`}
+function draw(){const st=$("stage");
+if(i>=P.steps.length){st.innerHTML=`<div class="card final">${dots()}<b>Well done! Problem solved 🎉</b></div><button class="btn" id="nx">New problem</button>`;$("nx").onclick=start;score();return}
+const s=P.steps[i];locked=false;
+st.innerHTML=`<div class="card">${dots()}<p class="q">${H(s.q)}</p>${sh(s.opts.map((o,k)=>[o,k])).map(([o,k])=>`<button class="opt" data-k="${k}">${H(o)}</button>`).join("")}<div class="hint" id="hint" dir="auto"></div><div class="trow" style="margin-top:6px"><button class="tb" id="exp">📖 Explain this step</button></div><div class="tout" id="exout" dir="auto"></div><div class="tutor" id="tutor" hidden><div class="trow"><input id="tq" placeholder="Ask about this step (optional)" maxlength="200"><select id="tl" aria-label="Language"><option value="ar">عربي</option><option value="en">English</option></select><button class="tb" id="ask">💡 Ask the tutor</button></div><div class="tout" id="tout" dir="auto"></div></div></div>`;
+st.querySelectorAll(".opt").forEach(b=>b.onclick=()=>pickOpt(b,s));wireTutor(s)}
+function pickOpt(b,s){if(locked)return;
+if(b.dataset.k==="0"){locked=true;b.classList.add("good");total++;if(tries===0)right++;
+b.closest(".card").insertAdjacentHTML("beforeend",`<div class="reveal">${H(s.reveal)}</div><button class="btn" id="go">${i===P.steps.length-1?"Finish":"Next step"}</button>`);
+$("go").onclick=()=>{i++;tries=0;draw()};score()}
+else{tries++;b.classList.add("bad");b.disabled=true;$("hint").textContent="Not quite, try again. 💡 "+s.hint}}
+function score(){$("score").textContent=total?`Correct on first try: ${right} of ${total}`:""}
+const LVN=["Easy","Medium","Hard"];function renderLv(){$("lv").innerHTML=LVN.map((n,k)=>`<button class="chip" aria-pressed="${LV===k+1}" data-l="${k+1}">${n}</button>`).join("");$("lv").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{LV=+b.dataset.l;renderLv();start()})}
+let SAMPLE=null;
+function wireTutor(s){const e=$("exp");if(e)e.onclick=()=>{$("exout").textContent=s.hint};const box=$("tutor");if(!box)return;box.hidden=!SAMPLE;const btn=$("ask");
+btn.onclick=async()=>{if(!SAMPLE)return;const q=$("tq").value.trim(),lang=$("tl").value,out=$("tout");btn.disabled=true;out.textContent="Thinking…";
+const pr=`You are a friendly calculus tutor for a student.\nProblem: ${txt(P.text)}\nCurrent step question: ${txt(s.q)}\nAnswer choices: ${s.opts.map(txt).join(" | ")}\nThe student ${locked?"has already answered this step correctly, so you may explain the full reasoning.":"has NOT answered yet. Do NOT state the correct choice or the final result. Give hints and explain the underlying concept so they can decide themselves."}\n${q?"Student's question: "+q:"Explain the idea behind this step simply."}\nReply in ${lang==="ar"?"simple Arabic (keep math notation and technical terms in English)":"simple English"}, under 120 words, plain text, no headings.`;
+try{const r=await SAMPLE(pr,{cache:false,modelTier:"quick",onText:({text})=>{out.textContent=text}});out.textContent=r.text}
+catch(e){out.textContent=e&&e.code==="rate_limited"?"Too many requests, please wait a moment.":"The tutor isn't available right now."}
+finally{btn.disabled=false}}}
+if(window.claude&&window.claude.use){window.claude.use("sample").then(x=>{SAMPLE=x;const b=document.getElementById("tutor");if(b)b.hidden=!SAMPLE}).catch(()=>{})}
+renderLv();renderChips();start();
+</script>
+</body>
+</html>
