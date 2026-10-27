@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Homework</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script><style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f7f4;--card:#fff;--ink:#1d2b2a;--mute:#66736f;--line:#dbe1dc;--acc:#0f6b5c;--accbg:#e1f1ed;--ok:#1b7f4b;--okbg:#e2f4ea;--bad:#b3341f;--badbg:#fbe9e5}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12191a;--card:#1b2526;--ink:#e8efec;--mute:#93a29d;--line:#2d3b3c;--acc:#4fc3ad;--accbg:#173a35;--ok:#5fd394;--okbg:#17362a;--bad:#ff8a73;--badbg:#3b201b}}
+:root[data-theme="dark"]{--bg:#12191a;--card:#1b2526;--ink:#e8efec;--mute:#93a29d;--line:#2d3b3c;--acc:#4fc3ad;--accbg:#173a35;--ok:#5fd394;--okbg:#17362a;--bad:#ff8a73;--badbg:#3b201b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.6;font-size:17px}
+main{max-width:620px;margin:0 auto;padding:18px 16px 40px}
+h1{font-size:22px;margin:0 0 4px}
+.sub,.mut{color:var(--mute);font-size:15px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.prob{font-weight:700;margin:0 0 8px}
+.q{font-weight:600;margin:12px 0 6px}
+.scroll{overflow-x:auto;margin:8px 0 0}
+table{border-collapse:collapse;font-size:15px;font-weight:400}
+th,td{border:1px solid var(--line);padding:4px 10px;text-align:center}th{background:var(--accbg)}
+input[type=text],input[type=password]{width:100%;padding:12px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;margin:6px 0 12px}
+label.opt{display:block;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;margin:6px 0;cursor:pointer}
+label.opt input{margin:0 8px 0 0}
+label.opt.good{background:var(--okbg);border-color:var(--ok);color:var(--ok)}
+label.opt.bad{background:var(--badbg);border-color:var(--bad);color:var(--bad)}
+.btn{border:0;background:var(--acc);color:#fff;padding:12px 18px;border-radius:10px;font:inherit;font-weight:600;cursor:pointer}
+.btn.sec{background:transparent;color:var(--acc);border:1.5px solid var(--acc)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 14px}
+.chip{border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:7px 14px;border-radius:99px;font:inherit;font-size:15px;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#fff}
+.err{color:var(--bad);min-height:1.4em}
+.reveal{background:var(--accbg);border-radius:10px;padding:8px 12px;margin:6px 0;font-size:16px}
+.ok{color:var(--ok)}.bad{color:var(--bad)}.hide{display:none}.row{display:flex;gap:8px;flex-wrap:wrap}
+@media print{body{background:#fff;color:#000}.noprint{display:none!important}.card{border:1px solid #999;break-inside:avoid}}
+</style></head><body><main>
+<div id="login" class="card">
+<h1>📊 Statistics Homework</h1><p class="sub">Enter your name and password to start.</p>
+<label>Student name</label><input type="text" id="name" autocomplete="name" placeholder="Full name">
+<label>Password</label><input type="password" id="pass" placeholder="••••">
+<div class="err" id="err"></div><button class="btn" id="go">Start</button></div>
+
+<div id="hw" class="hide">
+<div class="card"><h1>Statistics, Step by Step</h1><div class="sub">Student: <b id="who"></b></div>
+<div class="sub" style="margin-top:8px">Choose one answer for each problem, then submit.</div></div>
+<div id="qs"></div><div class="err" id="err2"></div>
+<button class="btn noprint" id="submit">Submit</button></div>
+
+<div id="res" class="hide">
+<div class="card"><h1>Submitted ✅</h1><div>Student: <b id="rwho"></b></div><div class="mut" id="rdate"></div>
+<h2 style="margin:10px 0 0">Score: <span id="score"></span></h2></div>
+<div id="rdet"></div>
+<div class="card noprint"><button class="btn" id="pdf">Save PDF / Send to teacher</button>
+<div class="mut" id="pmsg" style="margin-top:8px">Tap the button, accept the prompt, then choose Files, Mail or WhatsApp to save or send the PDF to your teacher.</div></div></div>
+</main>
+<script>
+// ===== Teacher settings =====
+var ACCESS_CODE="2026";
+var TEACHER_EMAIL="teacher@example.com";
+var HW_LEVEL=2; // 1 Easy, 2 Medium, 3 Hard
+// ============================
+const R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const sh=a=>[...a].sort(()=>Math.random()-.5);
+const f=(x,d=3)=>String(+x.toFixed(d));
+const sum=a=>a.reduce((s,v)=>s+v,0);
+function numOpts(c,d){const s=new Set([f(c)]);let t=0;while(s.size<4&&t++<120){const v=c+R(1,4)*d*(Math.random()<.5?-1:1);if(c<0||v>=0)s.add(f(v))}return [...s]}
+function pick(arr,n){return sh(arr).slice(0,n)}
+const gtable=(cl,fr,extra)=>`<div class="scroll"><table><tr><th>Class</th><th>f</th>${extra?extra.h:""}</tr>${cl.map((c,i)=>`<tr><td>${c}</td><td>${fr[i]}</td>${extra?extra.r(i):""}</tr>`).join("")}</table></div>`;
+
+let LV=1;
+const GEN={
+meanBase(){const n=LV===1?5:LV===2?R(6,7):R(8,10);let xs=Array.from({length:n},()=>R(2,LV===3?60:20));xs[n-1]+=(n-sum(xs)%n)%n;const s=sum(xs),m=s/n;
+return{text:`Find the mean of: ${xs.join(", ")}`,steps:[
+{q:"What is the first step in finding the mean?",opts:["Add all the observations (Σx)","Arrange the data in order","Find the most frequent value"],hint:"Mean = Σx ÷ n, so we need Σx first.",reveal:`Σx = ${xs.join(" + ")} = ${s}`},
+{q:`Σx = ${s} and n = ${n}. What is the mean?`,opts:numOpts(m,1),hint:`${s} ÷ ${n}`,reveal:`Mean = ${s} ÷ ${n} = ${f(m)}`}]}},
+median(){const n=LV===1?[5,7][R(0,1)]:LV===2?R(6,9):[8,10,12][R(0,2)],xs=pick(Array.from({length:30},(_,i)=>i+1),n),so=[...xs].sort((a,b)=>a-b),odd=n%2===1;
+const steps=[{q:"What must we do first, before finding the median?",opts:["Arrange the data in ascending order","Add all the values","Find the largest value"],hint:"A common mistake is skipping this step.",reveal:`Arranged: ${so.join(", ")}`}];
+if(odd){const k=(n+1)/2;steps.push({q:`n = ${n} is odd. At which position is the median, (n + 1) / 2?`,opts:numOpts(k,1),hint:`(${n} + 1) ÷ 2`,reveal:`Position = (${n} + 1)/2 = ${k}`},{q:`What is the value at position ${k}?`,opts:numOpts(so[k-1],2),hint:`Count to position ${k} in the arranged list.`,reveal:`Median = ${so[k-1]}`})}
+else{const a=n/2,m=(so[a-1]+so[a])/2;steps.push({q:`n = ${n} is even. Which two positions do we use? (n/2 and n/2 + 1)`,opts:[`${a} and ${a+1}`,`${a-1} and ${a}`,`${a+1} and ${a+2}`],hint:`n/2 = ${a}`,reveal:`Values at positions ${a} and ${a+1}: ${so[a-1]} and ${so[a]}`},{q:`Take the average of ${so[a-1]} and ${so[a]}. What is the median?`,opts:numOpts(m,1),hint:`(${so[a-1]} + ${so[a]}) ÷ 2`,reveal:`Median = (${so[a-1]} + ${so[a]})/2 = ${f(m)}`})}
+steps[0].opts=steps[0].opts;steps.forEach(s=>s.ans=s.ans);
+steps[0].ans="Arrange the data in ascending order";
+if(odd){steps[1].ans=f((n+1)/2);steps[2].ans=String(so[(n+1)/2-1])}else{const a=n/2;steps[1].ans=`${a} and ${a+1}`;steps[2].ans=f((so[a-1]+so[a])/2)}
+return{text:`Find the median of: ${xs.join(", ")}`,steps,preset:1}},
+mode(){const r=Math.random(),out=r<.4?"one":r<.7?"none":"two",tbl=Math.random()<.5,none="No mode";
+const k=out==="none"?(LV===1?3:R(3,4)):4,v=pick([1,2,3,4,5,6,7,8,9],k);let cnt;
+if(out==="none"){const c0=LV===1?R(1,2):R(1,3);cnt=Array(k).fill(c0)}
+else if(out==="one")cnt=LV===1?[3,2,1,1]:LV===2?[4,2,2,1]:[4,3,2,1];
+else{const t=LV===1?3:R(3,4);cnt=[t,t,R(1,t-1),R(1,t-1)]}
+const xs=sh(v.flatMap((x,i)=>Array(cnt[i]).fill(x))),so=[...v].map((x,i)=>[x,cnt[i]]).sort((a,b)=>a[0]-b[0]);
+const text=tbl?`Find the mode of the data in the table:<div class="scroll"><table><tr><th>x</th>${so.map(p=>`<th>${p[0]}</th>`).join("")}</tr><tr><th>f</th>${so.map(p=>`<td>${p[1]}</td>`).join("")}</tr></table></div>`:`Find the mode of: ${xs.join(", ")}`;
+const a0=Math.min(v[0],v[1]),b0=Math.max(v[0],v[1]),pair=`${a0} and ${b0}`;
+const opts=out==="two"?[pair,String(v[0]),String(v[1]),none]:v.slice(0,3).map(String).concat(none);
+const ans=out==="none"?none:out==="two"?pair:String(v[0]);
+const reveal=out==="none"?`Every value occurs ${cnt[0]}\u00d7, the same number of times, so there is <b>no mode</b>.`:out==="two"?`${v[0]} and ${v[1]} both occur ${cnt[0]}\u00d7, more than any other value, so there are <b>two modes: ${pair}</b>.`:`Mode = ${v[0]} (occurs ${cnt[0]} times)`;
+return{text,steps:[
+{q:"How do we find the mode?",opts:["Find the value that occurs most often","Find the middle value","Divide the sum by n"],hint:"Mode = most frequent value.",reveal:`Frequencies: ${so.map(p=>`${p[0]} \u2192 ${p[1]}\u00d7`).join(", ")}`},
+{q:"Which is the mode?",opts,ans,hint:"Compare the frequencies. If every value appears the same number of times, there is no mode. If two values tie for the highest frequency, both are modes.",reveal}]}},
+range(){const xs=Array.from({length:LV===1?5:LV===2?6:8},()=>LV===3?R(-20,90):R(3,40)),L=Math.max(...xs),S=Math.min(...xs);
+return{text:`What is the range of: ${xs.join(", ")}?`,steps:[
+{q:"What is the largest value (L)?",opts:pick(xs.filter(x=>x!==L),2).concat(L).map(String),ans:String(L),hint:"Scan the list for the biggest number.",reveal:`L = ${L}`},
+{q:"What is the smallest value (S)?",opts:pick(xs.filter(x=>x!==S),2).concat(S).map(String),ans:String(S),hint:"Scan the list for the smallest number.",reveal:`S = ${S}`},
+{q:"Range R = L − S. What is R?",opts:numOpts(L-S,2),hint:`${L} − ${S}`,reveal:`R = ${L} − ${S} = ${L-S}`}]}},
+grouped(){const nc=LV===1?3:LV===2?4:5,cl=Array.from({length:nc},(_,i)=>`${i*10} – ${(i+1)*10}`),fr=Array.from({length:nc},()=>R(2,LV===3?15:9)),x=Array.from({length:nc},(_,i)=>i*10+5),fx=fr.map((v,i)=>v*x[i]),F=sum(fr),FX=sum(fx),m=FX/F;
+const withX=gtable(cl,fr,{h:"<th>x (class mark)</th><th>f·x</th>",r:i=>`<td>${x[i]}</td><td>${fx[i]}</td>`});
+return{text:`Find the mean of the grouped data:${gtable(cl,fr)}`,steps:[
+{q:"How do we find the class mark (x) of a class?",opts:["(lower limit + upper limit) ÷ 2","upper limit − lower limit","frequency ÷ 2"],hint:"It's the midpoint of the class.",reveal:`Class marks: ${x.join(", ")}`},
+{q:`What is Σf (the total frequency)? The frequencies are ${fr.join(", ")}.`,opts:numOpts(F,1),hint:"Add up the frequencies.",reveal:`Σf = ${fr.join(" + ")} = ${F}`},
+{q:"Multiply each f by its class mark x, then add. What is Σfx? (Don't add the frequencies instead of multiplying!)",opts:numOpts(FX,10),hint:`${fr.map((v,i)=>`${v}×${x[i]}`).join(" + ")}`,reveal:`${withX}Σfx = ${FX}`},
+{q:"Mean = Σfx ÷ Σf. What is the mean?",opts:numOpts(m,1.5),hint:`${FX} ÷ ${F}`,reveal:`Mean = ${FX} ÷ ${F} = ${f(m)}`}]}},
+modal(){const w=LV===3?5:10,nc=LV===1?4:LV===2?5:7,cl=Array.from({length:nc},(_,i)=>`${i*w} – ${(i+1)*w}`);let fr;do{fr=Array.from({length:nc},()=>R(2,LV===3?25:14))}while(fr.filter(v=>v===Math.max(...fr)).length>1);const k=fr.indexOf(Math.max(...fr));
+return{text:`Find the modal class:${gtable(cl,fr)}`,steps:[
+{q:"How do we find the modal class?",opts:["The class with the highest frequency","The class in the middle","The class with the largest limits"],hint:"Mode = most frequent, so look at f.",reveal:`Highest frequency = ${fr[k]}`},
+{q:"Which class is the modal class?",opts:pick(cl.filter((_,i)=>i!==k),2).concat(cl[k]),ans:cl[k],hint:`Find the row where f = ${fr[k]}.`,reveal:`Modal class = ${cl[k]}`}]}}
+};
+function spread(withSD){const n=LV===1?4:LV===2?5:6;let xs=Array.from({length:n},()=>R(2,LV===3?20:14));xs[n-1]+=(n-sum(xs)%n)%n;
+const m=sum(xs)/n,sq=xs.map(x=>(x-m)**2),ss=sum(sq),samp=LV===1?false:LV===2?Math.random()<.5:true,dv=samp?n-1:n,v=ss/dv,sd=Math.sqrt(v);
+const steps=[
+{q:"What is the mean x̄?",opts:numOpts(m,1),hint:`Add the values and divide by ${n}.`,reveal:`x̄ = ${sum(xs)} ÷ ${n} = ${f(m)}`},
+{q:"What is Σ(x − x̄)², the sum of squared deviations?",opts:numOpts(ss,2),hint:"For each value: subtract the mean, square it, then add.",reveal:`Squares: ${sq.map(s=>f(s)).join(" + ")} = ${f(ss)}`},
+{q:`This is a ${samp?"sample":"population"}. Which divisor do we use?`,opts:[`n = ${n}`,`n − 1 = ${n-1}`,`n + 1 = ${n+1}`],ans:samp?`n − 1 = ${n-1}`:`n = ${n}`,hint:"Population → divide by n. Sample → divide by n − 1.",reveal:`Divide by ${dv}`},
+{q:"What is the variance?",opts:numOpts(v,.5),hint:`${f(ss)} ÷ ${dv}`,reveal:`Variance = ${f(ss)} ÷ ${dv} = ${f(v)}`}];
+if(withSD)steps.push({q:"What is the standard deviation?",opts:numOpts(sd,.3),hint:"Take the square root of the variance.",reveal:`SD = √${f(v)} = ${f(sd)}`});
+return{text:`Find the ${samp?"sample":"population"} ${withSD?"standard deviation":"variance"} of: ${xs.join(", ")}`,steps}}
+GEN.variance=()=>spread(false);GEN.sd=()=>spread(true);
+let LASTV={};
+function vary(key,arr){let k;do{k=R(0,arr.length-1)}while(arr.length>1&&k===LASTV[key]);LASTV[key]=k;return arr[k]()}
+function mDims(){const n=LV===1?R(4,8):LV===2?R(5,12):2*R(3,6),m=LV===3?R(5,40)+.5:R(3,LV===1?15:30);return[n,m,m*n]}
+function mSum(){const[n,m,S]=mDims();return{ex:["نقلب قانون الوسط: الوسط = Σx ÷ n، فنضرب الطرفين في n لنحصل على Σx = الوسط × n.","نضرب الوسط في عدد القيم n."],
+text:`The mean of ${n} observations is ${f(m)}. Find \u03a3x, the sum of the observations.`,steps:[
+{q:"Mean = \u03a3x \u00f7 n. Which rearrangement gives \u03a3x?",opts:["\u03a3x = mean \u00d7 n","\u03a3x = mean \u00f7 n","\u03a3x = n \u00f7 mean"],ans:"\u03a3x = mean \u00d7 n",hint:"Multiply both sides of the formula by n.",reveal:"\u03a3x = mean \u00d7 n"},
+{q:`Mean = ${f(m)} and n = ${n}. What is \u03a3x?`,opts:[f(S),f(m+n),f(S+n),f(S-n)],ans:f(S),hint:`${f(m)} \u00d7 ${n}`,reveal:`\u03a3x = ${f(m)} \u00d7 ${n} = ${f(S)}`}]}}
+function mCount(){const[n,m,S]=mDims();return{ex:["من الوسط = Σx ÷ n نحصل على n = Σx ÷ الوسط.","نقسم المجموع Σx على الوسط."],
+text:`The sum of the observations is ${f(S)} and their mean is ${f(m)}. Find n, the number of observations.`,steps:[
+{q:"Mean = \u03a3x \u00f7 n. Which rearrangement gives n?",opts:["n = \u03a3x \u00f7 mean","n = \u03a3x \u00d7 mean","n = mean \u00f7 \u03a3x"],ans:"n = \u03a3x \u00f7 mean",hint:"Swap n and the mean in the formula.",reveal:"n = \u03a3x \u00f7 mean"},
+{q:`\u03a3x = ${f(S)} and mean = ${f(m)}. What is n?`,opts:[String(n),String(n+1),String(n-1),String(n+2)],ans:String(n),hint:`${f(S)} \u00f7 ${f(m)}`,reveal:`n = ${f(S)} \u00f7 ${f(m)} = ${n}`}]}}
+function mMissing(){for(;;){const n=LV===1?4:LV===2?5:R(5,6),m=R(5,LV===3?30:15),g=Array.from({length:n-1},()=>Math.max(1,m+R(-6,6))),gs=sum(g),T=n*m,x=T-gs;if(x<1||x>40)continue;
+return{ex:["الوسط × عدد القيم يعطينا المجموع الكلي Σx لكل القيم.","القيمة المفقودة = المجموع الكلي − مجموع القيم المعروفة."],
+text:`The mean of ${n} observations is ${m}. ${n-1} of them are: ${g.join(", ")}. Find the missing observation.`,steps:[
+{q:`What is the total \u03a3x of all ${n} observations? (\u03a3x = mean \u00d7 n)`,opts:[f(T),f(T+n),f(T-n),f(m+n)],ans:f(T),hint:`${m} \u00d7 ${n}`,reveal:`\u03a3x = ${m} \u00d7 ${n} = ${T}`},
+{q:`The known observations add up to ${gs}. What is the missing observation?`,opts:[String(x),String(x+2),String(Math.max(1,x-2)),String(T+gs)],ans:String(x),hint:`${T} \u2212 ${gs}`,reveal:`Missing value = ${T} \u2212 ${gs} = ${x}`}]}}}
+function mShift(){const mul=LV>1&&Math.random()<.5,m=R(4,LV===3?30:20),k=mul?R(2,4):R(2,9),a=mul?m*k:m+k;
+return{ex:mul?["ضرب كل القيم في عدد ثابت يضرب الوسط في العدد نفسه.","نضرب الوسط القديم في العدد."]:["إضافة نفس العدد لكل القيم تزيح التوزيع كله، فيزيد الوسط بنفس العدد.","نجمع هذا العدد إلى الوسط القديم."],
+text:`The mean of a data set is ${m}. Every value is ${mul?"multiplied by":"increased by"} ${k}. What is the new mean?`,steps:[
+{q:`What happens to the mean when every value is ${mul?"multiplied by":"increased by"} the same number?`,opts:mul?["The mean is multiplied by that number","The mean increases by that number","The mean stays the same"]:["The mean increases by that same number","The mean stays the same","The mean is multiplied by that number"],ans:mul?"The mean is multiplied by that number":"The mean increases by that same number",hint:mul?"Every value is scaled, so the average is scaled too.":"Every value moves up by the same amount, so the average does too.",reveal:mul?"New mean = old mean \u00d7 k":"New mean = old mean + k"},
+{q:`New mean = ${m} ${mul?"\u00d7":"+"} ${k}. What is it?`,opts:[f(a),f(mul?m+k:m*k),f(m),f(a+k)],ans:f(a),hint:`${m} ${mul?"\u00d7":"+"} ${k}`,reveal:`New mean = ${m} ${mul?"\u00d7":"+"} ${k} = ${a}`}]}}
+function mAdd(){for(;;){const n=R(4,10),m=R(4,20),m2=m+R(-3,3);if(m2<1||m2===m)continue;const x=m2*(n+1)-m*n;if(x<1||x>45)continue;const T=m*n,T2=T+x;
+return{ex:["نحسب المجموع القديم: الوسط × n.","نضيف القيمة الجديدة إلى المجموع، ونقسم على العدد الجديد n + 1."],
+text:`The mean of ${n} observations is ${m}. A new observation of ${x} is added. Find the new mean.`,steps:[
+{q:"First find the original total \u03a3x.",opts:[f(T),f(m+n),f(T+n),f(T-n)],ans:f(T),hint:`${m} \u00d7 ${n}`,reveal:`\u03a3x = ${m} \u00d7 ${n} = ${T}`},
+{q:`The new total is ${T} + ${x} = ${T2}, and now there are ${n+1} observations. What is the new mean?`,opts:numOpts(m2,1),ans:f(m2),hint:`${T2} \u00f7 ${n+1}`,reveal:`New mean = ${T2} \u00f7 ${n+1} = ${m2}`}]}}}
+function mComb(){for(;;){const n1=R(3,8),n2=R(3,8),m1=R(5,25),m2=R(5,35);if(n1===n2||m1===m2||(n1*m1+n2*m2)%(n1+n2))continue;const S1=n1*m1,S2=n2*m2,c=(S1+S2)/(n1+n2);
+return{ex:["لا نأخذ متوسط المتوسطين مباشرة لأن عدد القيم مختلف. نحسب مجموع كل مجموعة = الوسط × n.","نجمع المجموعين ونقسم على العدد الكلي للقيم."],
+text:`Group A has ${n1} values with mean ${m1}. Group B has ${n2} values with mean ${m2}. Find the mean of all ${n1+n2} values together.`,steps:[
+{q:"What should we find first?",opts:["The sum of each group (mean \u00d7 n), then add them","Add the two means and divide by 2","Multiply the two means"],ans:"The sum of each group (mean \u00d7 n), then add them",hint:"The groups have different sizes, so a plain average of the two means would be wrong.",reveal:`\u03a3A = ${m1} \u00d7 ${n1} = ${S1}, \u03a3B = ${m2} \u00d7 ${n2} = ${S2}`},
+{q:`The total of all values is ${S1} + ${S2} = ${S1+S2}, from ${n1+n2} values. What is the combined mean?`,opts:[f(c),f((m1+m2)/2),f(c+1),f(c-1)],ans:f(c),hint:`${S1+S2} \u00f7 ${n1+n2}`,reveal:`Combined mean = ${S1+S2} \u00f7 ${n1+n2} = ${f(c)}`}]}}}
+GEN.mean=()=>{const vs=[()=>GEN.meanBase(),mSum,mCount,mMissing,mShift];if(LV>=2)vs.push(mAdd);return vary("mean"+LV,vs)};
+
+GEN.percent=()=>{const cl=["0 – 10","10 – 20","20 – 30","30 – 40"];let fr;do{fr=Array.from({length:4},()=>R(2,LV===3?30:14))}while(LV!==3&&!(LV===1?[20,25]:[20,25,40,50]).includes(sum(fr)));
+const k=R(0,3),F=sum(fr),p=fr[k]/F*100;
+return{text:`What percentage of the data falls in the class ${cl[k]}?${gtable(cl,fr)}`,steps:[
+{q:"Which formula gives the percentage of a class?",opts:["(class frequency ÷ total frequency) × 100","(total frequency ÷ class frequency) × 100","class frequency × total frequency"],hint:"Part ÷ whole, then × 100.",reveal:"Percentage = (f ÷ Σf) × 100"},
+{q:"What is the total frequency Σf?",opts:numOpts(F,1),hint:"Add all the frequencies.",reveal:`Σf = ${fr.join(" + ")} = ${F}`},
+{q:`The class ${cl[k]} has f = ${fr[k]}. What is its percentage?${LV===3?" (round to 1 decimal place)":""}`,opts:numOpts(p,5).map(v=>f(+v,1)),ans:f(p,1),hint:`${fr[k]} ÷ ${F} × 100`,reveal:`${fr[k]} ÷ ${F} × 100 = ${f(p,1)}%`}]}};
+
+const MEAN_IDEAS=[()=>GEN.meanBase(),mSum,mCount,mMissing,mShift,mAdd];
+const PLAN=[["mean",6],["median",2],["mode",2],["range",2],["variance",2],["sd",2]];
+const TN={mean:"Mean",median:"Median",mode:"Mode",range:"Range",variance:"Variance",sd:"Standard deviation"};
+const $=id=>document.getElementById(id);
+function prep(p){const L=p.steps[p.steps.length-1];L.opts=[...new Set(L.opts)];if(L.ans===undefined)L.ans=L.opts[0];L.shuf=sh(L.opts);L.q="";L.reveal=p.steps.map(x=>x.reveal).join("<br>");p.steps=[L];return p}
+let student="",PS=[];
+$("go").onclick=()=>{const n=$("name").value.trim(),p=$("pass").value.trim();
+ if(!n){$("err").textContent="Please enter your name";return}
+ if(p!==ACCESS_CODE){$("err").textContent="Incorrect password";return}
+ student=n;$("who").textContent=n;LV=HW_LEVEL;
+ PS=PLAN.flatMap(([t,k])=>Array.from({length:k},(_,i)=>{const p=prep(t==="mean"?MEAN_IDEAS[i]():GEN[t]());p.tn=TN[t];return p}));
+ $("login").classList.add("hide");$("hw").classList.remove("hide");render()};
+function render(){let h="";
+ PS.forEach((p,a)=>{h+=`<div class="card"><div class="mut">Problem ${a+1} · ${p.tn}</div><div class="prob">${p.text}</div>`;
+  p.steps.forEach((s,b)=>{h+=`<div class="q">Choose the correct answer:</div>`;
+   s.shuf.forEach((o,c)=>{h+=`<label class="opt"><input type="radio" name="p${a}s${b}" value="${c}">${o}</label>`})});
+  h+="</div>"});
+ $("qs").innerHTML=h}
+$("submit").onclick=()=>{let miss=0;
+ PS.forEach((p,a)=>p.steps.forEach((s,b)=>{const c=document.querySelector(`input[name="p${a}s${b}"]:checked`);s.pick=c?+c.value:null;if(!c)miss++}));
+ if(miss){$("err2").textContent=miss+" problem(s) not answered";return}
+ let sc=0,tot=0,h="";
+ PS.forEach((p,a)=>{h+=`<div class="card"><div class="mut">Problem ${a+1} · ${p.tn}</div><div class="prob">${p.text}</div>`;
+  p.steps.forEach((s,b)=>{const ok=s.shuf[s.pick]===s.ans;tot++;if(ok)sc++;
+   h+=`<div class="q">Choose the correct answer:</div>`;
+   s.shuf.forEach((o,c)=>{const cls=o===s.ans?"good":(c===s.pick?"bad":"");h+=`<label class="opt ${cls}">${c===s.pick?"● ":"○ "}${o}${o===s.ans?" ✔":""}</label>`});
+   h+=`<div class="reveal"><b>Solution:</b><br>${s.reveal}</div>`});
+  h+="</div>"});
+ $("rdet").innerHTML=h;$("score").textContent=sc+" / "+tot;$("rwho").textContent=student;
+ $("rdate").textContent=new Date().toLocaleString("en");
+ $("hw").classList.add("hide");$("res").classList.remove("hide");window.scrollTo(0,0)};
+const LIGHT={"--bg":"#f6f7f4","--card":"#fff","--ink":"#1d2b2a","--mute":"#66736f","--line":"#dbe1dc","--acc":"#0f6b5c","--accbg":"#e1f1ed","--ok":"#1b7f4b","--okbg":"#e2f4ea","--bad":"#b3341f","--badbg":"#fbe9e5"};
+$("pdf").onclick=async()=>{
+ const btn=$("pdf"),msg=$("pmsg"),fname="Homework-"+student.replace(/\s+/g,"_")+".pdf";
+ btn.disabled=true;btn.textContent="Preparing PDF…";
+ try{
+  const dl=await (window.claude&&claude.use?claude.use("downloads"):null);
+  if(!dl||!window.jspdf||!window.html2canvas){document.title=fname;window.print();return}
+  const els=[document.querySelector("#res > .card"),...document.querySelectorAll("#rdet > .card")];
+  const pdf=new window.jspdf.jsPDF({unit:"mm",format:"a4"});
+  const M=15,W=210-2*M,H=297-2*M;let y=M;
+  for(const el of els){
+   const cv=await html2canvas(el,{scale:2,windowWidth:800,backgroundColor:"#ffffff",onclone:d=>{
+     const r=d.documentElement;for(const k in LIGHT)r.style.setProperty(k,LIGHT[k]);
+     r.setAttribute("data-theme","light");d.body.style.background="#fff";d.body.style.color="#1d2b2a"}});
+   const h=cv.height*W/cv.width;
+   if(y+h>297-M&&y>M){pdf.addPage();y=M}
+   pdf.addImage(cv.toDataURL("image/jpeg",0.92),"JPEG",M,y,W,Math.min(h,H));
+   y+=h+4;
+  }
+  const blob=pdf.output("blob");
+  await dl.save({filename:fname,data:blob});
+  msg.textContent="Done ✅ You can tap the button again if you need to re-send it.";
+ }catch(e){
+  msg.textContent=(e&&e.code==="declined")?"Cancelled. Tap the button to try again.":"Could not create the PDF. Try again, or open the link in your browser.";
+ }finally{btn.disabled=false;btn.textContent="Save PDF / Send to teacher"}
+};
+</script></body></html>
