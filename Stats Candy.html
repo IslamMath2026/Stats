@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stats Candy</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg1:#070816;--bg2:#120a2e;--bg3:#061a30;--bg4:#070816;--ink:#e9f1ff;--card:rgba(255,255,255,.07);--soft:rgba(255,255,255,.09);--shadow:rgba(0,0,0,.45);--c:#00e5ff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{font-family:"Nunito","Segoe UI",Arial,sans-serif;color:var(--ink);background:radial-gradient(60% 50% at 15% 10%,rgba(0,229,255,.22),transparent 60%),radial-gradient(50% 45% at 90% 30%,rgba(255,46,147,.2),transparent 60%),radial-gradient(60% 50% at 50% 100%,rgba(138,92,255,.25),transparent 60%),linear-gradient(160deg,var(--bg1),var(--bg2) 50%,var(--bg3));background-color:var(--bg1);background-attachment:fixed}
+#net{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+#app{max-width:460px;margin:0 auto;padding:16px 16px 40px;position:relative;z-index:1}
+h1{margin:6px 0 2px;font-size:34px;font-weight:900;text-align:center;background:linear-gradient(90deg,#00e5ff,#8a5cff,#ff2e93,#00e5ff);background-size:200% 100%;animation:fl2 6s linear infinite;-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 12px rgba(0,229,255,.5))}@keyframes fl2{to{background-position:200% 0}}
+.sub{text-align:center;margin:0 0 18px;font-weight:700}
+.card{background:var(--card);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:22px;padding:18px;border:1px solid var(--c);box-shadow:0 0 24px -6px var(--c);margin-bottom:16px}
+.btn{display:block;width:100%;border:0;border-radius:16px;padding:13px;margin-bottom:12px;font:900 18px "Nunito",sans-serif;color:#05101c;background:var(--c);box-shadow:0 0 20px -2px var(--c);cursor:pointer}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.25)}
+.btn.ghost{background:var(--soft);color:var(--ink);box-shadow:0 5px 0 var(--shadow)}
+.map{display:flex;flex-direction:column;gap:14px;padding:6px 0}
+.node{display:flex;align-items:center;gap:12px;width:82%;border:1px solid var(--c);border-radius:22px;padding:12px 14px;background:var(--card);backdrop-filter:blur(10px);color:var(--ink);font:800 16px "Nunito",sans-serif;box-shadow:0 0 18px -4px var(--c);cursor:pointer;text-align:left;transition:transform .15s,box-shadow .15s}.node:hover:not(.lock){transform:scale(1.04);box-shadow:0 0 28px 0 var(--c)}
+.node:nth-child(even){margin-inline-start:auto}
+.node .ic{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font-size:25px;background:var(--c);flex:none;box-shadow:inset 0 -4px 0 rgba(0,0,0,.2)}
+.node.lock{opacity:.5;cursor:not-allowed;box-shadow:0 6px 0 var(--shadow)}
+.node small{display:block;font-weight:700;opacity:.8}
+.bar{display:flex;gap:8px;margin-bottom:12px}
+.pill{flex:1;background:var(--card);border-radius:14px;padding:6px 8px;text-align:center;font-weight:800;box-shadow:0 4px 0 var(--c)}
+.pill b{display:block;font-size:20px;color:var(--c)}
+.prog{height:14px;border-radius:8px;background:var(--soft);overflow:hidden;margin-bottom:12px}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,#ff3d81,#ffc928,#2bc4a0,#3d8bff,#9b5cff);width:0;transition:width .3s}
+.board{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;background:var(--soft);padding:7px;border-radius:20px;border:4px solid var(--c)}
+.cell{aspect-ratio:1;border:0;border-radius:14px;display:grid;place-items:center;background:var(--card);cursor:pointer;padding:0;transition:transform .15s,opacity .2s}
+.cell i{width:80%;height:80%;border-radius:50%;background:radial-gradient(circle at 30% 26%,rgba(255,255,255,.85) 0 11%,transparent 12%),radial-gradient(circle at 40% 35%,var(--a),var(--b));box-shadow:inset 0 -5px 0 rgba(0,0,0,.25),0 0 14px var(--b)}
+.k0{--a:#ff8fd0;--b:#ff2e93}.k1{--a:#fff27a;--b:#ffd400}.k2{--a:#d8ff8a;--b:#8fe000}.k3{--a:#9ff3ff;--b:#00b8ff}.k4{--a:#c7a8ff;--b:#7a3dff}
+.cell.sel{transform:scale(.86);outline:4px solid var(--c)}
+.cell.gone{opacity:0;transform:scale(.3)}
+.formula{background:var(--soft);border-left:6px solid var(--c);border-radius:12px;padding:10px 12px;margin:10px 0;font-weight:800}
+.data{font:800 19px "Nunito",sans-serif;text-align:center;padding:12px;background:var(--soft);border-radius:14px;line-height:1.7;letter-spacing:.5px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.opt{border:0;border-radius:16px;padding:14px;font:900 22px "Nunito",sans-serif;color:#fff;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.25)}
+.opt:nth-child(1){background:#ff4f7b}.opt:nth-child(2){background:#ff9f1c;color:#3b1c4a}.opt:nth-child(3){background:#2bb673}.opt:nth-child(4){background:#3d8bff}
+.opt.ok{background:#16a34a;outline:4px solid #bbf7d0}
+.opt.no{background:#6b7280;opacity:.6}
+.big{font-size:54px;text-align:center}
+p{line-height:1.6;margin:6px 0}
+.cell i{transition:transform .15s;animation:fl 3s ease-in-out infinite}.cell:hover i{transform:scale(1.14)}@keyframes fl{50%{filter:brightness(1.3)}}
+.tutor{margin-top:10px;padding:10px 12px;border-radius:14px;background:rgba(0,229,255,.1);border:1px solid var(--c);font-weight:700}
+.pt{position:fixed;width:8px;height:8px;border-radius:50%;pointer-events:none;z-index:50}
+.pop{position:fixed;transform:translate(-50%,-50%);font:900 22px "Nunito",sans-serif;color:#fff;text-shadow:0 0 12px var(--c),0 0 24px var(--c);pointer-events:none;z-index:60;animation:up .9s ease-out forwards;white-space:nowrap}
+@keyframes up{to{transform:translate(-50%,-150%);opacity:0}}
+.shake{animation:sh .25s}@keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@media (prefers-reduced-motion:reduce){.cell i,.shake,h1{animation:none}}
+</style>
+</head>
+<body>
+<canvas id="net"></canvas><div id="app"></div>
+<script>
+var N=6,COL=["#00e5ff","#ff2e93","#b4ff39","#ffd400","#8a5cff","#ff6a00"];
+function R(a,b){return a+Math.floor(Math.random()*(b-a+1))}
+function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=R(0,i),t=a[i];a[i]=a[j];a[j]=t}return a}
+function sum(a){return a.reduce(function(x,y){return x+y},0)}
+function srt(a){return a.slice().sort(function(x,y){return x-y})}
+function fmt(v){return Math.round(v*100)/100}
+function opts(c,extra){var s=[c];extra.forEach(function(e){e=fmt(e);if(e>0&&s.indexOf(e)<0&&s.length<4)s.push(e)});var st=(c%1!==0)?0.5:1,t=0;
+ while(s.length<4&&t++<80){var v=fmt(c+R(-4,4)*st);if(v>0&&s.indexOf(v)<0)s.push(v)}return shuf(s)}
+function dev(tpl,k,m){return shuf(tpl.map(function(v){return m+v*k}))}
+var LV=[
+{n:"Mean",ic:"➕",f:"x̄ = Σx ÷ n",
+ gen:function(){var m=R(10,20),d=[];for(var i=0;i<7;i++)d.push(R(-6,6));d.push(-sum(d));var x=d.map(function(v){return m+v}),s=srt(x);
+  return{q:"Find the mean of the raw data:",d:x.join(", "),a:m,o:opts(m,[(s[3]+s[4])/2+1,s[7],m+1]),sol:"Σx = "+sum(x)+", n = 8, so x̄ = "+sum(x)+" ÷ 8 = "+m}}},
+{n:"Median",ic:"⚖️",f:"Sort the data. If n is even, median = average of the two middle values.",
+ gen:function(){var p=shuf([3,5,7,9,11,12,14,17,19,22,25,28,31]).slice(0,8),s=srt(p),m=(s[3]+s[4])/2;
+  return{q:"Find the median of the raw data:",d:p.join(", "),a:m,o:opts(m,[s[3],s[4],sum(p)/8,p[3]]),sol:"Sorted: "+s.join(", ")+". Median = ("+s[3]+" + "+s[4]+") ÷ 2 = "+m}}},
+{n:"Mode",ic:"🏆",f:"Mode = the value that occurs most often",
+ gen:function(){var u=shuf([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]),v=u[0],o=u.slice(1,9),d=shuf([v,v,v,o[0],o[0]].concat(o.slice(1,7))),s=srt(d);
+  return{q:"Find the mode of the raw data:",d:d.join(", "),a:v,o:opts(v,[s[5],Math.round(sum(d)/11),o[0],o[1]]),sol:v+" appears 3 times, more than any other value (n = 11)"}}},
+{n:"Range",ic:"📏",f:"Range = maximum − minimum",
+ gen:function(){var d=[];for(var i=0;i<8;i++)d.push(R(8,45));d[0]=R(2,6);d[1]=R(50,70);var mx=Math.max.apply(0,d),mn=Math.min.apply(0,d);
+  return{q:"Find the range of the raw data:",d:d.join(", "),a:mx-mn,o:opts(mx-mn,[mx,mn,sum(d)/8]),sol:"Range = "+mx+" − "+mn+" = "+(mx-mn)}}},
+{n:"Sample variance",ic:"📊",f:"s² = Σ(x − x̄)² ÷ (n − 1)",
+ gen:function(){var t=[[[-3,-1,0,1,3],20],[[-2,-2,0,2,2],16],[[-4,-2,0,2,4],40]][R(0,2)],m=R(10,20),k=R(1,2),x=dev(t[0],k,m),ss=t[1]*k*k,a=ss/4;
+  return{q:"Find the sample variance s² of the raw data:",d:x.join(", "),a:a,o:opts(a,[ss/5,ss,Math.sqrt(a)]),sol:"x̄ = "+m+". Σ(x − x̄)² = "+ss+". s² = "+ss+" ÷ (5 − 1) = "+a+". (Dividing by n = 5 would give "+fmt(ss/5)+".)"}}},
+{n:"Sample standard deviation",ic:"👑",f:"s = √[ Σ(x − x̄)² ÷ (n − 1) ]",
+ gen:function(){var t=[[[-2,-2,0,2,2],16,5],[[-1,-1,-1,-1,0,1,1,1,1],8,9]][R(0,1)],m=R(10,20),k=R(1,3),x=dev(t[0],k,m),ss=t[1]*k*k,n=t[2],v=ss/(n-1),a=Math.sqrt(v);
+  return{q:"Find the sample standard deviation s of the raw data:",d:x.join(", "),a:a,o:opts(a,[v,Math.sqrt(ss/n),ss]),sol:"x̄ = "+m+". Σ(x − x̄)² = "+ss+". s² = "+ss+" ÷ "+(n-1)+" = "+v+", so s = √"+v+" = "+a}}}
+];
+var P={u:0,s:[]};
+try{var sv=localStorage.getItem("statsCandyRaw");if(sv)P=JSON.parse(sv)}catch(e){}
+function save(){try{localStorage.setItem("statsCandyRaw",JSON.stringify(P))}catch(e){}}
+var app=document.getElementById("app");
+var g,sel,busy,score,moves,lvl,goal,Q,gone={};
+function paint(i){document.documentElement.style.setProperty("--c",COL[i])}
+function stars(n){var s="";for(var i=0;i<3;i++)s+=i<n?"⭐":"☆";return s}
+
+function showMap(){document.documentElement.style.setProperty("--c","#00e5ff");
+ var h='<h1>🤖 Stats Candy AI</h1><p class="sub">Match neon candies, hit the score, then solve the problem.</p><div class="map">';
+ LV.forEach(function(l,i){var lock=i>P.u,done=P.s[i]>0;
+  h+='<button class="node'+(lock?" lock":"")+'" style="--c:'+COL[i]+'" '+(lock?"disabled":'onclick="lesson('+i+')"')+'><span class="ic">'+(lock?"🔒":l.ic)+'</span><span>Level '+(i+1)+'<small>'+l.n+(done?" · "+stars(P.s[i]):"")+'</small></span></button>'});
+ h+='</div>';
+ if(P.u>=LV.length)h+='<div class="card"><div class="big">🎉</div><p style="text-align:center;font-weight:900">All levels cleared!</p></div>';
+ app.innerHTML=h}
+
+function lesson(i){lvl=i;paint(i);var l=LV[i];
+ app.innerHTML='<div class="card"><div class="big">'+l.ic+'</div><h2 style="text-align:center;margin:4px 0">Level '+(i+1)+': '+l.n+'</h2><div class="formula">'+l.f+'</div><p>Goal: score <b>'+(120+i*30)+'</b> points in 15 moves by swapping neighbouring candies to make lines of 3 or more. Then solve a raw-data question.</p></div><button class="btn" onclick="startLevel()">Start</button><button class="btn ghost" onclick="showMap()">Back to map</button>'}
+
+function matches(){var s={},r,c,v;
+ for(r=0;r<N;r++)for(c=0;c<N;c++){v=g[r*N+c];if(v<0)continue;
+  if(c<=N-3&&g[r*N+c+1]===v&&g[r*N+c+2]===v){s[r*N+c]=s[r*N+c+1]=s[r*N+c+2]=1}
+  if(r<=N-3&&g[(r+1)*N+c]===v&&g[(r+2)*N+c]===v){s[r*N+c]=s[(r+1)*N+c]=s[(r+2)*N+c]=1}}
+ return Object.keys(s).map(Number)}
+function startLevel(){goal=120+lvl*30;moves=15;score=0;sel=null;busy=false;gone={};
+ do{g=[];for(var i=0;i<N*N;i++)g.push(R(0,4))}while(matches().length);
+ app.innerHTML='<div class="bar"><div class="pill">Level<b>'+(lvl+1)+'</b></div><div class="pill">Score<b id="sc">0</b></div><div class="pill">Moves<b id="mv">15</b></div></div><div class="prog"><i id="pg"></i></div><div class="board" id="bd"></div><p class="sub" style="margin:12px 0">Goal: '+goal+' points</p><button class="btn ghost" onclick="showMap()">Quit</button>';
+ draw()}
+function draw(){var h="";for(var i=0;i<N*N;i++)h+='<button class="cell'+(sel===i?" sel":"")+(gone[i]?" gone":"")+(g[i]>=0?" k"+g[i]:"")+'" onclick="tap('+i+')">'+(g[i]>=0?"<i></i>":"")+'</button>';
+ document.getElementById("bd").innerHTML=h;document.getElementById("sc").textContent=score;document.getElementById("mv").textContent=moves;document.getElementById("pg").style.width=Math.min(100,score/goal*100)+"%"}
+function sleep(t){return new Promise(function(r){setTimeout(r,t)})}
+var NEON=["#ff2e93","#ffd400","#8fe000","#00b8ff","#7a3dff"];
+function burst(m,cb){var cs=document.querySelectorAll(".cell"),cx=0,cy=0;
+ m.forEach(function(i){var r=cs[i].getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2,col=NEON[g[i]];cx+=x;cy+=y;
+  for(var k=0;k<7;k++){var p=document.createElement("b");p.className="pt";p.style.cssText="left:"+x+"px;top:"+y+"px;background:"+col+";box-shadow:0 0 10px "+col;document.body.appendChild(p);
+   var a=Math.random()*6.28,d=30+Math.random()*50;p.animate([{transform:"translate(0,0) scale(1)",opacity:1},{transform:"translate("+Math.cos(a)*d+"px,"+Math.sin(a)*d+"px) scale(0)",opacity:0}],{duration:600,easing:"ease-out"});setTimeout(p.remove.bind(p),620)}});
+ var t=document.createElement("div");t.className="pop";t.textContent=(cb>1?"COMBO x"+cb+"  ":"")+"+"+m.length*10*cb;t.style.left=cx/m.length+"px";t.style.top=cy/m.length+"px";document.body.appendChild(t);setTimeout(t.remove.bind(t),900)}
+(function(){if(matchMedia("(prefers-reduced-motion:reduce)").matches)return;var c=document.getElementById("net"),x=c.getContext("2d"),W,H,pts=[],mx=-999,my=-999;
+ function rs(){W=c.width=innerWidth;H=c.height=innerHeight}rs();addEventListener("resize",rs);
+ addEventListener("pointermove",function(e){mx=e.clientX;my=e.clientY});
+ for(var i=0;i<46;i++)pts.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:Math.random()-.5,vy:Math.random()-.5});
+ function f(){x.clearRect(0,0,W,H);
+  pts.forEach(function(p){p.x+=p.vx*.4;p.y+=p.vy*.4;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;
+   var dx=p.x-mx,dy=p.y-my,d=Math.hypot(dx,dy);if(d<150){x.strokeStyle="rgba(255,46,147,"+(1-d/150)*.6+")";x.beginPath();x.moveTo(p.x,p.y);x.lineTo(mx,my);x.stroke();if(d<90&&d>0){p.x+=dx/d*1.5;p.y+=dy/d*1.5}}
+   x.fillStyle="rgba(0,229,255,.8)";x.beginPath();x.arc(p.x,p.y,2,0,6.3);x.fill()});
+  for(var i=0;i<pts.length;i++)for(var j=i+1;j<pts.length;j++){var a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<110){x.strokeStyle="rgba(0,229,255,"+(1-d/110)*.35+")";x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke()}}
+  requestAnimationFrame(f)}f()})();
+function tap(i){if(busy)return;
+ if(sel===null){sel=i;draw();return}
+ if(sel===i){sel=null;draw();return}
+ var d=Math.abs(sel-i),adj=(d===1&&Math.floor(sel/N)===Math.floor(i/N))||d===N;
+ if(!adj){sel=i;draw();return}
+ swapGo(sel,i)}
+function sw(a,b){var t=g[a];g[a]=g[b];g[b]=t}
+async function swapGo(a,b){busy=true;sel=null;sw(a,b);draw();await sleep(180);
+ if(!matches().length){sw(a,b);draw();var bd=document.getElementById("bd");bd.classList.add("shake");await sleep(250);bd.classList.remove("shake");busy=false;return}
+ moves--;var m,combo=0;
+ while((m=matches()).length){combo++;score+=m.length*10*combo;gone={};m.forEach(function(i){gone[i]=1});burst(m,combo);draw();await sleep(260);
+  m.forEach(function(i){g[i]=-1});gone={};
+  for(var c=0;c<N;c++){var col=[];for(var r=N-1;r>=0;r--)if(g[r*N+c]>=0)col.push(g[r*N+c]);
+   for(r=N-1;r>=0;r--)g[r*N+c]=col.length?col.shift():R(0,4)}
+  draw();await sleep(260)}
+ if(score>=goal){await sleep(200);question();return}
+ if(moves<=0){fail();return}
+ busy=false}
+function fail(){app.innerHTML='<div class="card"><div class="big">😅</div><p style="text-align:center;font-weight:900">Out of moves! You scored '+score+' of '+goal+'.</p></div><button class="btn" onclick="startLevel()">Try again</button><button class="btn ghost" onclick="showMap()">Map</button>'}
+function question(){Q=LV[lvl].gen();Q.st=moves>=8?3:moves>=4?2:1;
+ var h='<div class="card"><div class="big">🎯</div><p style="text-align:center;font-weight:900">Goal reached! Now solve it.</p><div class="formula">'+LV[lvl].f+'</div><p>'+Q.q+'</p><div class="data">'+Q.d+'</div><div class="tutor" id="tutor">🤖 AI Tutor: take your time. I will give a hint if you miss.</div><div class="opts">';
+ Q.o.forEach(function(v){h+='<button class="opt" onclick="ans(this,'+v+')">'+v+'</button>'});
+ app.innerHTML=h+'</div></div>'}
+function ans(el,v){var bs=document.querySelectorAll(".opt");
+ if(v===Q.a){bs.forEach(function(b){b.disabled=true});el.classList.add("ok");
+  P.s[lvl]=Math.max(P.s[lvl]||0,Q.st);if(P.u<=lvl)P.u=lvl+1;save();
+  setTimeout(function(){app.innerHTML='<div class="card"><div class="big">'+stars(Q.st)+'</div><p style="text-align:center;font-weight:900;font-size:20px">Correct! 🎉</p><div class="formula">'+Q.sol+'</div></div>'+(lvl<LV.length-1?'<button class="btn" onclick="lesson('+(lvl+1)+')">Next level</button>':"")+'<button class="btn ghost" onclick="showMap()">Map</button>'},700)}
+ else{el.classList.add("no");el.disabled=true;Q.st=Math.max(1,Q.st-1);var tt=document.getElementById("tutor");if(tt)tt.textContent="🤖 AI Tutor: not "+v+". Hint: "+LV[lvl].f}}
+showMap();
+</script>
+</body>
+</html>
