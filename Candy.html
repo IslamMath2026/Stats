@@ -54,6 +54,7 @@ p{line-height:1.6;margin:6px 0}
 @keyframes up{to{transform:translate(-50%,-150%);opacity:0}}
 .shake{animation:sh .25s}@keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 @media (prefers-reduced-motion:reduce){.cell i,.shake,h1{animation:none}}
+.mx{display:inline-grid;gap:2px 12px;padding:2px 10px;border-left:3px solid currentColor;border-right:3px solid currentColor;border-radius:8px;vertical-align:middle;margin:2px 4px;text-align:center}.opt .mx{font-size:16px;gap:0 8px}
 </style>
 </head>
 <body>
@@ -68,29 +69,49 @@ function fmt(v){return Math.round(v*100)/100}
 function opts(c,extra){var s=[c];extra.forEach(function(e){e=fmt(e);if(e>0&&s.indexOf(e)<0&&s.length<4)s.push(e)});var st=(c%1!==0)?0.5:1,t=0;
  while(s.length<4&&t++<80){var v=fmt(c+R(-4,4)*st);if(v>0&&s.indexOf(v)<0)s.push(v)}return shuf(s)}
 function dev(tpl,k,m){return shuf(tpl.map(function(v){return m+v*k}))}
+function mat(M){return '<span class="mx" style="grid-template-columns:repeat('+M[0].length+',auto)">'+M.map(function(r){return r.map(function(v){return "<span>"+v+"</span>"}).join("")}).join("")+'</span>'}
+function rm(m,n,lo,hi){var M=[];for(var i=0;i<m;i++){M.push([]);for(var j=0;j<n;j++)M[i].push(R(lo,hi))}return M}
+function sopts(c,ex){var s=[c];ex.forEach(function(e){if(s.indexOf(e)<0&&s.length<4)s.push(e)});return shuf(s)}
+function nopts(c,ex){return opts(c,ex).map(String)}
+function mm(A,B,f){return A.map(function(r,i){return r.map(function(v,j){return f(v,B[i][j])})})}
+function sc(A,k){return A.map(function(r){return r.map(function(v){return v*k})})}
+function ad(x,y){return x+y}function sb(x,y){return x-y}
+function mopts(C,ex){var s=[mat(C)];ex.forEach(function(M){var h=mat(M);if(s.indexOf(h)<0&&s.length<4)s.push(h)});var t=0;
+ while(s.length<4&&t++<40){var W=C.map(function(r){return r.slice()});W[R(0,C.length-1)][R(0,C[0].length-1)]+=R(1,3)*(R(0,1)?1:-1);var h=mat(W);if(s.indexOf(h)<0)s.push(h)}return shuf(s)}
 var LV=[
-{n:"Mean",ic:"➕",f:"x̄ = Σx ÷ n",
- gen:function(){var m=R(10,20),d=[];for(var i=0;i<7;i++)d.push(R(-6,6));d.push(-sum(d));var x=d.map(function(v){return m+v}),s=srt(x);
-  return{q:"Find the mean of the raw data:",d:x.join(", "),a:m,o:opts(m,[(s[3]+s[4])/2+1,s[7],m+1]),sol:"Σx = "+sum(x)+", n = 8, so x̄ = "+sum(x)+" ÷ 8 = "+m}}},
-{n:"Median",ic:"⚖️",f:"Sort the data. If n is even, median = average of the two middle values.",
- gen:function(){var p=shuf([3,5,7,9,11,12,14,17,19,22,25,28,31]).slice(0,8),s=srt(p),m=(s[3]+s[4])/2;
-  return{q:"Find the median of the raw data:",d:p.join(", "),a:m,o:opts(m,[s[3],s[4],sum(p)/8,p[3]]),sol:"Sorted: "+s.join(", ")+". Median = ("+s[3]+" + "+s[4]+") ÷ 2 = "+m}}},
-{n:"Mode",ic:"🏆",f:"Mode = the value that occurs most often",
- gen:function(){var u=shuf([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]),v=u[0],o=u.slice(1,9),d=shuf([v,v,v,o[0],o[0]].concat(o.slice(1,7))),s=srt(d);
-  return{q:"Find the mode of the raw data:",d:d.join(", "),a:v,o:opts(v,[s[5],Math.round(sum(d)/11),o[0],o[1]]),sol:v+" appears 3 times, more than any other value (n = 11)"}}},
-{n:"Range",ic:"📏",f:"Range = maximum − minimum",
- gen:function(){var d=[];for(var i=0;i<8;i++)d.push(R(8,45));d[0]=R(2,6);d[1]=R(50,70);var mx=Math.max.apply(0,d),mn=Math.min.apply(0,d);
-  return{q:"Find the range of the raw data:",d:d.join(", "),a:mx-mn,o:opts(mx-mn,[mx,mn,sum(d)/8]),sol:"Range = "+mx+" − "+mn+" = "+(mx-mn)}}},
-{n:"Sample variance",ic:"📊",f:"s² = Σ(x − x̄)² ÷ (n − 1)",
- gen:function(){var t=[[[-3,-1,0,1,3],20],[[-2,-2,0,2,2],16],[[-4,-2,0,2,4],40]][R(0,2)],m=R(10,20),k=R(1,2),x=dev(t[0],k,m),ss=t[1]*k*k,a=ss/4;
-  return{q:"Find the sample variance s² of the raw data:",d:x.join(", "),a:a,o:opts(a,[ss/5,ss,Math.sqrt(a)]),sol:"x̄ = "+m+". Σ(x − x̄)² = "+ss+". s² = "+ss+" ÷ (5 − 1) = "+a+". (Dividing by n = 5 would give "+fmt(ss/5)+".)"}}},
-{n:"Sample standard deviation",ic:"👑",f:"s = √[ Σ(x − x̄)² ÷ (n − 1) ]",
- gen:function(){var t=[[[-2,-2,0,2,2],16,5],[[-1,-1,-1,-1,0,1,1,1,1],8,9]][R(0,1)],m=R(10,20),k=R(1,3),x=dev(t[0],k,m),ss=t[1]*k*k,n=t[2],v=ss/(n-1),a=Math.sqrt(v);
-  return{q:"Find the sample standard deviation s of the raw data:",d:x.join(", "),a:a,o:opts(a,[v,Math.sqrt(ss/n),ss]),sol:"x̄ = "+m+". Σ(x − x̄)² = "+ss+". s² = "+ss+" ÷ "+(n-1)+" = "+v+", so s = √"+v+" = "+a}}}
+{n:"Order & elements",ic:"🔢",f:"Order = rows × columns (rows first). a_ij = the element in row i, column j.",
+ gen:function(){var m=R(2,4),n=R(2,4);while(n===m)n=R(2,4);var A=rm(m,n,1,9);
+  if(R(0,1)){var o=m+" × "+n;return{q:"State the order of A:",d:mat(A),a:o,o:sopts(o,[n+" × "+m,m+" × "+m,"1 × "+(m*n)]),sol:"A has "+m+" rows and "+n+" columns, so its order is "+o+" ("+(m*n)+" elements)."}}
+  var i=R(1,m),j=R(1,n),v=A[i-1][j-1],sw=(A[j-1]&&A[j-1][i-1]!==undefined)?A[j-1][i-1]:v+2;
+  return{q:"Find the element a"+i+j+" (row "+i+", column "+j+"):",d:mat(A),a:String(v),o:nopts(v,[sw,v+1,v+2]),sol:"Row "+i+", column "+j+" gives a"+i+j+" = "+v}}},
+{n:"Types of matrices",ic:"🏷️",f:"Identity ⊂ scalar ⊂ diagonal ⊂ square. Give the most specific name.",
+ gen:function(){var T=["Row matrix","Column matrix","Zero matrix","Diagonal matrix","Scalar matrix","Identity matrix","Rectangular matrix"],t=T[R(0,6)],M,k=R(2,3),dg=shuf([2,3,4,5,6,7,8,9]),d=R(2,9);
+  if(t==="Row matrix")M=rm(1,R(3,4),1,9);
+  else if(t==="Column matrix")M=rm(R(3,4),1,1,9);
+  else if(t==="Zero matrix"){var r=R(2,3);M=rm(r,r+1,0,0)}
+  else if(t==="Rectangular matrix")M=rm(2,3,1,9);
+  else{M=[];for(var i=0;i<k+1;i++){M.push([]);for(var j=0;j<k+1;j++)M[i].push(i!==j?0:t==="Identity matrix"?1:t==="Scalar matrix"?d:dg[i])}}
+  return{q:"What is the most specific name of this matrix?",d:mat(M),a:t,o:sopts(t,shuf(T)),sol:"The most specific name is: "+t}}},
+{n:"Equality of matrices",ic:"⚖️",f:"Equal matrices have the same order and equal corresponding elements.",
+ gen:function(){var x=R(1,9),y=R(5,12),a=R(1,5),c=R(1,4),b=R(1,9),d=R(1,9),X=x+a,Y=y-c,s=x+y;
+  return{q:"Find x + y if the matrices are equal:",d:mat([["x + "+a,b],["y − "+c,d]])+" = "+mat([[X,b],[Y,d]]),a:String(s),o:nopts(s,[X+Y,s+a,s-c,x*y]),sol:"x + "+a+" = "+X+" → x = "+x+"; y − "+c+" = "+Y+" → y = "+y+". So x + y = "+s}}},
+{n:"Add & subtract",ic:"➕",f:"Same order only. Add or subtract corresponding elements. A − B ≠ B − A.",
+ gen:function(){var A=rm(2,2,1,9),B=rm(2,2,1,9),s=R(0,1),C,ex;
+  if(s){C=mm(B,A,sb);ex=[mm(A,B,sb),mm(A,B,ad)]}else{C=mm(A,B,ad);ex=[mm(A,B,sb),mm(B,A,sb)]}
+  return{q:"Find "+(s?"B − A":"A + B")+" for:",d:"A = "+mat(A)+" &nbsp; B = "+mat(B),a:mat(C),o:mopts(C,ex),sol:(s?"B − A":"A + B")+" = "+mat(C)}}},
+{n:"Scalar multiple",ic:"✖️",f:"kA multiplies every element by k. Do kA first, then subtract element by element.",
+ gen:function(){var A=rm(2,2,1,6),B=rm(2,2,1,6),k=R(2,3),C=mm(sc(A,k),B,sb);
+  return{q:"Find "+k+"A − B for:",d:"A = "+mat(A)+" &nbsp; B = "+mat(B),a:mat(C),o:mopts(C,[mm(sc(A,k),B,ad),mm(A,sc(B,k),sb),sc(mm(A,B,sb),k)]),sol:k+"A = "+mat(sc(A,k))+", so "+k+"A − B = "+mat(C)}}},
+{n:"Transpose & symmetry",ic:"🔄",f:"Aᵀ swaps rows and columns (m × n → n × m). Symmetric: Aᵀ = A. Skew-symmetric: Aᵀ = −A, with zero diagonal.",
+ gen:function(){var t=R(0,2);
+  if(t===0){var a=R(1,9),c=R(1,9),e=R(1,9);return{q:"For what x is the matrix symmetric?",d:mat([[a,"x"],[c,e]]),a:String(c),o:nopts(c,[a,e,c+1,c+2]),sol:"Symmetric means a12 = a21, so x = "+c}}
+  if(t===1){var y=R(2,9);return{q:"For what x is the matrix skew-symmetric?",d:mat([[0,"x"],[y,0]]),a:String(-y),o:sopts(String(-y),[String(y),"0",String(-y-1),String(y+1)]),sol:"Skew-symmetric means a12 = −a21, so x = −"+y}}
+  var m=R(2,4),n=R(2,4);while(n===m)n=R(2,4);var o=n+" × "+m;
+  return{q:"State the order of Aᵀ:",d:mat(rm(m,n,1,9)),a:o,o:sopts(o,[m+" × "+n,m+" × "+m,n+" × "+n]),sol:"A is "+m+" × "+n+", so Aᵀ is "+o}}}
 ];
 var P={u:0,s:[]};
-try{var sv=localStorage.getItem("statsCandyRaw");if(sv)P=JSON.parse(sv)}catch(e){}
-function save(){try{localStorage.setItem("statsCandyRaw",JSON.stringify(P))}catch(e){}}
+try{var sv=localStorage.getItem("matrixCandy");if(sv)P=JSON.parse(sv)}catch(e){}
+function save(){try{localStorage.setItem("matrixCandy",JSON.stringify(P))}catch(e){}}
 var app=document.getElementById("app");
 var g,sel,busy,score,moves,lvl,goal,Q,gone={};
 function paint(i){document.documentElement.style.setProperty("--c",COL[i])}
@@ -105,7 +126,7 @@ function showMap(){document.documentElement.style.setProperty("--c","#00e5ff");
  app.innerHTML=h}
 
 function lesson(i){lvl=i;paint(i);var l=LV[i];
- app.innerHTML='<div class="card"><div class="big">'+l.ic+'</div><h2 style="text-align:center;margin:4px 0">Level '+(i+1)+': '+l.n+'</h2><div class="formula">'+l.f+'</div><p>Goal: score <b>'+(120+i*30)+'</b> points in 15 moves by swapping neighbouring candies to make lines of 3 or more. Then solve a raw-data question.</p></div><button class="btn" onclick="startLevel()">Start</button><button class="btn ghost" onclick="showMap()">Back to map</button>'}
+ app.innerHTML='<div class="card"><div class="big">'+l.ic+'</div><h2 style="text-align:center;margin:4px 0">Level '+(i+1)+': '+l.n+'</h2><div class="formula">'+l.f+'</div><p>Goal: score <b>'+(120+i*30)+'</b> points in 15 moves by swapping neighbouring candies to make lines of 3 or more. Then solve a matrix question.</p></div><button class="btn" onclick="startLevel()">Start</button><button class="btn ghost" onclick="showMap()">Back to map</button>'}
 
 function matches(){var s={},r,c,v;
  for(r=0;r<N;r++)for(c=0;c<N;c++){v=g[r*N+c];if(v<0)continue;
@@ -156,13 +177,13 @@ async function swapGo(a,b){busy=true;sel=null;sw(a,b);draw();await sleep(180);
 function fail(){app.innerHTML='<div class="card"><div class="big">😅</div><p style="text-align:center;font-weight:900">Out of moves! You scored '+score+' of '+goal+'.</p></div><button class="btn" onclick="startLevel()">Try again</button><button class="btn ghost" onclick="showMap()">Map</button>'}
 function question(){Q=LV[lvl].gen();Q.st=moves>=8?3:moves>=4?2:1;
  var h='<div class="card"><div class="big">🎯</div><p style="text-align:center;font-weight:900">Goal reached! Now solve it.</p><div class="formula">'+LV[lvl].f+'</div><p>'+Q.q+'</p><div class="data">'+Q.d+'</div><div class="tutor" id="tutor">🤖 AI Tutor: take your time. I will give a hint if you miss.</div><div class="opts">';
- Q.o.forEach(function(v){h+='<button class="opt" onclick="ans(this,'+v+')">'+v+'</button>'});
+ Q.o.forEach(function(v,i){h+='<button class="opt" onclick="ans(this,'+i+')">'+v+'</button>'});
  app.innerHTML=h+'</div></div>'}
-function ans(el,v){var bs=document.querySelectorAll(".opt");
- if(v===Q.a){bs.forEach(function(b){b.disabled=true});el.classList.add("ok");
+function ans(el,i){var bs=document.querySelectorAll(".opt");
+ if(Q.o[i]===Q.a){bs.forEach(function(b){b.disabled=true});el.classList.add("ok");
   P.s[lvl]=Math.max(P.s[lvl]||0,Q.st);if(P.u<=lvl)P.u=lvl+1;save();
   setTimeout(function(){app.innerHTML='<div class="card"><div class="big">'+stars(Q.st)+'</div><p style="text-align:center;font-weight:900;font-size:20px">Correct! 🎉</p><div class="formula">'+Q.sol+'</div></div>'+(lvl<LV.length-1?'<button class="btn" onclick="lesson('+(lvl+1)+')">Next level</button>':"")+'<button class="btn ghost" onclick="showMap()">Map</button>'},700)}
- else{el.classList.add("no");el.disabled=true;Q.st=Math.max(1,Q.st-1);var tt=document.getElementById("tutor");if(tt)tt.textContent="🤖 AI Tutor: not "+v+". Hint: "+LV[lvl].f}}
+ else{el.classList.add("no");el.disabled=true;Q.st=Math.max(1,Q.st-1);var tt=document.getElementById("tutor");if(tt)tt.textContent="🤖 AI Tutor: not quite. Hint: "+LV[lvl].f}}
 showMap();
 </script>
 </body>
