@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Percentiles</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--text:#1d2433;--muted:#5d6678;--accent:#2f6fdb;--ok:#e8f3ea;--okt:#1e6b34;--line:#d9deea;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171f;--card:#1e2330;--text:#e8ebf3;--muted:#9aa3b8;--accent:#6b9cf5;--ok:#1c3324;--okt:#8fd6a3;--line:#2e3547;color-scheme:dark}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;line-height:1.6;padding:16px;max-width:720px;margin-inline:auto}
+h1{font-size:1.3rem;margin:8px 0}
+.rules{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:.9rem;color:var(--muted);direction:ltr;text-align:left}
+.bar{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
+button{font:inherit;border:0;border-radius:10px;padding:10px 14px;background:var(--accent);color:#fff;cursor:pointer}
+button.sec{background:var(--card);color:var(--accent);border:1px solid var(--line)}
+h2{font-size:1.05rem;margin:22px 0 8px;color:var(--accent)}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.data{direction:ltr;text-align:left;font-family:ui-monospace,Menlo,monospace;overflow-x:auto;background:var(--bg);padding:6px 8px;border-radius:8px;margin:6px 0}
+.ans{display:none;background:var(--ok);color:var(--okt);border-radius:8px;padding:8px 10px;margin-top:8px;direction:ltr;text-align:left;font-size:.92rem}
+.ans.show{display:block}
+input,select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);width:90px;direction:ltr}
+.f{display:flex;gap:8px;align-items:center;margin:6px 0;direction:ltr}
+.mark{font-weight:bold}
+.score{font-weight:bold;margin:8px 0}
+.q button{padding:6px 10px;font-size:.85rem;margin-top:6px}
+</style>
+</head>
+<body>
+<h1>📝 Percentiles</h1>
+<div class="rules">
+i = (P ÷ 100) × n<br>
+i whole → average of i-th and (i+1)-th values<br>
+i not whole → round up, take the value at that position<br>
+Q1, Q2, Q3 = 25th, 50th, 75th percentiles · IQR = Q3 − Q1
+</div>
+<div class="bar">
+<button id="gen">🔄 أسئلة جديدة</button>
+<button class="sec" id="all">👁 إظهار / إخفاء كل الحلول</button>
+</div>
+<div class="score" id="score"></div>
+<div id="out"></div>
+<script>
+const R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=a=>a[R(0,a.length-1)];
+function dataset(){const n=R(6,12);const d=[];for(let k=0;k<n;k++)d.push(R(1,60));
+const s=[...d].sort((a,b)=>a-b);return{d,s,n}}
+function pct(s,P){const n=s.length,raw=P*n,i=raw/100;
+if(raw%100===0){const v=(s[i-1]+s[i])/2;return{i,whole:true,v,txt:`i = (${P}÷100)×${n} = ${i} (whole) → (x${i} + x${i+1})/2 = (${s[i-1]} + ${s[i]})/2 = ${v}`}}
+const k=Math.ceil(i);return{i,whole:false,v:s[k-1],txt:`i = (${P}÷100)×${n} = ${i} (not whole) → round up to ${k} → x${k} = ${s[k-1]}`}}
+const fmt=x=>x.toFixed?+x.toFixed(2):x;
+const Ps=[10,20,25,30,40,50,60,70,75,80,90];
+const sections=[
+{t:"1) Position (i) — هل i عدد صحيح أم لا؟",f:()=>{const n=R(8,40),P=pick(Ps),i=P*n/100,w=(P*n)%100===0;
+return{f:[{l:"i =",v:i},{l:"whole?",v:w?"whole":"not whole",sel:1}],q:`n = ${n} values. Find the position i for the ${P}th percentile. Is i whole?`,a:`i = (${P}÷100)×${n} = ${fmt(i)} → ${w?`whole → average of x${i} and x${i+1}`:`not whole → round up to ${Math.ceil(i)}`}`}}},
+{t:"2) P-th percentile — i whole / not whole",f:()=>{const{d,s,n}=dataset();const P=pick(Ps);const r=pct(s,P);
+return{f:[{l:`P${P} =`,v:r.v}],data:d,q:`Sort the data, then find the ${P}th percentile.`,a:`Sorted: ${s.join(", ")}<br>${r.txt}`}}},
+{t:"3) Q1, Q2, Q3",f:()=>{const{d,s}=dataset();const a=pct(s,25),b=pct(s,50),c=pct(s,75);
+return{f:[{l:"Q1 =",v:a.v},{l:"Q2 =",v:b.v},{l:"Q3 =",v:c.v}],data:d,q:"Find Q1, Q2 (median) and Q3.",a:`Sorted: ${s.join(", ")}<br>Q1: ${a.txt}<br>Q2: ${b.txt}<br>Q3: ${c.txt}<br><b>Q1 = ${a.v}, Q2 = ${b.v}, Q3 = ${c.v}</b>`}}},
+{t:"4) IQR",f:()=>{const{d,s}=dataset();const a=pct(s,25),c=pct(s,75);
+return{f:[{l:"IQR =",v:c.v-a.v}],data:d,q:"Find the IQR.",a:`Sorted: ${s.join(", ")}<br>Q1 = ${a.v}, Q3 = ${c.v}<br><b>IQR = ${c.v} − ${a.v} = ${fmt(c.v-a.v)}</b>`}}}
+];
+let shown=false,total=0,done=0;
+function upd(){document.getElementById("score").textContent=`النتيجة: ${done} / ${total} أسئلة صحيحة`}
+function render(){const o=document.getElementById("out");o.innerHTML="";shown=false;total=0;done=0;
+sections.forEach(sec=>{const h=document.createElement("h2");h.textContent=sec.t;o.appendChild(h);
+for(let k=1;k<=3;k++){const x=sec.f();total++;const q=document.createElement("div");q.className="q";
+const fields=x.f.map((f,j)=>`<div class="f"><span>${f.l}</span>${f.sel?`<select data-j="${j}"><option value="">؟</option><option>whole</option><option>not whole</option></select>`:`<input data-j="${j}" inputmode="decimal" placeholder="?">`}</div>`).join("");
+q.innerHTML=`<div dir="ltr" style="text-align:left"><b>Q${k}.</b> ${x.q}</div>${x.data?`<div class="data">${x.data.join(", ")}</div>`:""}${fields}<button class="chk">تحقق ✔</button> <button class="sec">عرض الحل</button> <span class="mark"></span><div class="ans">${x.a}</div>`;
+const an=q.querySelector(".ans"),mk=q.querySelector(".mark");let ok=false;
+q.querySelector(".chk").onclick=()=>{let all=true;
+q.querySelectorAll("[data-j]").forEach(el=>{const f=x.f[el.dataset.j];const v=el.value.trim().replace(",",".");
+const good=f.sel?v===f.v:(v!==""&&Math.abs(parseFloat(v)-f.v)<0.01);if(!good)all=false;el.style.borderColor=good?"#2e9b4f":"#d23b3b"});
+mk.textContent=all?"✅ صح":"❌ جرّب مرة ثانية";if(all&&!ok){ok=true;done++;upd()}};
+q.querySelector(".sec").onclick=()=>an.classList.toggle("show");o.appendChild(q)}});upd()}
+document.getElementById("gen").onclick=render;
+document.getElementById("all").onclick=()=>{shown=!shown;document.querySelectorAll(".ans").forEach(a=>a.classList.toggle("show",shown))};
+render();
+</script>
+</body>
+</html>
