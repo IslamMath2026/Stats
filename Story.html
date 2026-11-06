@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>شرارات القصة</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Reem+Kufi:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef1fb;--card:#ffffff;--ink:#1d2340;--muted:#5d6486;--line:#d3d9f0;--accent:#e0457b;--accent-ink:#ffffff;--chip:#fff1c9;--chip-ink:#4a3a00;--ok:#2f8f6b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141a33;--card:#1d2446;--ink:#eceffd;--muted:#a3abd0;--line:#33407a;--accent:#ff7aa5;--accent-ink:#2a0816;--chip:#4a3d12;--chip-ink:#ffe9a8;--ok:#6fd1a8}}
+:root[data-theme="dark"]{--bg:#141a33;--card:#1d2446;--ink:#eceffd;--muted:#a3abd0;--line:#33407a;--accent:#ff7aa5;--accent-ink:#2a0816;--chip:#4a3d12;--chip-ink:#ffe9a8;--ok:#6fd1a8}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Tajawal,"Segoe UI",Tahoma,sans-serif;line-height:1.8;font-size:17px}
+main{max-width:640px;margin:0 auto;padding:20px 16px 80px}
+h1{font-family:"Reem Kufi",Tajawal,sans-serif;font-size:2rem;margin:8px 0 4px}
+.sub{color:var(--muted);margin:0 0 18px}
+.top{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:18px}
+.top label{color:var(--muted);font-size:.95rem}
+.top input{width:84px;font:inherit;padding:4px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.count{margin-inline-start:auto;font-weight:700}
+.count.over{color:var(--accent)}
+section{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:18px}
+section h2{font-family:"Reem Kufi",Tajawal,sans-serif;font-size:1.3rem;margin:0}
+.q{color:var(--muted);margin:0 0 10px;font-size:.95rem}
+.sparks{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.chip{display:flex;align-items:center;gap:10px;text-align:start;width:100%;font:inherit;background:var(--chip);color:var(--chip-ink);border:0;border-radius:12px;padding:10px 12px;cursor:pointer}
+.chip small{opacity:.75;min-width:64px;font-size:.85rem}
+.chip b{font-weight:700;flex:1}
+.chip:active{transform:scale(.985)}
+.row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+button.roll{font:inherit;font-weight:700;background:var(--accent);color:var(--accent-ink);border:0;border-radius:10px;padding:8px 14px;cursor:pointer}
+.wc{color:var(--muted);margin-inline-start:auto;font-size:.9rem}
+textarea{width:100%;min-height:130px;resize:vertical;font:inherit;line-height:1.9;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink)}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.actions button{font:inherit;font-weight:700;border-radius:12px;padding:10px 16px;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.actions .main{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.note{color:var(--muted);font-size:.9rem;margin-top:14px}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<h1>شرارات القصة</h1>
+<p class="sub">اضغطي على أي فكرة لتتغيّر، ثم اكتبي فقرتك بكلماتك أنتِ.</p>
+
+<div class="top"><label for="title">عنوان القصة</label><input id="title" type="text" value="هوايتي" style="width:auto;flex:1;min-width:140px"></div>
+<div class="top">
+<label for="max">الحد الأقصى للكلمات</label>
+<input id="max" type="number" min="0" inputmode="numeric" placeholder="مثلاً 800">
+<span class="count" id="total">0 كلمة</span>
+</div>
+
+<div id="stages"></div>
+
+<div class="actions">
+<button class="main" id="copy">نسخ القصة كاملة</button>
+<button id="all">فكرة جديدة لكل الأقسام</button>
+</div>
+<p class="note" id="msg"></p>
+<p class="note">الأفكار مجرد بداية. القصة الفائزة هي التي تحمل صوتك أنتِ، فغيّري أي فكرة أو تجاهليها كما تشائين.</p>
+</main>
+
+<script>
+var DATA=[
+{t:"البداية",q:"ما هي هوايتها، وأين تمارسها، وبماذا تستعين؟",s:[
+["الهواية",["الرسم","التصوير","القراءة","الطبخ والحلويات","الزراعة والعناية بالنباتات","العزف على آلة موسيقية","الكتابة","ركوب الدراجة","الحياكة والأشغال اليدوية","مراقبة النجوم"]],
+["مكان ممارستها",["غرفتها الصغيرة","سطح البيت","حديقة الحي","ركن في مكتبة المدرسة","مطبخ جدّتها","شاطئ البحر","شرفة تطل على الحي","بستان قريب من البيت"]],
+["أداتها",["فرشاة قديمة ورثتها","دفتر ملاحظات صغير","كاميرا مستعملة","بذور غريبة","منظار قديم","خيط صوف ملوّن","كتاب بلا غلاف","عود مكسور الوتر"]]]},
+{t:"الحدث",q:"ما الشيء الذي يكسر هدوء الأيام ويبدأ الحكاية؟",s:[
+["اكتشاف",["تكتشف موهبة لم تعرف أنها تملكها","تجد شيئًا غريبًا أثناء ممارسة هوايتها","يلاحظ أحدهم عملها لأول مرة","تتعلّم مهارة جديدة من حيث لا تتوقع","تعثر على أدوات هواية قديمة لجدّتها","تسمع جملة تغيّر نظرتها لهوايتها"]],
+["ما يحرّك الحكاية",["تفقد أداتها المفضلة","تُدعى إلى معرض أو مسابقة","يسخر أحدهم من هوايتها","ينتقل صديقها الذي يشاركها الهواية","ينقطع عنها وقتها بسبب الدراسة","تقرر أن تعلّم هوايتها لغيرها"]]]},
+{t:"التعقيد",q:"ما الذي يقف في طريقها، وماذا تجرّب؟",s:[
+["عقبة",["تفشل في أول محاولة","تشعر بالملل وتريد التوقف","ضيق الوقت قبل الموعد","أهلها لا يفهمون هوايتها","تقارن نفسها بغيرها وتحبط","تتعطل أداتها في أسوأ وقت"]],
+["من يعارضها أو يساعدها",["جار عنيد","طفل فضولي يتبعها","قطة تعرف الطريق","صديق قديم تخاصمت معه","عجوز تحكي ألغازًا","مرآة تقول نصف الحقيقة"]]]},
+{t:"الذروة",q:"ما أصعب لحظة، وما القرار الذي يجب أن تتخذه؟",s:[
+["القرار",["أن تتخلى عن أغلى ما تملك","أن تعترف بخطأ قديم","أن تثق بمن لا تثق به","أن تبقى أو ترحل","أن تقول الحقيقة رغم الثمن","أن تسامح"]],
+["اللحظة",["عند منتصف الليل","في قلب العاصفة","أمام الباب المغلق","على حافة الجسر","لحظة صمت قبل الجواب","حين تنطفئ كل الأضواء"]]]},
+{t:"النهاية",q:"ماذا تغيّر؟ وبماذا تشعر البطلة الآن؟",s:[
+["التغيّر",["تفهم شيئًا عن نفسها لم تفهمه","يعود الحي كما كان لكنها لم تعد كما كانت","تجد أن ما بحثت عنه كان معها","تبدأ رحلة جديدة","تمنح الغرض لشخص آخر","تضحك لأول مرة منذ زمن"]],
+["الختام",["نهاية مفتوحة بسؤال","مفاجأة في آخر سطر","العودة إلى الجملة الأولى","مشهد صامت جميل","جملة قصيرة تحمل المعنى كله","وصف للفجر الجديد"]]]}
+];
+var st={sp:[],tx:[]};
+try{var sv=JSON.parse(localStorage.getItem("story-sparks-v1")||"null");if(sv&&sv.tx&&sv.sp)st=sv}catch(e){}
+function rnd(a,not){var r;do{r=a[Math.floor(Math.random()*a.length)]}while(a.length>1&&r===not);return r}
+function save(){try{localStorage.setItem("story-sparks-v1",JSON.stringify(st))}catch(e){}}
+function words(s){var m=s.trim().match(/\S+/g);return m?m.length:0}
+function update(){var t=0;st.tx.forEach(function(x,i){var n=words(x||"");t+=n;var e=document.getElementById("wc"+i);if(e)e.textContent=n+" كلمة"});
+var mx=parseInt(document.getElementById("max").value,10);var el=document.getElementById("total");
+el.textContent=t+(mx?" / "+mx:"")+" كلمة";el.className="count"+(mx&&t>mx?" over":"")}
+function build(){var box=document.getElementById("stages");box.innerHTML="";
+DATA.forEach(function(d,i){
+if(!st.sp[i])st.sp[i]=d.s.map(function(c){return rnd(c[1])});
+if(st.tx[i]==null)st.tx[i]="";
+var sec=document.createElement("section");
+var h='<h2>'+d.t+'</h2><p class="q">'+d.q+'</p><div class="sparks">';
+d.s.forEach(function(c,j){h+='<button class="chip" data-i="'+i+'" data-j="'+j+'"><small>'+c[0]+'</small><b id="s'+i+'_'+j+'">'+st.sp[i][j]+'</b><span aria-hidden="true">↻</span></button>'});
+h+='</div><div class="row"><button class="roll" data-all="'+i+'">غيّري أفكار القسم</button><span class="wc" id="wc'+i+'">0 كلمة</span></div>';
+h+='<textarea id="t'+i+'" placeholder="اكتبي فقرة '+d.t+' هنا..." aria-label="فقرة '+d.t+'"></textarea>';
+sec.innerHTML=h;box.appendChild(sec);
+var ta=sec.querySelector("textarea");ta.value=st.tx[i];
+ta.addEventListener("input",function(){st.tx[i]=ta.value;save();update()})});
+box.onclick=function(e){var b=e.target.closest("button");if(!b)return;
+if(b.dataset.all!==undefined){var i=+b.dataset.all;DATA[i].s.forEach(function(c,j){st.sp[i][j]=rnd(c[1],st.sp[i][j]);document.getElementById("s"+i+"_"+j).textContent=st.sp[i][j]})}
+else if(b.dataset.j!==undefined){var i2=+b.dataset.i,j2=+b.dataset.j;st.sp[i2][j2]=rnd(DATA[i2].s[j2][1],st.sp[i2][j2]);document.getElementById("s"+i2+"_"+j2).textContent=st.sp[i2][j2]}
+save()};
+update()}
+document.getElementById("all").onclick=function(){st.sp=[];save();build()};
+document.getElementById("max").addEventListener("input",update);
+var ti=document.getElementById("title");if(st.title==null)st.title="هوايتي";ti.value=st.title;ti.addEventListener("input",function(){st.title=ti.value;save()});
+document.getElementById("copy").onclick=function(){var t=st.tx.filter(function(x){return x.trim()}).join("\n\n");var m=document.getElementById("msg");
+if(!t){m.textContent="اكتبي فقرة واحدة على الأقل أولاً.";return}
+var hd=(st.title||"").trim();if(hd)t=hd+"\n\n"+t;
+function ok(){m.textContent="تم نسخ القصة. الصقيها في أي برنامج كتابة."}
+function fb(){var a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy");ok()}catch(e){m.textContent="تعذّر النسخ، حدّدي النص يدويًا."}document.body.removeChild(a)}
+try{navigator.clipboard.writeText(t).then(ok,fb)}catch(e){fb()}};
+build();
+</script>
+</body>
+</html>
