@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Population Frequency Table Statistics Generator</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Inter & JetBrains Mono fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .font-mono-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-variant-numeric: tabular-nums;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+            }
+            .print-card {
+                box-shadow: none !important;
+                border: 1px solid #cbd5e1 !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen antialiased selection:bg-indigo-100 selection:text-indigo-800">
+
+    <!-- Main Container -->
+    <div class="max-w-5xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        
+        <!-- Header -->
+        <header class="mb-8 text-center sm:text-left sm:flex sm:items-end sm:justify-between border-b border-slate-200 pb-6">
+            <div>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-800 mb-2">
+                    Population Statistics Practice
+                </span>
+                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                    Frequency Table Generator
+                </h1>
+                <p class="mt-1 text-sm text-slate-600">
+                    Calculate Mean (&mu;), Population Variance (&sigma;&sup2;), and Standard Deviation (&sigma;).
+                </p>
+            </div>
+            <div class="mt-4 sm:mt-0 flex flex-wrap items-center justify-center sm:justify-end gap-2 no-print">
+                <button id="btn-print" type="button" title="Print this page"
+                    class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-700 font-medium text-sm shadow-sm hover:bg-slate-50 active:scale-[0.99] transition-all cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    Print
+                </button>
+                <button id="btn-download" type="button" title="Download standalone HTML file"
+                    class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-700 font-medium text-sm shadow-sm hover:bg-slate-50 active:scale-[0.99] transition-all cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Download HTML
+                </button>
+                <button id="btn-generate" type="button"
+                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-semibold text-sm shadow-sm hover:bg-indigo-700 active:scale-[0.99] transition-all cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Generate New Question
+                </button>
+            </div>
+        </header>
+
+        <!-- Controls Bar: Mode Selector & Formula Reminder -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print-card no-print">
+            <!-- Mode Selector -->
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Table Mode:</span>
+                <div class="inline-flex rounded-xl bg-slate-100 p-1">
+                    <button id="mode-ungrouped" type="button"
+                        class="px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer bg-white text-slate-900 shadow-sm">
+                        Ungrouped (x, f)
+                    </button>
+                    <button id="mode-grouped" type="button"
+                        class="px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer text-slate-600 hover:text-slate-900">
+                        Grouped (Intervals)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Formula Badge -->
+            <div class="flex items-center gap-2 text-xs font-medium text-slate-600 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200">
+                <span class="font-semibold text-indigo-700">Population Formula:</span>
+                <span class="font-mono-num">&sigma;&sup2; = (&Sigma;(f&middot;x&sup2;) / N) &minus; &mu;&sup2;</span>
+            </div>
+        </section>
+
+        <!-- Main Workspace Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+            
+            <!-- Left Column: Frequency Table -->
+            <div class="lg:col-span-6 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between print-card">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-bold text-slate-900">Frequency Distribution</h2>
+                        <span class="text-xs font-medium px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-100">
+                            Population Data (N)
+                        </span>
+                    </div>
+                    <p class="text-sm text-slate-500 mb-4">
+                        Use the table below to calculate the Mean (&mu;), Population Variance (&sigma;&sup2;), and Standard Deviation (&sigma;). Round your answers to at least 2 decimal places.
+                    </p>
+
+                    <!-- Data Table -->
+                    <div class="overflow-x-auto rounded-xl border border-slate-200">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold uppercase tracking-wider text-slate-600">
+                                    <th id="th-col1" class="py-3 px-4">Value (x)</th>
+                                    <th class="py-3 px-4 text-right">Frequency (f)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="question-table-body" class="divide-y divide-slate-100 text-sm font-mono-num">
+                                <!-- Rows injected by JS -->
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-slate-50 border-t border-slate-200 font-semibold text-sm text-slate-800">
+                                    <td class="py-3 px-4">Total (N = &Sigma;f)</td>
+                                    <td id="table-total-f" class="py-3 px-4 text-right font-mono-num">0</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Answer Inputs & Verification -->
+            <div class="lg:col-span-6 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between print-card">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900 mb-1">Your Answers</h2>
+                    <p class="text-xs text-slate-500 mb-5">Tolerance: &plusmn;0.05 for rounding differences.</p>
+
+                    <div class="space-y-4">
+                        <!-- Mean Input -->
+                        <div>
+                            <label for="input-mean" class="block text-sm font-medium text-slate-700 mb-1">
+                                Population Mean (<span class="font-semibold">&mu;</span>)
+                            </label>
+                            <input type="number" step="any" id="input-mean" placeholder="e.g. 24.50"
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono-num text-sm transition-all">
+                            <div id="feedback-mean" class="mt-1.5 text-xs font-medium hidden"></div>
+                        </div>
+
+                        <!-- Variance Input -->
+                        <div>
+                            <label for="input-variance" class="block text-sm font-medium text-slate-700 mb-1">
+                                Population Variance (<span class="font-semibold">&sigma;&sup2;</span>)
+                            </label>
+                            <input type="number" step="any" id="input-variance" placeholder="e.g. 42.18"
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono-num text-sm transition-all">
+                            <div id="feedback-variance" class="mt-1.5 text-xs font-medium hidden"></div>
+                        </div>
+
+                        <!-- Standard Deviation Input -->
+                        <div>
+                            <label for="input-stddev" class="block text-sm font-medium text-slate-700 mb-1">
+                                Population Standard Deviation (<span class="font-semibold">&sigma;</span>)
+                            </label>
+                            <input type="number" step="any" id="input-stddev" placeholder="e.g. 6.49"
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono-num text-sm transition-all">
+                            <div id="feedback-stddev" class="mt-1.5 text-xs font-medium hidden"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="mt-6 pt-4 border-t border-slate-100 flex flex-col sm:flex-row gap-3 no-print">
+                    <button id="btn-check" type="button"
+                        class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold text-sm shadow-sm hover:bg-emerald-700 active:scale-[0.99] transition-all cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Check Answers
+                    </button>
+                    <button id="btn-solution" type="button"
+                        class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-semibold text-sm hover:bg-slate-200 active:scale-[0.99] transition-all cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        <span id="btn-solution-text">Show Step-by-Step Solution</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step-by-Step Solution Panel (Hidden by Default) -->
+        <section id="solution-panel" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8 print-card">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+                <h2 class="text-lg font-bold text-slate-900">Step-by-Step Solution</h2>
+                <span class="text-xs font-medium text-slate-500">Computational Formula Method</span>
+            </div>
+
+            <!-- Breakdown Table -->
+            <div class="overflow-x-auto rounded-xl border border-slate-200 mb-6">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr id="solution-thead-row" class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600">
+                            <!-- Headers injected by JS -->
+                        </tr>
+                    </thead>
+                    <tbody id="solution-tbody" class="divide-y divide-slate-100 text-sm font-mono-num">
+                        <!-- Breakdown rows injected by JS -->
+                    </tbody>
+                    <tfoot id="solution-tfoot" class="bg-slate-50 border-t border-slate-200 font-semibold text-sm text-slate-800 font-mono-num">
+                        <!-- Totals injected by JS -->
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- Formulas & Final Calculations -->
+            <div id="solution-formulas" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Formula cards injected by JS -->
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // ==========================================
+        // State Management
+        // ==========================================
+        const state = {
+            mode: 'ungrouped',      // 'ungrouped' | 'grouped'
+            rows: [],               // Array of { label, x, f, fx, fx2 }
+            stats: {
+                totalF: 0,          // N = Σf
+                sumFX: 0,           // Σ(f·x)
+                sumFX2: 0,          // Σ(f·x²)
+                mean: 0,            // μ = Σ(f·x) / N
+                meanSq: 0,          // μ²
+                variance: 0,        // σ² = (Σ(f·x²) / N) - μ²
+                stdDev: 0           // σ = √σ²
+            },
+            solutionVisible: false
+        };
+
+        // ==========================================
+        // DOM Elements
+        // ==========================================
+        const el = {
+            btnGenerate: document.getElementById('btn-generate'),
+            btnPrint: document.getElementById('btn-print'),
+            btnDownload: document.getElementById('btn-download'),
+            modeUngrouped: document.getElementById('mode-ungrouped'),
+            modeGrouped: document.getElementById('mode-grouped'),
+            thCol1: document.getElementById('th-col1'),
+            questionTableBody: document.getElementById('question-table-body'),
+            tableTotalF: document.getElementById('table-total-f'),
+            inputMean: document.getElementById('input-mean'),
+            inputVariance: document.getElementById('input-variance'),
+            inputStddev: document.getElementById('input-stddev'),
+            feedbackMean: document.getElementById('feedback-mean'),
+            feedbackVariance: document.getElementById('feedback-variance'),
+            feedbackStddev: document.getElementById('feedback-stddev'),
+            btnCheck: document.getElementById('btn-check'),
+            btnSolution: document.getElementById('btn-solution'),
+            btnSolutionText: document.getElementById('btn-solution-text'),
+            solutionPanel: document.getElementById('solution-panel'),
+            solutionTheadRow: document.getElementById('solution-thead-row'),
+            solutionTbody: document.getElementById('solution-tbody'),
+            solutionTfoot: document.getElementById('solution-tfoot'),
+            solutionFormulas: document.getElementById('solution-formulas')
+        };
+
+        // ==========================================
+        // Utility Functions
+        // ==========================================
+        function randInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function formatFixed(num, decimals = 4) {
+            return parseFloat(num.toFixed(decimals)).toString();
+        }
+
+        // ==========================================
+        // Question Generation & Calculations
+        // ==========================================
+        function generateQuestion() {
+            const numRows = randInt(5, 6);
+            const rawRows = [];
+
+            if (state.mode === 'ungrouped') {
+                let currentX = randInt(4, 15);
+                const step = randInt(2, 5);
+                for (let i = 0; i < numRows; i++) {
+                    rawRows.push({
+                        label: currentX.toString(),
+                        x: currentX,
+                        f: randInt(2, 12)
+                    });
+                    currentX += step;
+                }
+            } else {
+                let start = randInt(1, 4) * 5;
+                const width = 4; // e.g., 10 - 14 -> midpoint 12
+                const step = 5;
+                for (let i = 0; i < numRows; i++) {
+                    const lower = start + i * step;
+                    const upper = lower + width;
+                    const midpoint = (lower + upper) / 2;
+                    rawRows.push({
+                        label: `${lower} &ndash; ${upper}`,
+                        x: midpoint,
+                        f: randInt(2, 14)
+                    });
+                }
+            }
+
+            state.rows = rawRows;
+            calculateStats();
+            resetInputsAndFeedback();
+            renderQuestionTable();
+
+            if (state.solutionVisible) {
+                renderSolution();
+            }
+        }
+
+        function calculateStats() {
+            let totalF = 0;
+            let sumFX = 0;
+            let sumFX2 = 0;
+
+            state.rows.forEach(row => {
+                row.fx = row.x * row.f;
+                row.fx2 = row.f * row.x * row.x;
+                totalF += row.f;
+                sumFX += row.fx;
+                sumFX2 += row.fx2;
+            });
+
+            const mean = sumFX / totalF;
+            const meanSq = mean * mean;
+            // Population computational formula: σ² = (Σ(f·x²) / N) - μ²
+            const variance = (sumFX2 / totalF) - meanSq;
+            const stdDev = Math.sqrt(Math.max(0, variance));
+
+            state.stats = {
+                totalF,
+                sumFX,
+                sumFX2,
+                mean,
+                meanSq,
+                variance,
+                stdDev
+            };
+        }
+
+        // ==========================================
+        // UI Rendering
+        // ==========================================
+        function updateModeToggle() {
+            if (state.mode === 'ungrouped') {
+                el.modeUngrouped.className = 'px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer bg-white text-slate-900 shadow-sm';
+                el.modeGrouped.className = 'px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer text-slate-600 hover:text-slate-900';
+                el.thCol1.innerHTML = 'Value (x)';
+            } else {
+                el.modeGrouped.className = 'px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer bg-white text-slate-900 shadow-sm';
+                el.modeUngrouped.className = 'px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer text-slate-600 hover:text-slate-900';
+                el.thCol1.innerHTML = 'Class Interval';
+            }
+        }
+
+        function renderQuestionTable() {
+            el.questionTableBody.innerHTML = state.rows.map(row => `
+                <tr class="hover:bg-slate-50/70 transition-colors">
+                    <td class="py-3 px-4 font-medium text-slate-800">${row.label}</td>
+                    <td class="py-3 px-4 text-right text-slate-700">${row.f}</td>
+                </tr>
+            `).join('');
+            el.tableTotalF.textContent = state.stats.totalF;
+        }
+
+        function resetInputsAndFeedback() {
+            [el.inputMean, el.inputVariance, el.inputStddev].forEach(input => {
+                input.value = '';
+                input.classList.remove('border-emerald-500', 'bg-emerald-50/40', 'border-rose-500', 'bg-rose-50/40');
+                input.classList.add('border-slate-300', 'bg-slate-50');
+            });
+            [el.feedbackMean, el.feedbackVariance, el.feedbackStddev].forEach(fb => {
+                fb.classList.add('hidden');
+                fb.textContent = '';
+            });
+        }
+
+        // ==========================================
+        // Answer Verification
+        // ==========================================
+        function checkSingleInput(inputEl, feedbackEl, expectedVal) {
+            const raw = inputEl.value.trim();
+            inputEl.classList.remove('border-slate-300', 'bg-slate-50', 'border-emerald-500', 'bg-emerald-50/40', 'border-rose-500', 'bg-rose-50/40');
+            feedbackEl.classList.remove('hidden', 'text-emerald-600', 'text-rose-600');
+
+            if (raw === '' || isNaN(Number(raw))) {
+                inputEl.classList.add('border-rose-500', 'bg-rose-50/40');
+                feedbackEl.classList.add('text-rose-600');
+                feedbackEl.textContent = `Please enter a valid number. (Expected: ${expectedVal.toFixed(2)})`;
+                return false;
+            }
+
+            const userVal = Number(raw);
+            const diff = Math.abs(userVal - expectedVal);
+
+            if (diff <= 0.05) {
+                inputEl.classList.add('border-emerald-500', 'bg-emerald-50/40');
+                feedbackEl.classList.add('text-emerald-600');
+                feedbackEl.textContent = `Correct! Exact value: ${expectedVal.toFixed(4)}`;
+                return true;
+            } else {
+                inputEl.classList.add('border-rose-500', 'bg-rose-50/40');
+                feedbackEl.classList.add('text-rose-600');
+                feedbackEl.textContent = `Incorrect. Expected: ${expectedVal.toFixed(2)} (Exact: ${expectedVal.toFixed(4)})`;
+                return false;
+            }
+        }
+
+        function checkAnswers() {
+            checkSingleInput(el.inputMean, el.feedbackMean, state.stats.mean);
+            checkSingleInput(el.inputVariance, el.feedbackVariance, state.stats.variance);
+            checkSingleInput(el.inputStddev, el.feedbackStddev, state.stats.stdDev);
+        }
+
+        // ==========================================
+        // Step-by-Step Solution Rendering
+        // ==========================================
+        function renderSolution() {
+            const isGrouped = state.mode === 'grouped';
+
+            // Table Headers
+            el.solutionTheadRow.innerHTML = `
+                ${isGrouped ? '<th class="py-3 px-4">Interval</th>' : ''}
+                <th class="py-3 px-4 text-right">${isGrouped ? 'Midpoint (x)' : 'Value (x)'}</th>
+                <th class="py-3 px-4 text-right">f</th>
+                <th class="py-3 px-4 text-right">f &middot; x</th>
+                <th class="py-3 px-4 text-right">f &middot; x&sup2;</th>
+            `;
+
+            // Table Body
+            el.solutionTbody.innerHTML = state.rows.map(row => `
+                <tr class="hover:bg-slate-50/70">
+                    ${isGrouped ? `<td class="py-2.5 px-4 font-medium text-slate-800">${row.label}</td>` : ''}
+                    <td class="py-2.5 px-4 text-right text-slate-700">${row.x}</td>
+                    <td class="py-2.5 px-4 text-right text-slate-700">${row.f}</td>
+                    <td class="py-2.5 px-4 text-right text-slate-700">${formatFixed(row.fx, 2)}</td>
+                    <td class="py-2.5 px-4 text-right text-slate-800 font-medium">${formatFixed(row.fx2, 2)}</td>
+                </tr>
+            `).join('');
+
+            // Table Footer (Totals)
+            el.solutionTfoot.innerHTML = `
+                <tr>
+                    ${isGrouped ? '<td class="py-3 px-4">Totals</td>' : '<td class="py-3 px-4 text-right">Totals</td>'}
+                    ${isGrouped ? '<td class="py-3 px-4 text-right">&mdash;</td>' : ''}
+                    <td class="py-3 px-4 text-right">N = ${state.stats.totalF}</td>
+                    <td class="py-3 px-4 text-right">&Sigma;(f&middot;x) = ${formatFixed(state.stats.sumFX, 2)}</td>
+                    <td class="py-3 px-4 text-right">&Sigma;(f&middot;x&sup2;) = ${formatFixed(state.stats.sumFX2, 2)}</td>
+                </tr>
+            `;
+
+            const fx2OverN = state.stats.sumFX2 / state.stats.totalF;
+
+            // Formula Cards
+            el.solutionFormulas.innerHTML = `
+                <!-- Mean Card -->
+                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                    <div class="text-xs font-semibold uppercase tracking-wider text-indigo-600 mb-1.5">1. Population Mean (&mu;)</div>
+                    <div class="text-sm text-slate-700 font-mono-num space-y-1">
+                        <div>&mu; = &Sigma;(f&middot;x) / N</div>
+                        <div>&mu; = ${formatFixed(state.stats.sumFX, 2)} / ${state.stats.totalF}</div>
+                        <div class="pt-1 font-bold text-slate-900 text-base">&mu; = ${state.stats.mean.toFixed(4)}</div>
+                    </div>
+                </div>
+
+                <!-- Variance Card -->
+                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                    <div class="text-xs font-semibold uppercase tracking-wider text-indigo-600 mb-1.5">2. Population Variance (&sigma;&sup2;)</div>
+                    <div class="text-sm text-slate-700 font-mono-num space-y-1">
+                        <div>&sigma;&sup2; = (&Sigma;(f&middot;x&sup2;) / N) &minus; &mu;&sup2;</div>
+                        <div>&sigma;&sup2; = (${formatFixed(state.stats.sumFX2, 2)} / ${state.stats.totalF}) &minus; (${state.stats.mean.toFixed(4)})&sup2;</div>
+                        <div>&sigma;&sup2; = ${fx2OverN.toFixed(4)} &minus; ${state.stats.meanSq.toFixed(4)}</div>
+                        <div class="pt-1 font-bold text-slate-900 text-base">&sigma;&sup2; = ${state.stats.variance.toFixed(4)}</div>
+                    </div>
+                </div>
+
+                <!-- Std Dev Card -->
+                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                    <div class="text-xs font-semibold uppercase tracking-wider text-indigo-600 mb-1.5">3. Standard Deviation (&sigma;)</div>
+                    <div class="text-sm text-slate-700 font-mono-num space-y-1">
+                        <div>&sigma; = &radic;(&sigma;&sup2;)</div>
+                        <div>&sigma; = &radic;(${state.stats.variance.toFixed(4)})</div>
+                        <div class="pt-1 font-bold text-slate-900 text-base">&sigma; = ${state.stats.stdDev.toFixed(4)}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleSolution() {
+            state.solutionVisible = !state.solutionVisible;
+            if (state.solutionVisible) {
+                renderSolution();
+                el.solutionPanel.classList.remove('hidden');
+                el.btnSolutionText.textContent = 'Hide Step-by-Step Solution';
+            } else {
+                el.solutionPanel.classList.add('hidden');
+                el.btnSolutionText.textContent = 'Show Step-by-Step Solution';
+            }
+        }
+
+        // ==========================================
+        // Print & Download HTML
+        // ==========================================
+        function downloadHTML() {
+            const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'frequency-table-statistics-generator.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // ==========================================
+        // Event Listeners
+        // ==========================================
+        el.btnGenerate.addEventListener('click', generateQuestion);
+        el.btnPrint.addEventListener('click', () => window.print());
+        el.btnDownload.addEventListener('click', downloadHTML);
+
+        el.modeUngrouped.addEventListener('click', () => {
+            if (state.mode !== 'ungrouped') {
+                state.mode = 'ungrouped';
+                updateModeToggle();
+                generateQuestion();
+            }
+        });
+
+        el.modeGrouped.addEventListener('click', () => {
+            if (state.mode !== 'grouped') {
+                state.mode = 'grouped';
+                updateModeToggle();
+                generateQuestion();
+            }
+        });
+
+        el.btnCheck.addEventListener('click', checkAnswers);
+        el.btnSolution.addEventListener('click', toggleSolution);
+
+        [el.inputMean, el.inputVariance, el.inputStddev].forEach(input => {
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') checkAnswers();
+            });
+        });
+
+        // ==========================================
+        // Initialize App
+        // ==========================================
+        updateModeToggle();
+        generateQuestion();
+    </script>
+</body>
+</html>
