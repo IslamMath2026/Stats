@@ -77,24 +77,41 @@
         </header>
 
         <!-- Controls Bar: Mode Selector & Formula Reminder -->
-        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print-card no-print">
-            <!-- Mode Selector -->
-            <div class="flex flex-col sm:flex-row sm:items-center gap-2">
-                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Table Mode:</span>
-                <div class="inline-flex rounded-xl bg-slate-100 p-1">
-                    <button id="mode-ungrouped" type="button"
-                        class="px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer bg-white text-slate-900 shadow-sm">
-                        Ungrouped (x, f)
-                    </button>
-                    <button id="mode-grouped" type="button"
-                        class="px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer text-slate-600 hover:text-slate-900">
-                        Grouped (Intervals)
-                    </button>
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 print-card no-print">
+            <div class="flex flex-wrap items-center gap-4">
+                <!-- Table Type Selector -->
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Table Type:</span>
+                    <div class="inline-flex rounded-xl bg-slate-100 p-1">
+                        <button id="mode-ungrouped" type="button"
+                            class="px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer bg-white text-slate-900 shadow-sm">
+                            Ungrouped (x, f)
+                        </button>
+                        <button id="mode-grouped" type="button"
+                            class="px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer text-slate-600 hover:text-slate-900">
+                            Grouped (Intervals)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Question Mode Selector -->
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Question Mode:</span>
+                    <div class="inline-flex rounded-xl bg-slate-100 p-1">
+                        <button id="qmode-mcq" type="button"
+                            class="px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer bg-white text-slate-900 shadow-sm">
+                            Multiple Choice (MCQ)
+                        </button>
+                        <button id="qmode-input" type="button"
+                            class="px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer text-slate-600 hover:text-slate-900">
+                            Direct Input
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <!-- Formula Badge -->
-            <div class="flex items-center gap-2 text-xs font-medium text-slate-600 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200">
+            <div class="flex items-center gap-2 text-xs font-medium text-slate-600 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200 self-start md:self-auto">
                 <span class="font-semibold text-indigo-700">Population Formula:</span>
                 <span class="font-mono-num">&sigma;&sup2; = (&Sigma;(f&middot;x&sup2;) / N) &minus; &mu;&sup2;</span>
             </div>
@@ -143,9 +160,10 @@
             <div class="lg:col-span-6 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between print-card">
                 <div>
                     <h2 class="text-lg font-bold text-slate-900 mb-1">Your Answers</h2>
-                    <p class="text-xs text-slate-500 mb-5">Tolerance: &plusmn;0.05 for rounding differences.</p>
+                    <p id="answer-subtitle" class="text-xs text-slate-500 mb-5">Select the correct option (A, B, C, or D) for each question.</p>
 
-                    <div class="space-y-4">
+                    <!-- Direct Input Container -->
+                    <div id="direct-input-container" class="space-y-4 hidden">
                         <!-- Mean Input -->
                         <div>
                             <label for="input-mean" class="block text-sm font-medium text-slate-700 mb-1">
@@ -174,6 +192,30 @@
                             <input type="number" step="any" id="input-stddev" placeholder="e.g. 6.49"
                                 class="w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono-num text-sm transition-all">
                             <div id="feedback-stddev" class="mt-1.5 text-xs font-medium hidden"></div>
+                        </div>
+                    </div>
+
+                    <!-- MCQ Container -->
+                    <div id="mcq-container" class="space-y-5">
+                        <!-- Mean MCQ -->
+                        <div>
+                            <div class="text-sm font-semibold text-slate-800 mb-2">1. Population Mean (&mu;)</div>
+                            <div id="mcq-options-mean" class="grid grid-cols-2 gap-2.5"></div>
+                            <div id="mcq-feedback-mean" class="mt-1.5 text-xs font-medium hidden"></div>
+                        </div>
+
+                        <!-- Variance MCQ -->
+                        <div>
+                            <div class="text-sm font-semibold text-slate-800 mb-2">2. Population Variance (&sigma;&sup2;)</div>
+                            <div id="mcq-options-variance" class="grid grid-cols-2 gap-2.5"></div>
+                            <div id="mcq-feedback-variance" class="mt-1.5 text-xs font-medium hidden"></div>
+                        </div>
+
+                        <!-- Standard Deviation MCQ -->
+                        <div>
+                            <div class="text-sm font-semibold text-slate-800 mb-2">3. Population Standard Deviation (&sigma;)</div>
+                            <div id="mcq-options-stddev" class="grid grid-cols-2 gap-2.5"></div>
+                            <div id="mcq-feedback-stddev" class="mt-1.5 text-xs font-medium hidden"></div>
                         </div>
                     </div>
                 </div>
@@ -236,6 +278,7 @@
         // ==========================================
         const state = {
             mode: 'ungrouped',      // 'ungrouped' | 'grouped'
+            questionMode: 'mcq',    // 'mcq' | 'input'
             rows: [],               // Array of { label, x, f, fx, fx2 }
             stats: {
                 totalF: 0,          // N = Σf
@@ -245,6 +288,11 @@
                 meanSq: 0,          // μ²
                 variance: 0,        // σ² = (Σ(f·x²) / N) - μ²
                 stdDev: 0           // σ = √σ²
+            },
+            mcq: {
+                mean: { options: [], correctIndex: -1, selectedIndex: null },
+                variance: { options: [], correctIndex: -1, selectedIndex: null },
+                stdDev: { options: [], correctIndex: -1, selectedIndex: null }
             },
             solutionVisible: false
         };
@@ -258,30 +306,179 @@
             btnDownload: document.getElementById('btn-download'),
             modeUngrouped: document.getElementById('mode-ungrouped'),
             modeGrouped: document.getElementById('mode-grouped'),
+            qmodeMcq: document.getElementById('qmode-mcq'),
+            qmodeInput: document.getElementById('qmode-input'),
+            answerSubtitle: document.getElementById('answer-subtitle'),
+            directInputContainer: document.getElementById('direct-input-container'),
+            mcqContainer: document.getElementById('mcq-container'),
+            mcqOptionsMean: document.getElementById('mcq-options-mean'),
+            mcqOptionsVariance: document.getElementById('mcq-options-variance'),
+            mcqOptionsStddev: document.getElementById('mcq-options-stddev'),
+            mcqFeedbackMean: document.getElementById('mcq-feedback-mean'),
+            mcqFeedbackVariance: document.getElementById('mcq-feedback-variance'),
+            mcqFeedbackStddev: document.getElementById('mcq-feedback-stddev'),
             thCol1: document.getElementById('th-col1'),
-            questionTableBody: document.getElementById('question-table-body'),
-            tableTotalF: document.getElementById('table-total-f'),
-            inputMean: document.getElementById('input-mean'),
-            inputVariance: document.getElementById('input-variance'),
-            inputStddev: document.getElementById('input-stddev'),
-            feedbackMean: document.getElementById('feedback-mean'),
-            feedbackVariance: document.getElementById('feedback-variance'),
-            feedbackStddev: document.getElementById('feedback-stddev'),
-            btnCheck: document.getElementById('btn-check'),
-            btnSolution: document.getElementById('btn-solution'),
-            btnSolutionText: document.getElementById('btn-solution-text'),
-            solutionPanel: document.getElementById('solution-panel'),
-            solutionTheadRow: document.getElementById('solution-thead-row'),
-            solutionTbody: document.getElementById('solution-tbody'),
-            solutionTfoot: document.getElementById('solution-tfoot'),
-            solutionFormulas: document.getElementById('solution-formulas')
-        };
+// ... existing code ... -->
+            } else {
+                let start = randInt(1, 3) * 10; // e.g., 10, 20, 30
+                const width = 9; // e.g., 10 - 19 -> midpoint 14.5
+                const step = 10;
+                for (let i = 0; i < numRows; i++) {
+                    const lower = start + i * step;
+                    const upper = lower + width;
+                    const midpoint = (lower + upper) / 2;
+                    rawRows.push({
+                        label: `${lower} &ndash; ${upper}`,
+                        x: midpoint,
+                        f: randInt(2, 14)
+                    });
+                }
+            }
+
+            state.rows = rawRows;
+            calculateStats();
+            generateMCQOptions();
+            resetInputsAndFeedback();
+            renderQuestionTable();
+            renderMCQOptions();
+
+            if (state.solutionVisible) {
+                renderSolution();
+            }
+        }
+// ... existing code ... -->
+            state.stats = {
+                totalF,
+                sumFX,
+                sumFX2,
+                mean,
+                meanSq,
+                variance,
+                stdDev
+            };
+        }
+
+        function buildDistractorSet(correctVal, candidateDistractors) {
+            const uniqueVals = new Set([Number(correctVal.toFixed(2))]);
+            const options = [Number(correctVal.toFixed(2))];
+
+            for (const d of candidateDistractors) {
+                const rounded = Number(d.toFixed(2));
+                if (rounded > 0 && !uniqueVals.has(rounded)) {
+                    uniqueVals.add(rounded);
+                    options.push(rounded);
+                }
+                if (options.length === 4) break;
+            }
+
+            // Fallback offsets if needed
+            const offsets = [1.25, -1.35, 2.5, -2.1, 3.4];
+            let idx = 0;
+            while (options.length < 4 && idx < offsets.length) {
+                const candidate = Number(Math.max(0.1, correctVal + offsets[idx]).toFixed(2));
+                if (!uniqueVals.has(candidate)) {
+                    uniqueVals.add(candidate);
+                    options.push(candidate);
+                }
+                idx++;
+            }
+
+            // Shuffle options
+            for (let i = options.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [options[i], options[j]] = [options[j], options[i]];
+            }
+
+            const correctIndex = options.indexOf(Number(correctVal.toFixed(2)));
+            return { options, correctIndex, selectedIndex: null };
+        }
+
+        function generateMCQOptions() {
+            const { totalF, sumFX, sumFX2, mean, meanSq, variance, stdDev } = state.stats;
+
+            // Mean distractors: dividing by N-1, dividing by number of rows, or slight offset
+            const meanDistractors = [
+                sumFX / Math.max(1, totalF - 1),
+                sumFX / state.rows.length,
+                mean + randInt(2, 4) * 0.5,
+                Math.max(1, mean - randInt(2, 4) * 0.5)
+            ];
+            state.mcq.mean = buildDistractorSet(mean, meanDistractors);
+
+            // Variance distractors: forgetting to subtract μ², using N-1 (sample variance), or subtracting μ instead of μ²
+            const sampleVar = (sumFX2 - totalF * meanSq) / Math.max(1, totalF - 1);
+            const forgotMeanSq = sumFX2 / totalF;
+            const subMeanOnly = Math.max(0.5, (sumFX2 / totalF) - mean);
+            state.mcq.variance = buildDistractorSet(variance, [sampleVar, forgotMeanSq, subMeanOnly]);
+
+            // StdDev distractors: sqrt of sample variance, variance itself, or sqrt of forgotMeanSq
+            state.mcq.stdDev = buildDistractorSet(stdDev, [
+                Math.sqrt(Math.max(0, sampleVar)),
+                variance,
+                Math.sqrt(Math.max(0, forgotMeanSq))
+            ]);
+        }
 
         // ==========================================
-        // Utility Functions
+        // UI Rendering
         // ==========================================
-        function randInt(min, max) {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
+        function updateModeToggle() {
+            if (state.mode === 'ungrouped') {
+                el.modeUngrouped.className = 'px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer bg-white text-slate-900 shadow-sm';
+                el.modeGrouped.className = 'px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer text-slate-600 hover:text-slate-900';
+                el.thCol1.innerHTML = 'Value (x)';
+            } else {
+                el.modeGrouped.className = 'px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer bg-white text-slate-900 shadow-sm';
+                el.modeUngrouped.className = 'px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer text-slate-600 hover:text-slate-900';
+                el.thCol1.innerHTML = 'Class Interval';
+            }
+        }
+
+        function updateQuestionModeToggle() {
+            if (state.questionMode === 'mcq') {
+                el.qmodeMcq.className = 'px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer bg-white text-slate-900 shadow-sm';
+                el.qmodeInput.className = 'px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer text-slate-600 hover:text-slate-900';
+                el.mcqContainer.classList.remove('hidden');
+                el.directInputContainer.classList.add('hidden');
+                el.answerSubtitle.textContent = 'Select the correct option (A, B, C, or D) for each question.';
+            } else {
+                el.qmodeInput.className = 'px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer bg-white text-slate-900 shadow-sm';
+                el.qmodeMcq.className = 'px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer text-slate-600 hover:text-slate-900';
+                el.directInputContainer.classList.remove('hidden');
+                el.mcqContainer.classList.add('hidden');
+                el.answerSubtitle.textContent = 'Tolerance: ±0.05 for rounding differences.';
+            }
+        }
+
+        function renderMCQGroup(key, containerEl) {
+            const labels = ['A', 'B', 'C', 'D'];
+            const group = state.mcq[key];
+            containerEl.innerHTML = group.options.map((opt, idx) => {
+                const isSelected = group.selectedIndex === idx;
+                const baseCls = 'flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border text-sm font-mono-num transition-all cursor-pointer text-left';
+                const stateCls = isSelected
+                    ? 'border-indigo-600 bg-indigo-50 text-indigo-900 ring-1 ring-indigo-600 font-semibold'
+                    : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 hover:border-slate-300';
+                return `
+                    <button type="button" data-mcq-key="${key}" data-mcq-idx="${idx}" class="${baseCls} ${stateCls}">
+                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg text-xs font-bold ${isSelected ? 'bg-indigo-600 text-white' : 'bg-white text-slate-600 border border-slate-200'}">${labels[idx]}</span>
+                        <span>${opt.toFixed(2)}</span>
+                    </button>
+                `;
+            }).join('');
+
+            containerEl.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    state.mcq[key].selectedIndex = Number(btn.dataset.mcqIdx);
+                    renderMCQGroup(key, containerEl);
+                });
+            });
+        }
+
+        function renderMCQOptions() {
+            renderMCQGroup('mean', el.mcqOptionsMean);
+            renderMCQGroup('variance', el.mcqOptionsVariance);
+            renderMCQGroup('stdDev', el.mcqOptionsStddev);
         }
 
         function formatFixed(num, decimals = 4) {
@@ -393,7 +590,7 @@
                 input.classList.remove('border-emerald-500', 'bg-emerald-50/40', 'border-rose-500', 'bg-rose-50/40');
                 input.classList.add('border-slate-300', 'bg-slate-50');
             });
-            [el.feedbackMean, el.feedbackVariance, el.feedbackStddev].forEach(fb => {
+            [el.feedbackMean, el.feedbackVariance, el.feedbackStddev, el.mcqFeedbackMean, el.mcqFeedbackVariance, el.mcqFeedbackStddev].forEach(fb => {
                 fb.classList.add('hidden');
                 fb.textContent = '';
             });
@@ -402,38 +599,49 @@
         // ==========================================
         // Answer Verification
         // ==========================================
-        function checkSingleInput(inputEl, feedbackEl, expectedVal) {
-            const raw = inputEl.value.trim();
-            inputEl.classList.remove('border-slate-300', 'bg-slate-50', 'border-emerald-500', 'bg-emerald-50/40', 'border-rose-500', 'bg-rose-50/40');
+        function checkMCQGroup(key, containerEl, feedbackEl, exactVal) {
+            const labels = ['A', 'B', 'C', 'D'];
+            const group = state.mcq[key];
+            const buttons = containerEl.querySelectorAll('button');
+
             feedbackEl.classList.remove('hidden', 'text-emerald-600', 'text-rose-600');
 
-            if (raw === '' || isNaN(Number(raw))) {
-                inputEl.classList.add('border-rose-500', 'bg-rose-50/40');
+            if (group.selectedIndex === null) {
                 feedbackEl.classList.add('text-rose-600');
-                feedbackEl.textContent = `Please enter a valid number. (Expected: ${expectedVal.toFixed(2)})`;
-                return false;
+                feedbackEl.textContent = `Please select an option. (Correct: ${labels[group.correctIndex]} — ${exactVal.toFixed(2)})`;
+                return;
             }
 
-            const userVal = Number(raw);
-            const diff = Math.abs(userVal - expectedVal);
+            buttons.forEach((btn, idx) => {
+                btn.classList.remove('border-indigo-600', 'bg-indigo-50', 'text-indigo-900', 'ring-1', 'ring-indigo-600', 'border-slate-200', 'bg-slate-50');
+                if (idx === group.correctIndex) {
+                    btn.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-900', 'ring-1', 'ring-emerald-500');
+                } else if (idx === group.selectedIndex && idx !== group.correctIndex) {
+                    btn.classList.add('border-rose-500', 'bg-rose-50', 'text-rose-900', 'ring-1', 'ring-rose-500');
+                } else {
+                    btn.classList.add('border-slate-200', 'bg-slate-50', 'opacity-60');
+                }
+            });
 
-            if (diff <= 0.05) {
-                inputEl.classList.add('border-emerald-500', 'bg-emerald-50/40');
+            if (group.selectedIndex === group.correctIndex) {
                 feedbackEl.classList.add('text-emerald-600');
-                feedbackEl.textContent = `Correct! Exact value: ${expectedVal.toFixed(4)}`;
-                return true;
+                feedbackEl.textContent = `Correct! Exact value: ${exactVal.toFixed(4)}`;
             } else {
-                inputEl.classList.add('border-rose-500', 'bg-rose-50/40');
                 feedbackEl.classList.add('text-rose-600');
-                feedbackEl.textContent = `Incorrect. Expected: ${expectedVal.toFixed(2)} (Exact: ${expectedVal.toFixed(4)})`;
-                return false;
+                feedbackEl.textContent = `Incorrect. Correct option is ${labels[group.correctIndex]} (${exactVal.toFixed(2)}).`;
             }
         }
 
         function checkAnswers() {
-            checkSingleInput(el.inputMean, el.feedbackMean, state.stats.mean);
-            checkSingleInput(el.inputVariance, el.feedbackVariance, state.stats.variance);
-            checkSingleInput(el.inputStddev, el.feedbackStddev, state.stats.stdDev);
+            if (state.questionMode === 'mcq') {
+                checkMCQGroup('mean', el.mcqOptionsMean, el.mcqFeedbackMean, state.stats.mean);
+                checkMCQGroup('variance', el.mcqOptionsVariance, el.mcqFeedbackVariance, state.stats.variance);
+                checkMCQGroup('stdDev', el.mcqOptionsStddev, el.mcqFeedbackStddev, state.stats.stdDev);
+            } else {
+                checkSingleInput(el.inputMean, el.feedbackMean, state.stats.mean);
+                checkSingleInput(el.inputVariance, el.feedbackVariance, state.stats.variance);
+                checkSingleInput(el.inputStddev, el.feedbackStddev, state.stats.stdDev);
+            }
         }
 
         // ==========================================
@@ -531,7 +739,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'frequency-table-statistics-generator.html';
+            a.download = 'statistics.html';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -561,6 +769,20 @@
             }
         });
 
+        el.qmodeMcq.addEventListener('click', () => {
+            if (state.questionMode !== 'mcq') {
+                state.questionMode = 'mcq';
+                updateQuestionModeToggle();
+            }
+        });
+
+        el.qmodeInput.addEventListener('click', () => {
+            if (state.questionMode !== 'input') {
+                state.questionMode = 'input';
+                updateQuestionModeToggle();
+            }
+        });
+
         el.btnCheck.addEventListener('click', checkAnswers);
         el.btnSolution.addEventListener('click', toggleSolution);
 
@@ -574,6 +796,7 @@
         // Initialize App
         // ==========================================
         updateModeToggle();
+        updateQuestionModeToggle();
         generateQuestion();
     </script>
 </body>
