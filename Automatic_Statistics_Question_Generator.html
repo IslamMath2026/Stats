@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automatic Statistics Question Generator</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter & JetBrains Mono Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .font-mono-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-variant-numeric: tabular-nums;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+            }
+            .print-card {
+                box-shadow: none !important;
+                border: 1px solid #cbd5e1 !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen antialiased selection:bg-indigo-100 selection:text-indigo-800">
+
+    <!-- Main Container -->
+    <div class="max-w-5xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+
+        <!-- Header -->
+        <header class="mb-8 text-center sm:text-left sm:flex sm:items-end sm:justify-between border-b border-slate-200 pb-6">
+            <div>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-800 mb-2">
+                    100% Automatic Practice
+                </span>
+                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                    Statistics Question Generator
+                </h1>
+                <p class="mt-1 text-sm text-slate-600">
+                    Frequency Tables: Mean (&mu;), Population Variance (&sigma;&sup2;), and Standard Deviation (&sigma;).
+                </p>
+            </div>
+            <div class="mt-4 sm:mt-0 flex flex-wrap items-center justify-center sm:justify-end gap-2 no-print">
+                <button id="btn-print" type="button" title="Print this page"
+                    class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-700 font-medium text-sm shadow-sm hover:bg-slate-50 active:scale-[0.99] transition-all cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    Print
+                </button>
+                <button id="btn-download" type="button" title="Download standalone HTML file"
+                    class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-700 font-medium text-sm shadow-sm hover:bg-slate-50 active:scale-[0.99] transition-all cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Download HTML
+                </button>
+                <button id="btn-generate" type="button"
+                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-semibold text-sm shadow-sm hover:bg-indigo-700 active:scale-[0.99] transition-all cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Generate New Question
+                </button>
+            </div>
+        </header>
+
+        <!-- Controls Bar -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 print-card no-print">
+            <div class="flex flex-wrap items-center gap-4">
+                <!-- Table Type Selector -->
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Table Type:</span>
+                    <div class="inline-flex rounded-xl bg-slate-100 p-1">
+                        <button id="mode-ungrouped" type="button"
+                            class="px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer bg-white text-slate-900 shadow-sm">
+                            Ungrouped Data
+                        </button>
+                        <button id="mode-grouped" type="button"
+                            class="px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer text-slate-600 hover:text-slate-900">
+                            Grouped Data (Intervals)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Question Format Selector -->
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Format:</span>
+                    <div class="inline-flex rounded-xl bg-slate-100 p-1">
+                        <button id="qmode-mcq" type="button"
+                            class="px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer bg-white text-slate-900 shadow-sm">
+                            Multiple Choice (MCQ)
+                        </button>
+                        <button id="qmode-input" type="button"
+                            class="px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer text-slate-600 hover:text-slate-900">
+                            Direct Input
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formula Reminder -->
+            <div class="flex items-center gap-2 text-xs font-medium text-slate-600 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200 self-start md:self-auto">
+                <span class="font-semibold text-indigo-700">Population Variance:</span>
+                <span class="font-mono-num">&sigma;&sup2; = (&Sigma;(f&middot;x&sup2;) / N) &minus; &mu;&sup2;</span>
+            </div>
+        </section>
+
+        <!-- Main Workspace Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+
+            <!-- Left Column: Frequency Table -->
+            <div class="lg:col-span-6 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between print-card">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-bold text-slate-900">Frequency Distribution</h2>
+                        <span class="text-xs font-medium px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-100">
+                            Population (N)
+                        </span>
+                    </div>
+                    <p class="text-sm text-slate-500 mb-4">
+                        Use the generated frequency table below to find the Mean (&mu;), Population Variance (&sigma;&sup2;), and Population Standard Deviation (&sigma;).
+                    </p>
+
+                    <div class="overflow-x-auto rounded-xl border border-slate-200">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold uppercase tracking-wider text-slate-600">
+                                    <th id="th-col1" class="py-3 px-4">Value (x)</th>
+                                    <th class="py-3 px-4 text-right">Frequency (f)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="question-table-body" class="divide-y divide-slate-100 text-sm font-mono-num">
+                                <!-- Injected by JS -->
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-slate-50 border-t border-slate-200 font-semibold text-sm text-slate-800">
+                                    <td class="py-3 px-4">Total (N = &Sigma;f)</td>
+                                    <td id="table-total-f" class="py-3 px-4 text-right font-mono-num">0</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Questions & Answers -->
+            <div class="lg:col-span-6 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between print-card">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900 mb-1">Questions</h2>
+                    <p id="answer-subtitle" class="text-xs text-slate-500 mb-5">Select the correct option (A, B, C, or D) for each question.</p>
+
+                    <!-- MCQ Container (Default) -->
+                    <div id="mcq-container" class="space-y-5">
+                        <div>
+                            <div class="text-sm font-semibold text-slate-800 mb-2">1. Population Mean (&mu;)</div>
+                            <div id="mcq-options-mean" class="grid grid-cols-2 gap-2.5"></div>
+                            <div id="mcq-feedback-mean" class="mt-1.5 text-xs font-medium hidden"></div>
+                        </div>
+
+                        <div>
+                            <div class="text-sm font-semibold text-slate-800 mb-2">2. Population Variance (&sigma;&sup2;)</div>
+                            <div id="mcq-options-variance" class="grid grid-cols-2 gap-2.5"></div>
+                            <div id="mcq-feedback-variance" class="mt-1.5 text-xs font-medium hidden"></div>
+                        </div>
+
+                        <div>
+                            <div class="text-sm font-semibold text-slate-800 mb-2">3. Population Standard Deviation (&sigma;)</div>
+                            <div id="mcq-options-stddev" class="grid grid-cols-2 gap-2.5"></div>
+                            <div id="mcq-feedback-stddev" class="mt-1.5 text-xs font-medium hidden"></div>
+                        </div>
+                    </div>
+
+                    <!-- Direct Input Container -->
+                    <div id="direct-input-container" class="space-y-4 hidden">
+                        <div>
+                            <label for="input-mean" class="block text-sm font-medium text-slate-700 mb-1">
+                                Population Mean (<span class="font-semibold">&mu;</span>)
+                            </label>
+                            <input type="number" step="any" id="input-mean" placeholder="e.g. 24.50"
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono-num text-sm transition-all">
+                            <div id="feedback-mean" class="mt-1.5 text-xs font-medium hidden"></div>
+                        </div>
+
+                        <div>
+                            <label for="input-variance" class="block text-sm font-medium text-slate-700 mb-1">
+                                Population Variance (<span class="font-semibold">&sigma;&sup2;</span>)
+                            </label>
+                            <input type="number" step="any" id="input-variance" placeholder="e.g. 42.18"
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono-num text-sm transition-all">
+                            <div id="feedback-variance" class="mt-1.5 text-xs font-medium hidden"></div>
+                        </div>
+
+                        <div>
+                            <label for="input-stddev" class="block text-sm font-medium text-slate-700 mb-1">
+                                Population Standard Deviation (<span class="font-semibold">&sigma;</span>)
+                            </label>
+                            <input type="number" step="any" id="input-stddev" placeholder="e.g. 6.49"
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono-num text-sm transition-all">
+                            <div id="feedback-stddev" class="mt-1.5 text-xs font-medium hidden"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="mt-6 pt-4 border-t border-slate-100 flex flex-col sm:flex-row gap-3 no-print">
+                    <button id="btn-check" type="button"
+                        class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold text-sm shadow-sm hover:bg-emerald-700 active:scale-[0.99] transition-all cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Check Answers
+                    </button>
+                    <button id="btn-solution" type="button"
+                        class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-semibold text-sm hover:bg-slate-200 active:scale-[0.99] transition-all cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        <span id="btn-solution-text">Show Solution</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step-by-Step Solution Panel -->
+        <section id="solution-panel" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8 print-card">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+                <h2 class="text-lg font-bold text-slate-900">Step-by-Step Solution</h2>
+                <span class="text-xs font-medium text-slate-500">Population Computational Formula</span>
+            </div>
+
+            <!-- Calculation Table -->
+            <div class="overflow-x-auto rounded-xl border border-slate-200 mb-6">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr id="solution-thead-row" class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600"></tr>
+                    </thead>
+                    <tbody id="solution-tbody" class="divide-y divide-slate-100 text-sm font-mono-num"></tbody>
+                    <tfoot id="solution-tfoot" class="bg-slate-50 border-t border-slate-200 font-semibold text-sm text-slate-800 font-mono-num"></tfoot>
+                </table>
+            </div>
+
+            <!-- Formula Substitution Cards -->
+            <div id="solution-formulas" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+        </section>
+
+    </div>
+
+    <script>
+        // ==========================================
+        // Application State
+        // ==========================================
+        const state = {
+            mode: 'ungrouped',      // 'ungrouped' | 'grouped'
+            questionMode: 'mcq',    // 'mcq' | 'input'
+            rows: [],               // { label, x, f, fx, fx2 }
+            stats: {
+                totalF: 0,
+                sumFX: 0,
+                sumFX2: 0,
+                mean: 0,
+                meanSq: 0,
+                variance: 0,
+                stdDev: 0
+            },
+            mcq: {
+                mean: { options: [], correctIndex: -1, selectedIndex: null },
+                variance: { options: [], correctIndex: -1, selectedIndex: null },
+                stdDev: { options: [], correctIndex: -1, selectedIndex: null }
+            },
+            solutionVisible: false
+        };
+
+        // ==========================================
+        // DOM References
+        // ==========================================
+        const el = {
+            btnGenerate: document.getElementById('btn-generate'),
+            btnPrint: document.getElementById('btn-print'),
+            btnDownload: document.getElementById('btn-download'),
+            modeUngrouped: document.getElementById('mode-ungrouped'),
+            modeGrouped: document.getElementById('mode-grouped'),
+            qmodeMcq: document.getElementById('qmode-mcq'),
+            qmodeInput: document.getElementById('qmode-input'),
+            answerSubtitle: document.getElementById('answer-subtitle'),
+            mcqContainer: document.getElementById('mcq-container'),
+            directInputContainer: document.getElementById('direct-input-container'),
+            mcqOptionsMean: document.getElementById('mcq-options-mean'),
+            mcqOptionsVariance: document.getElementById('mcq-options-variance'),
+            mcqOptionsStddev: document.getElementById('mcq-options-stddev'),
+            mcqFeedbackMean: document.getElementById('mcq-feedback-mean'),
+            mcqFeedbackVariance: document.getElementById('mcq-feedback-variance'),
+            mcqFeedbackStddev: document.getElementById('mcq-feedback-stddev'),
+            thCol1: document.getElementById('th-col1'),
+            questionTableBody: document.getElementById('question-table-body'),
+            tableTotalF: document.getElementById('table-total-f'),
+            inputMean: document.getElementById('input-mean'),
+            inputVariance: document.getElementById('input-variance'),
+            inputStddev: document.getElementById('input-stddev'),
+            feedbackMean: document.getElementById('feedback-mean'),
+            feedbackVariance: document.getElementById('feedback-variance'),
+            feedbackStddev: document.getElementById('feedback-stddev'),
+            btnCheck: document.getElementById('btn-check'),
+            btnSolution: document.getElementById('btn-solution'),
+            btnSolutionText: document.getElementById('btn-solution-text'),
+            solutionPanel: document.getElementById('solution-panel'),
+            solutionTheadRow: document.getElementById('solution-thead-row'),
+            solutionTbody: document.getElementById('solution-tbody'),
+            solutionTfoot: document.getElementById('solution-tfoot'),
+            solutionFormulas: document.getElementById('solution-formulas')
+        };
+
+        // ==========================================
+        // Helpers
+        // ==========================================
+        function randInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function formatFixed(num, decimals = 4) {
+            return parseFloat(num.toFixed(decimals)).toString();
+        }
+
+        // ==========================================
+        // Question Generation & Calculations
+        // ==========================================
+        function generateQuestion() {
+            const numRows = randInt(5, 6);
+            const rawRows = [];
+
+            if (state.mode === 'ungrouped') {
+                let currentX = randInt(4, 15);
+                const step = randInt(2, 5);
+                for (let i = 0; i < numRows; i++) {
+                    rawRows.push({
+                        label: currentX.toString(),
+                        x: currentX,
+                        f: randInt(2, 12)
+                    });
+                    currentX += step;
+                }
+            } else {
+                let start = randInt(1, 3) * 10; // e.g., 10, 20, 30
+                const width = 9; // e.g., 10 - 19 -> midpoint 14.5
+                const step = 10;
+                for (let i = 0; i < numRows; i++) {
+                    const lower = start + i * step;
+                    const upper = lower + width;
+                    const midpoint = (lower + upper) / 2;
+                    rawRows.push({
+                        label: `${lower} &ndash; ${upper}`,
+                        x: midpoint,
+                        f: randInt(2, 14)
+                    });
+                }
+            }
+
+            state.rows = rawRows;
+            calculateStats();
+            generateMCQOptions();
+            resetInputsAndFeedback();
+            renderQuestionTable();
+            renderMCQOptions();
+
+            if (state.solutionVisible) {
+                renderSolution();
+            }
+        }
+
+        function calculateStats() {
+            let totalF = 0;
+            let sumFX = 0;
+            let sumFX2 = 0;
+
+            state.rows.forEach(row => {
+                row.fx = row.x * row.f;
+                row.fx2 = row.f * row.x * row.x;
+                totalF += row.f;
+                sumFX += row.fx;
+                sumFX2 += row.fx2;
+            });
+
+            const mean = sumFX / totalF;
+            const meanSq = mean * mean;
+            // Population computational formula: σ² = (Σ(f·x²) / N) - μ²
+            const variance = (sumFX2 / totalF) - meanSq;
+            const stdDev = Math.sqrt(Math.max(0, variance));
+
+            state.stats = {
+                totalF,
+                sumFX,
+                sumFX2,
+                mean,
+                meanSq,
+                variance,
+                stdDev
+            };
+        }
+
+        function buildDistractorSet(correctVal, candidateDistractors) {
+            const uniqueVals = new Set([Number(correctVal.toFixed(2))]);
+            const options = [Number(correctVal.toFixed(2))];
+
+            for (const d of candidateDistractors) {
+                const rounded = Number(d.toFixed(2));
+                if (rounded > 0 && !uniqueVals.has(rounded)) {
+                    uniqueVals.add(rounded);
+                    options.push(rounded);
+                }
+                if (options.length === 4) break;
+            }
+
+            const offsets = [1.25, -1.35, 2.5, -2.1, 3.4];
+            let idx = 0;
+            while (options.length < 4 && idx < offsets.length) {
+                const candidate = Number(Math.max(0.1, correctVal + offsets[idx]).toFixed(2));
+                if (!uniqueVals.has(candidate)) {
+                    uniqueVals.add(candidate);
+                    options.push(candidate);
+                }
+                idx++;
+            }
+
+            // Shuffle
+            for (let i = options.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [options[i], options[j]] = [options[j], options[i]];
+            }
+
+            const correctIndex = options.indexOf(Number(correctVal.toFixed(2)));
+            return { options, correctIndex, selectedIndex: null };
+        }
+
+        function generateMCQOptions() {
+            const { totalF, sumFX, sumFX2, mean, meanSq, variance, stdDev } = state.stats;
+
+            const meanDistractors = [
+                sumFX / Math.max(1, totalF - 1),
+                sumFX / state.rows.length,
+                mean + randInt(2, 4) * 0.5,
+                Math.max(1, mean - randInt(2, 4) * 0.5)
+            ];
+            state.mcq.mean = buildDistractorSet(mean, meanDistractors);
+
+            const sampleVar = (sumFX2 - totalF * meanSq) / Math.max(1, totalF - 1);
+            const forgotMeanSq = sumFX2 / totalF;
+            const subMeanOnly = Math.max(0.5, (sumFX2 / totalF) - mean);
+            state.mcq.variance = buildDistractorSet(variance, [sampleVar, forgotMeanSq, subMeanOnly]);
+
+            state.mcq.stdDev = buildDistractorSet(stdDev, [
+                Math.sqrt(Math.max(0, sampleVar)),
+                variance,
+                Math.sqrt(Math.max(0, forgotMeanSq))
+            ]);
+        }
+
+        // ==========================================
+        // UI Rendering
+        // ==========================================
+        function updateModeToggle() {
+            if (state.mode === 'ungrouped') {
+                el.modeUngrouped.className = 'px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer bg-white text-slate-900 shadow-sm';
+                el.modeGrouped.className = 'px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer text-slate-600 hover:text-slate-900';
+                el.thCol1.innerHTML = 'Value (x)';
+            } else {
+                el.modeGrouped.className = 'px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer bg-white text-slate-900 shadow-sm';
+                el.modeUngrouped.className = 'px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer text-slate-600 hover:text-slate-900';
+                el.thCol1.innerHTML = 'Class Interval';
+            }
+        }
+
+        function updateQuestionModeToggle() {
+            if (state.questionMode === 'mcq') {
+                el.qmodeMcq.className = 'px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer bg-white text-slate-900 shadow-sm';
+                el.qmodeInput.className = 'px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer text-slate-600 hover:text-slate-900';
+                el.mcqContainer.classList.remove('hidden');
+                el.directInputContainer.classList.add('hidden');
+                el.answerSubtitle.textContent = 'Select the correct option (A, B, C, or D) for each question.';
+            } else {
+                el.qmodeInput.className = 'px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer bg-white text-slate-900 shadow-sm';
+                el.qmodeMcq.className = 'px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer text-slate-600 hover:text-slate-900';
+                el.directInputContainer.classList.remove('hidden');
+                el.mcqContainer.classList.add('hidden');
+                el.answerSubtitle.textContent = 'Tolerance: ±0.05 for rounding differences.';
+            }
+        }
+
+        function renderQuestionTable() {
+            el.questionTableBody.innerHTML = state.rows.map(row => `
+                <tr class="hover:bg-slate-50/70 transition-colors">
+                    <td class="py-3 px-4 font-medium text-slate-800">${row.label}</td>
+                    <td class="py-3 px-4 text-right text-slate-700">${row.f}</td>
+                </tr>
+            `).join('');
+            el.tableTotalF.textContent = state.stats.totalF;
+        }
+
+        function renderMCQGroup(key, containerEl) {
+            const labels = ['A', 'B', 'C', 'D'];
+            const group = state.mcq[key];
+            containerEl.innerHTML = group.options.map((opt, idx) => {
+                const isSelected = group.selectedIndex === idx;
+                const baseCls = 'flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border text-sm font-mono-num transition-all cursor-pointer text-left';
+                const stateCls = isSelected
+                    ? 'border-indigo-600 bg-indigo-50 text-indigo-900 ring-1 ring-indigo-600 font-semibold'
+                    : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 hover:border-slate-300';
+                return `
+                    <button type="button" data-mcq-key="${key}" data-mcq-idx="${idx}" class="${baseCls} ${stateCls}">
+                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg text-xs font-bold ${isSelected ? 'bg-indigo-600 text-white' : 'bg-white text-slate-600 border border-slate-200'}">${labels[idx]}</span>
+                        <span>${opt.toFixed(2)}</span>
+                    </button>
+                `;
+            }).join('');
+
+            containerEl.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    state.mcq[key].selectedIndex = Number(btn.dataset.mcqIdx);
+                    renderMCQGroup(key, containerEl);
+                });
+            });
+        }
+
+        function renderMCQOptions() {
+            renderMCQGroup('mean', el.mcqOptionsMean);
+            renderMCQGroup('variance', el.mcqOptionsVariance);
+            renderMCQGroup('stdDev', el.mcqOptionsStddev);
+        }
+
+        function resetInputsAndFeedback() {
+            [el.inputMean, el.inputVariance, el.inputStddev].forEach(input => {
+                input.value = '';
+                input.classList.remove('border-emerald-500', 'bg-emerald-50/40', 'border-rose-500', 'bg-rose-50/40');
+                input.classList.add('border-slate-300', 'bg-slate-50');
+            });
+            [
+                el.feedbackMean, el.feedbackVariance, el.feedbackStddev,
+                el.mcqFeedbackMean, el.mcqFeedbackVariance, el.mcqFeedbackStddev
+            ].forEach(fb => {
+                fb.classList.add('hidden');
+                fb.textContent = '';
+            });
+        }
+
+        // ==========================================
+        // Answer Verification
+        // ==========================================
+        function checkMCQGroup(key, containerEl, feedbackEl, exactVal) {
+            const labels = ['A', 'B', 'C', 'D'];
+            const group = state.mcq[key];
+            const buttons = containerEl.querySelectorAll('button');
+
+            feedbackEl.classList.remove('hidden', 'text-emerald-600', 'text-rose-600');
+
+            if (group.selectedIndex === null) {
+                feedbackEl.classList.add('text-rose-600');
+                feedbackEl.textContent = `Please select an option. (Correct: ${labels[group.correctIndex]} — ${exactVal.toFixed(2)})`;
+                return;
+            }
+
+            buttons.forEach((btn, idx) => {
+                btn.classList.remove('border-indigo-600', 'bg-indigo-50', 'text-indigo-900', 'ring-1', 'ring-indigo-600', 'border-slate-200', 'bg-slate-50');
+                if (idx === group.correctIndex) {
+                    btn.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-900', 'ring-1', 'ring-emerald-500');
+                } else if (idx === group.selectedIndex && idx !== group.correctIndex) {
+                    btn.classList.add('border-rose-500', 'bg-rose-50', 'text-rose-900', 'ring-1', 'ring-rose-500');
+                } else {
+                    btn.classList.add('border-slate-200', 'bg-slate-50', 'opacity-60');
+                }
+            });
+
+            if (group.selectedIndex === group.correctIndex) {
+                feedbackEl.classList.add('text-emerald-600');
+                feedbackEl.textContent = `Correct! Exact value: ${exactVal.toFixed(4)}`;
+            } else {
+                feedbackEl.classList.add('text-rose-600');
+                feedbackEl.textContent = `Incorrect. Correct option is ${labels[group.correctIndex]} (${exactVal.toFixed(2)}).`;
+            }
+        }
+
+        function checkSingleInput(inputEl, feedbackEl, exactVal) {
+            const raw = inputEl.value.trim();
+            inputEl.classList.remove('border-slate-300', 'bg-slate-50', 'border-emerald-500', 'bg-emerald-50/40', 'border-rose-500', 'bg-rose-50/40');
+            feedbackEl.classList.remove('hidden', 'text-emerald-600', 'text-rose-600');
+
+            if (raw === '' || isNaN(Number(raw))) {
+                inputEl.classList.add('border-rose-500', 'bg-rose-50/40');
+                feedbackEl.classList.add('text-rose-600');
+                feedbackEl.textContent = `Please enter a valid number. (Exact: ${exactVal.toFixed(2)})`;
+                return;
+            }
+
+            const userVal = Number(raw);
+            if (Math.abs(userVal - exactVal) <= 0.05) {
+                inputEl.classList.add('border-emerald-500', 'bg-emerald-50/40');
+                feedbackEl.classList.add('text-emerald-600');
+                feedbackEl.textContent = `Correct! Exact value: ${exactVal.toFixed(4)}`;
+            } else {
+                inputEl.classList.add('border-rose-500', 'bg-rose-50/40');
+                feedbackEl.classList.add('text-rose-600');
+                feedbackEl.textContent = `Incorrect. Exact value is ${exactVal.toFixed(2)}.`;
+            }
+        }
+
+        function checkAnswers() {
+            if (state.questionMode === 'mcq') {
+                checkMCQGroup('mean', el.mcqOptionsMean, el.mcqFeedbackMean, state.stats.mean);
+                checkMCQGroup('variance', el.mcqOptionsVariance, el.mcqFeedbackVariance, state.stats.variance);
+                checkMCQGroup('stdDev', el.mcqOptionsStddev, el.mcqFeedbackStddev, state.stats.stdDev);
+            } else {
+                checkSingleInput(el.inputMean, el.feedbackMean, state.stats.mean);
+                checkSingleInput(el.inputVariance, el.feedbackVariance, state.stats.variance);
+                checkSingleInput(el.inputStddev, el.feedbackStddev, state.stats.stdDev);
+            }
+        }
+
+        // ==========================================
+        // Step-by-Step Solution Rendering
+        // ==========================================
+        function renderSolution() {
+            const isGrouped = state.mode === 'grouped';
+
+            el.solutionTheadRow.innerHTML = `
+                ${isGrouped ? '<th class="py-3 px-4">Interval</th>' : ''}
+                <th class="py-3 px-4 text-right">${isGrouped ? 'Midpoint (x)' : 'Value (x)'}</th>
+                <th class="py-3 px-4 text-right">f</th>
+                <th class="py-3 px-4 text-right">f &middot; x</th>
+                <th class="py-3 px-4 text-right">f &middot; x&sup2;</th>
+            `;
+
+            el.solutionTbody.innerHTML = state.rows.map(row => `
+                <tr class="hover:bg-slate-50/70">
+                    ${isGrouped ? `<td class="py-2.5 px-4 font-medium text-slate-800">${row.label}</td>` : ''}
+                    <td class="py-2.5 px-4 text-right text-slate-700">${row.x}</td>
+                    <td class="py-2.5 px-4 text-right text-slate-700">${row.f}</td>
+                    <td class="py-2.5 px-4 text-right text-slate-700">${formatFixed(row.fx, 2)}</td>
+                    <td class="py-2.5 px-4 text-right text-slate-800 font-medium">${formatFixed(row.fx2, 2)}</td>
+                </tr>
+            `).join('');
+
+            el.solutionTfoot.innerHTML = `
+                <tr>
+                    ${isGrouped ? '<td class="py-3 px-4">Totals</td>' : '<td class="py-3 px-4 text-right">Totals</td>'}
+                    ${isGrouped ? '<td class="py-3 px-4 text-right">&mdash;</td>' : ''}
+                    <td class="py-3 px-4 text-right">N = ${state.stats.totalF}</td>
+                    <td class="py-3 px-4 text-right">&Sigma;(f&middot;x) = ${formatFixed(state.stats.sumFX, 2)}</td>
+                    <td class="py-3 px-4 text-right">&Sigma;(f&middot;x&sup2;) = ${formatFixed(state.stats.sumFX2, 2)}</td>
+                </tr>
+            `;
+
+            const fx2OverN = state.stats.sumFX2 / state.stats.totalF;
+
+            el.solutionFormulas.innerHTML = `
+                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                    <div class="text-xs font-semibold uppercase tracking-wider text-indigo-600 mb-1.5">1. Population Mean (&mu;)</div>
+                    <div class="text-sm text-slate-700 font-mono-num space-y-1">
+                        <div>&mu; = &Sigma;(f&middot;x) / N</div>
+                        <div>&mu; = ${formatFixed(state.stats.sumFX, 2)} / ${state.stats.totalF}</div>
+                        <div class="pt-1 font-bold text-slate-900 text-base">&mu; = ${state.stats.mean.toFixed(4)}</div>
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                    <div class="text-xs font-semibold uppercase tracking-wider text-indigo-600 mb-1.5">2. Population Variance (&sigma;&sup2;)</div>
+                    <div class="text-sm text-slate-700 font-mono-num space-y-1">
+                        <div>&sigma;&sup2; = (&Sigma;(f&middot;x&sup2;) / N) &minus; &mu;&sup2;</div>
+                        <div>&sigma;&sup2; = (${formatFixed(state.stats.sumFX2, 2)} / ${state.stats.totalF}) &minus; (${state.stats.mean.toFixed(4)})&sup2;</div>
+                        <div>&sigma;&sup2; = ${fx2OverN.toFixed(4)} &minus; ${state.stats.meanSq.toFixed(4)}</div>
+                        <div class="pt-1 font-bold text-slate-900 text-base">&sigma;&sup2; = ${state.stats.variance.toFixed(4)}</div>
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                    <div class="text-xs font-semibold uppercase tracking-wider text-indigo-600 mb-1.5">3. Standard Deviation (&sigma;)</div>
+                    <div class="text-sm text-slate-700 font-mono-num space-y-1">
+                        <div>&sigma; = &radic;(&sigma;&sup2;)</div>
+                        <div>&sigma; = &radic;(${state.stats.variance.toFixed(4)})</div>
+                        <div class="pt-1 font-bold text-slate-900 text-base">&sigma; = ${state.stats.stdDev.toFixed(4)}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleSolution() {
+            state.solutionVisible = !state.solutionVisible;
+            if (state.solutionVisible) {
+                renderSolution();
+                el.solutionPanel.classList.remove('hidden');
+                el.btnSolutionText.textContent = 'Hide Solution';
+            } else {
+                el.solutionPanel.classList.add('hidden');
+                el.btnSolutionText.textContent = 'Show Solution';
+            }
+        }
+
+        // ==========================================
+        // Print & Download HTML
+        // ==========================================
+        function downloadHTML() {
+            const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'statistics.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // ==========================================
+        // Event Listeners
+        // ==========================================
+        el.btnGenerate.addEventListener('click', generateQuestion);
+        el.btnPrint.addEventListener('click', () => window.print());
+        el.btnDownload.addEventListener('click', downloadHTML);
+
+        el.modeUngrouped.addEventListener('click', () => {
+            if (state.mode !== 'ungrouped') {
+                state.mode = 'ungrouped';
+                updateModeToggle();
+                generateQuestion();
+            }
+        });
+
+        el.modeGrouped.addEventListener('click', () => {
+            if (state.mode !== 'grouped') {
+                state.mode = 'grouped';
+                updateModeToggle();
+                generateQuestion();
+            }
+        });
+
+        el.qmodeMcq.addEventListener('click', () => {
+            if (state.questionMode !== 'mcq') {
+                state.questionMode = 'mcq';
+                updateQuestionModeToggle();
+            }
+        });
+
+        el.qmodeInput.addEventListener('click', () => {
+            if (state.questionMode !== 'input') {
+                state.questionMode = 'input';
+                updateQuestionModeToggle();
+            }
+        });
+
+        el.btnCheck.addEventListener('click', checkAnswers);
+        el.btnSolution.addEventListener('click', toggleSolution);
+
+        [el.inputMean, el.inputVariance, el.inputStddev].forEach(input => {
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') checkAnswers();
+            });
+        });
+
+        // ==========================================
+        // Initialize on Load
+        // ==========================================
+        updateModeToggle();
+        updateQuestionModeToggle();
+        generateQuestion();
+    </script>
+</body>
+</html>
