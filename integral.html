@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Integration by Parts Quiz</title>
+<style>
+body{font-family:Arial,sans-serif;background:#f4f7fb;color:#222;margin:0;padding:20px}
+.card{max-width:900px;margin:auto;background:#fff;padding:25px;border-radius:14px;box-shadow:0 3px 12px rgba(0,0,0,.08)}
+h1{color:#1f4e79;margin-top:0}
+label{display:block;margin:10px 0 5px;font-weight:bold}
+select,input,button{padding:10px;border-radius:8px;border:1px solid #ccd;font-size:16px}
+button{background:#1f6feb;color:#fff;border:none;cursor:pointer;font-weight:bold;margin:5px 5px 5px 0}
+button:hover{background:#155ecb}
+.question{background:#eef5ff;border-left:5px solid #1f6feb;padding:15px;margin:15px 0;border-radius:8px}
+.option{display:block;background:#fff;border:1px solid #ccd;border-radius:8px;padding:10px;margin:7px 0;cursor:pointer}
+.option:hover{background:#f0f6ff}
+.correct{background:#e6f7ec;border-color:#2e9e5b;font-weight:bold}
+.wrong{background:#fdecea;border-color:#d9534f}
+.helper{background:#fff8e1;border-right:5px solid #f0ad4e;padding:12px;margin-top:10px;border-radius:8px;direction:rtl;text-align:right}
+.hidden{display:none}
+.score{font-size:20px;font-weight:bold;color:#1f4e79;margin:15px 0}
+.formula{background:#fff8e1;padding:10px;border-radius:8px;margin:15px 0;direction:ltr;text-align:left}
+</style>
+</head>
+<body>
+<div class="card">
+<h1>Integration by Parts — Multiple Choice Quiz</h1>
+<p>Choose the correct answer. The helper explanation is in Arabic.</p>
+<div class="formula"><strong>Formula:</strong> \(\int u\,dv = uv - \int v\,du\)</div>
+
+<label>Number of questions</label>
+<input id="num" type="number" min="1" max="20" value="5">
+
+<label>Difficulty</label>
+<select id="level">
+<option value="easy">Easy</option>
+<option value="medium" selected>Medium</option>
+<option value="hard">Hard</option>
+</select>
+
+<label>Question type</label>
+<select id="type">
+<option value="mixed">Mixed</option>
+<option value="exp">Polynomial × exponential</option>
+<option value="trig">Polynomial × sine/cosine</option>
+<option value="log">Logarithmic</option>
+<option value="exptrig">Exponential × sine/cosine</option>
+</select>
+
+<button onclick="generate()">Start Quiz</button>
+<button onclick="checkAll()">Check Answers</button>
+<button onclick="showHelpers()">Show All Explanations</button>
+
+<div id="output"></div>
+<div id="score"></div>
+</div>
+
+<script>
+function randint(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+function choose(a){return a[Math.floor(Math.random()*a.length)]}
+function shuffle(a){return a.sort(()=>Math.random()-0.5)}
+
+function makeQuestion(type,level){
+ const maxPow=level==="easy"?1:level==="medium"?2:3;
+ const maxA=level==="easy"?2:3;
+ const n=randint(1,maxPow),a=randint(1,maxA);
+ const types=type==="mixed"?["exp","trig","log","exptrig"]:[type];
+ const t=choose(types);
+ if(t==="exp"){
+  const q=`\\(\\int x^{${n}}e^{${a}x}\\,dx\\)`;
+  const correct=`\\(\\frac{x^{${n}}e^{${a}x}}{${a}}-\\frac{${n}x^{${n-1}}e^{${a}x}}{${a*a}}+C\\)`;
+  const helper=`اخترنا \\(u=x^{${n}}\\) و \\(dv=e^{${a}x}\\,dx\\). إذن \\(du=${n===1?"":n+"x^{${n-1}}"}dx\\) و \\(v=\\frac{e^{${a}x}}{${a}}\\). نطبق القاعدة \\(\\int u\\,dv=uv-\\int v\\,du\\)، ثم نكرر التكامل بالتجزئة على الحد المتبقي إذا لزم الأمر.`;
+  return build(q,correct,helper);
+ }
+ if(t==="trig"){
+  const isSin=Math.random()<0.5,fn=isSin?"\\sin":"\\cos";
+  const q=`\\(\\int x^{${n}}${fn}(${a}x)\\,dx\\)`;
+  const correct=isSin?`\\(-\\frac{x^{${n}}\\cos(${a}x)}{${a}}+\\frac{${n}x^{${n-1}}\\sin(${a}x)}{${a*a}}+C\\)`:`\\(\\frac{x^{${n}}\\sin(${a}x)}{${a}}+\\frac{${n}x^{${n-1}}\\cos(${a}x)}{${a*a}}+C\\)`;
+  const helper=`اخترنا \\(u=x^{${n}}\\) و \\(dv=${fn}(${a}x)\\,dx\\). إذن \\(du=${n===1?"":n+"x^{${n-1}}"}dx\\)، و \\(v=${isSin?"-\\frac{\\cos("+a+"x)}{"+a+"}":"\\frac{\\sin("+a+"x)}{"+a+"}"}\\). نستخدم التكامل بالتجزئة، وقد نحتاج لتكراره لأن قوة \\(x\\) تنقص تدريجيًا.`;
+  return build(q,correct,helper);
+ }
+ if(t==="log"){
+  const q=`\\(\\int x^{${n}}\\ln(x)\\,dx\\)`;
+  const correct=`\\(\\frac{x^{${n+1}}\\ln(x)}{${n+1}}-\\frac{x^{${n+1}}}{${(n+1)*(n+1)}}+C\\)`;
+  const helper=`نختار \\(u=\\ln(x)\\) لأن مشتقة اللوغاريتم أبسط، ونختار \\(dv=x^{${n}}dx\\). إذن \\(du=\\frac1x dx\\) و \\(v=\\frac{x^{${n+1}}}{${n+1}}\\). بعد تطبيق القاعدة، يتبقى تكامل قوة بسيط نحله بقاعدة القوة.`;
+  return build(q,correct,helper);
+ }
+ const isSin=Math.random()<0.5,fn=isSin?"\\sin":"\\cos";
+ const q=`\\(\\int e^{${a}x}${fn}(${a}x)\\,dx\\)`;
+ const correct=isSin?`\\(\\frac{e^{${a}x}}{${2*a}}\\left(\\sin(${a}x)-\\cos(${a}x)\\right)+C\\)`:`\\(\\frac{e^{${a}x}}{${2*a}}\\left(\\sin(${a}x)+\\cos(${a}x)\\right)+C\\)`;
+ const helper=`نفترض أن \\(I=\\int e^{${a}x}${fn}(${a}x)\\,dx\\). نطبق التكامل بالتجزئة مرتين؛ سيظهر التكامل الأصلي مرة أخرى. ننقل الحد الذي يحتوي على \\(I\\) إلى طرف ونحل المعادلة لإيجاد \\(I\\).`;
+ return build(q,correct,helper);
+}
+function build(q,correct,helper){
+ const wrongs=[correct.replace(/x\^\{(\d+)\}/,"x^{$1+1}"),correct.replace(/e\^\{(\d+)x\}/,"e^{$1x+1}"),correct.replace(/\\frac\{([^}]*)\}\{(\d+)\}/,"\\frac{$1}{$2}"),correct+"x"].filter(w=>w!==correct).slice(0,3);
+ return{q,options:shuffle([correct,...wrongs]),correct,helper};
+}
+function generate(){
+ const num=parseInt(document.getElementById("num").value)||5;
+ const level=document.getElementById("level").value;
+ const type=document.getElementById("type").value;
+ let h="";
+ for(let i=1;i<=num;i++){
+  const p=makeQuestion(type,level);
+  h+=`<div class="question" data-correct="${encodeURIComponent(p.correct)}"><strong>Question ${i}:</strong> ${p.q}`;
+  p.options.forEach(op=>h+=`<label class="option"><input type="radio" name="q${i}" value="${encodeURIComponent(op)}"> ${op}</label>`);
+  h+=`<div class="helper hidden"><strong>المساعد بالعربية:</strong><br>${p.helper}</div></div>`;
+ }
+ document.getElementById("output").innerHTML=h;
+ document.getElementById("score").innerHTML="";
+ renderMath();
+}
+function checkAll(){
+ let score=0,total=0;
+ document.querySelectorAll(".question").forEach(q=>{
+  total++;
+  const chosen=q.querySelector("input:checked");
+  const correct=decodeURIComponent(q.dataset.correct);
+  q.querySelectorAll(".option").forEach(o=>{
+   const val=decodeURIComponent(o.querySelector("input").value);
+   o.classList.remove("correct","wrong");
+   if(val===correct)o.classList.add("correct");
+   if(chosen&&decodeURIComponent(chosen.value)===val&&val!==correct)o.classList.add("wrong");
+  });
+  if(chosen&&decodeURIComponent(chosen.value)===correct)score++;
+  q.querySelector(".helper").classList.remove("hidden");
+ });
+ document.getElementById("score").innerHTML=`Your score: ${score} / ${total}`;
+ renderMath();
+}
+function showHelpers(){document.querySelectorAll(".helper").forEach(e=>e.classList.remove("hidden"));renderMath()}
+function renderMath(){if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise()}
+window.MathJax={tex:{inlineMath:[["\\(","\\)"]]}};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</body>
+</html>
