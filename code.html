@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>✨ مولّد الأسئلة المضيء</title>
+<style>
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  background: radial-gradient(circle at top, #1b1035, #050510);
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.card {
+  width: 100%;
+  max-width: 620px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(140,120,255,0.4);
+  border-radius: 22px;
+  padding: 28px;
+  box-shadow: 0 0 35px rgba(120,80,255,0.45);
+}
+h1 {
+  text-align: center;
+  margin: 0 0 6px;
+  color: #b8a7ff;
+  text-shadow: 0 0 18px rgba(150,100,255,0.9);
+}
+p.sub {
+  text-align: center;
+  margin: 0 0 22px;
+  color: #cfd3ff;
+}
+label {
+  display: block;
+  margin: 14px 0 6px;
+  font-weight: bold;
+  color: #d9d2ff;
+}
+input, select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(160,130,255,0.55);
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  font-size: 16px;
+  outline: none;
+}
+input:focus, select:focus {
+  border-color: #a78bfa;
+  box-shadow: 0 0 12px rgba(167,139,250,0.7);
+}
+button {
+  width: 100%;
+  margin-top: 22px;
+  padding: 14px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  background: linear-gradient(90deg, #7c3aed, #06b6d4, #ec4899);
+  box-shadow: 0 0 22px rgba(124,58,237,0.8);
+  transition: transform .15s;
+}
+button:hover {
+  transform: scale(1.02);
+}
+.question {
+  margin-top: 18px;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(120,200,255,0.35);
+  box-shadow: 0 0 18px rgba(0,200,255,0.25);
+}
+.question b {
+  color: #7dd3fc;
+}
+.answer {
+  margin-top: 10px;
+  color: #a7f3d0;
+  font-weight: bold;
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1>✨ مولّد الأسئلة المضيء ✨</h1>
+  <p class="sub">اتحاد القلب والعقل بالأخلاق الراقية</p>
+
+  <label>الموضوع</label>
+  <input id="topic" value="اتحاد القلب والعقل والتحلي بالأخلاق الراقية">
+
+  <label>عدد الأسئلة</label>
+  <select id="count">
+    <option value="3">3 أسئلة</option>
+    <option value="5" selected>5 أسئلة</option>
+    <option value="7">7 أسئلة</option>
+  </select>
+
+  <button onclick="generate()">✨ ولّد الأسئلة</button>
+
+  <div id="output"></div>
+</div>
+
+<script>
+function generate() {
+  const topic = document.getElementById("topic").value.trim() || "التعليم والأخلاق";
+  const count = parseInt(document.getElementById("count").value);
+  const output = document.getElementById("output");
+  output.innerHTML = "";
+
+  const templates = [
+    ["ما معنى اتحاد القلب والعقل؟", "التوازن بين المعرفة والقيم والسلوك"],
+    ["ما دور العقل في التعلم؟", "التفكير والفهم واتخاذ القرار"],
+    ["ما دور القلب في التعلم؟", "حمل القيم والمشاعر والنوايا الصالحة"],
+    ["أي من الأخلاق الراقية تجعل الإنسان محبوبًا؟", "الصدق والأمانة والاحترام"],
+    ["ماذا يحدث عندما يجتمع العلم بالأخلاق؟", "ينشأ إنسان متوازن ونافع لمجتمعه"],
+    ["ما أهمية الصدق في حياة الطالب؟", "يبني الثقة ويجعل سلوكه محترمًا"],
+    ["كيف نحترم معلمينا وزملاءنا؟", "بالاستماع والتعاون واستخدام كلمات مهذبة"],
+    ["ما الفرق بين المعرفة والسلوك؟", "المعرفة ما نعرفه، والسلوك ما نطبقه في حياتنا"],
+    ["لماذا نحتاج إلى الرحمة في التعامل؟", "لأنها تقوي العلاقات وتنشر الخير"],
+    ["ما الذي يجعل الطالب ناجحًا حقيقيًا؟", "التفوق العلمي مع الأخلاق الحسنة"]
+  ];
+
+  for (let i = 0; i < count; i++) {
+    const q = templates[i % templates.length];
+    output.innerHTML += `
+      <div class="question">
+        <b>س${i + 1}:</b> ${q[0]}
+        <div class="answer">✅ الإجابة: ${q[1]}</div>
+      </div>`;
+  }
+}
+</script>
+
+</body>
+</html>
