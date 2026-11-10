@@ -32,18 +32,11 @@ button:hover{background:#155ecb}
 <label>Number of questions</label>
 <input id="num" type="number" min="1" max="20" value="5">
 
-<label>Difficulty</label>
-<select id="level">
-<option value="easy">Easy</option>
-<option value="medium" selected>Medium</option>
-<option value="hard">Hard</option>
-</select>
-
 <label>Question type</label>
 <select id="type">
 <option value="mixed">Mixed</option>
-<option value="exp">Polynomial × exponential</option>
-<option value="trig">Polynomial × sine/cosine</option>
+<option value="exp">x × exponential</option>
+<option value="trig">x × sine/cosine</option>
 <option value="log">Logarithmic</option>
 <option value="exptrig">Exponential × sine/cosine</option>
 </select>
@@ -61,29 +54,27 @@ function randint(a,b){return Math.floor(Math.random()*(b-a+1))+a}
 function choose(a){return a[Math.floor(Math.random()*a.length)]}
 function shuffle(a){return a.sort(()=>Math.random()-0.5)}
 
-function makeQuestion(type,level){
- const maxPow=level==="easy"?1:level==="medium"?2:3;
- const maxA=level==="easy"?2:3;
- const n=randint(1,maxPow),a=randint(1,maxA);
+function makeQuestion(type){
+ const a=randint(1,3);
  const types=type==="mixed"?["exp","trig","log","exptrig"]:[type];
  const t=choose(types);
  if(t==="exp"){
-  const q=`\\(\\int x^{${n}}e^{${a}x}\\,dx\\)`;
-  const correct=`\\(\\frac{x^{${n}}e^{${a}x}}{${a}}-\\frac{${n}x^{${n-1}}e^{${a}x}}{${a*a}}+C\\)`;
-  const helper=`اخترنا \\(u=x^{${n}}\\) و \\(dv=e^{${a}x}\\,dx\\). إذن \\(du=${n===1?"":n+"x^{${n-1}}"}dx\\) و \\(v=\\frac{e^{${a}x}}{${a}}\\). نطبق القاعدة \\(\\int u\\,dv=uv-\\int v\\,du\\)، ثم نكرر التكامل بالتجزئة على الحد المتبقي إذا لزم الأمر.`;
+  const q=`\\(\\int xe^{${a}x}\\,dx\\)`;
+  const correct=`\\(\\frac{xe^{${a}x}}{${a}}-\\frac{e^{${a}x}}{${a*a}}+C\\)`;
+  const helper=`اخترنا \\(u=x\\) و \\(dv=e^{${a}x}\\,dx\\). إذن \\(du=dx\\) و \\(v=\\frac{e^{${a}x}}{${a}}\\). نطبق القاعدة \\(\\int u\\,dv=uv-\\int v\\,du\\)، فيصبح التكامل المتبقي بسيطًا.`;
   return build(q,correct,helper);
  }
  if(t==="trig"){
   const isSin=Math.random()<0.5,fn=isSin?"\\sin":"\\cos";
-  const q=`\\(\\int x^{${n}}${fn}(${a}x)\\,dx\\)`;
-  const correct=isSin?`\\(-\\frac{x^{${n}}\\cos(${a}x)}{${a}}+\\frac{${n}x^{${n-1}}\\sin(${a}x)}{${a*a}}+C\\)`:`\\(\\frac{x^{${n}}\\sin(${a}x)}{${a}}+\\frac{${n}x^{${n-1}}\\cos(${a}x)}{${a*a}}+C\\)`;
-  const helper=`اخترنا \\(u=x^{${n}}\\) و \\(dv=${fn}(${a}x)\\,dx\\). إذن \\(du=${n===1?"":n+"x^{${n-1}}"}dx\\)، و \\(v=${isSin?"-\\frac{\\cos("+a+"x)}{"+a+"}":"\\frac{\\sin("+a+"x)}{"+a+"}"}\\). نستخدم التكامل بالتجزئة، وقد نحتاج لتكراره لأن قوة \\(x\\) تنقص تدريجيًا.`;
+  const q=`\\(\\int x${fn}(${a}x)\\,dx\\)`;
+  const correct=isSin?`\\(-\\frac{x\\cos(${a}x)}{${a}}+\\frac{\\sin(${a}x)}{${a*a}}+C\\)`:`\\(\\frac{x\\sin(${a}x)}{${a}}+\\frac{\\cos(${a}x)}{${a*a}}+C\\)`;
+  const helper=`اخترنا \\(u=x\\) و \\(dv=${fn}(${a}x)\\,dx\\). إذن \\(du=dx\\)، و \\(v=${isSin?"-\\frac{\\cos("+a+"x)}{"+a+"}":"\\frac{\\sin("+a+"x)}{"+a+"}"}\\). نطبق التكامل بالتجزئة مرة واحدة فقط.`;
   return build(q,correct,helper);
  }
  if(t==="log"){
-  const q=`\\(\\int x^{${n}}\\ln(x)\\,dx\\)`;
-  const correct=`\\(\\frac{x^{${n+1}}\\ln(x)}{${n+1}}-\\frac{x^{${n+1}}}{${(n+1)*(n+1)}}+C\\)`;
-  const helper=`نختار \\(u=\\ln(x)\\) لأن مشتقة اللوغاريتم أبسط، ونختار \\(dv=x^{${n}}dx\\). إذن \\(du=\\frac1x dx\\) و \\(v=\\frac{x^{${n+1}}}{${n+1}}\\). بعد تطبيق القاعدة، يتبقى تكامل قوة بسيط نحله بقاعدة القوة.`;
+  const q=`\\(\\int \\ln(x)\\,dx\\)`;
+  const correct=`\\(x\\ln(x)-x+C\\)`;
+  const helper=`نختار \\(u=\\ln(x)\\) و \\(dv=dx\\). إذن \\(du=\\frac1x dx\\) و \\(v=x\\). بعد تطبيق القاعدة يصبح التكامل المتبقي \\(\\int dx\\)، وهو سهل الحل.`;
   return build(q,correct,helper);
  }
  const isSin=Math.random()<0.5,fn=isSin?"\\sin":"\\cos";
@@ -93,16 +84,20 @@ function makeQuestion(type,level){
  return build(q,correct,helper);
 }
 function build(q,correct,helper){
- const wrongs=[correct.replace(/x\^\{(\d+)\}/,"x^{$1+1}"),correct.replace(/e\^\{(\d+)x\}/,"e^{$1x+1}"),correct.replace(/\\frac\{([^}]*)\}\{(\d+)\}/,"\\frac{$1}{$2}"),correct+"x"].filter(w=>w!==correct).slice(0,3);
+ const wrongs=[
+  correct.replace(/x(?![\^a-zA-Z])/,"x^2"),
+  correct.replace(/e\^\{(\d+)x\}/,"e^{$1x+1}"),
+  correct.replace(/\\frac\{([^}]*)\}\{(\d+)\}/,"\\frac{$1}{$2}"),
+  correct+"x"
+ ].filter(w=>w!==correct).slice(0,3);
  return{q,options:shuffle([correct,...wrongs]),correct,helper};
 }
 function generate(){
  const num=parseInt(document.getElementById("num").value)||5;
- const level=document.getElementById("level").value;
  const type=document.getElementById("type").value;
  let h="";
  for(let i=1;i<=num;i++){
-  const p=makeQuestion(type,level);
+  const p=makeQuestion(type);
   h+=`<div class="question" data-correct="${encodeURIComponent(p.correct)}"><strong>Question ${i}:</strong> ${p.q}`;
   p.options.forEach(op=>h+=`<label class="option"><input type="radio" name="q${i}" value="${encodeURIComponent(op)}"> ${op}</label>`);
   h+=`<div class="helper hidden"><strong>المساعد بالعربية:</strong><br>${p.helper}</div></div>`;
