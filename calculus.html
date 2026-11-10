@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Integration by Parts Exercise Generator</title>
+<style>
+body{font-family:Arial,sans-serif;background:#f4f7fb;color:#222;margin:0;padding:20px}
+.card{max-width:950px;margin:auto;background:#fff;padding:25px;border-radius:14px;box-shadow:0 3px 12px rgba(0,0,0,.08)}
+h1{color:#1f4e79;margin-top:0}
+label{display:block;margin:10px 0 5px;font-weight:bold}
+select,input,button{padding:10px;border-radius:8px;border:1px solid #ccd;font-size:16px}
+button{background:#1f6feb;color:#fff;border:none;cursor:pointer;font-weight:bold;margin:5px 5px 5px 0}
+button:hover{background:#155ecb}
+.problem{background:#eef5ff;border-left:5px solid #1f6feb;padding:12px 15px;margin:12px 0;border-radius:8px}
+.solution{background:#f8f9fa;border:1px solid #dde;padding:12px 15px;margin:8px 0;border-radius:8px}
+.answer{background:#eafaf0;border-left:5px solid #2e9e5b;padding:12px 15px;margin:8px 0;border-radius:8px}
+.hidden{display:none}
+.formula{background:#fff8e1;padding:10px;border-radius:8px;margin:15px 0}
+.step{margin:6px 0}
+</style>
+</head>
+<body>
+<div class="card">
+<h1>Integration by Parts Exercise Generator</h1>
+<p>Generate randomized practice questions with <strong>step-by-step solutions</strong>.</p>
+<div class="formula"><strong>Formula:</strong> \(\int u\,dv = uv - \int v\,du\)</div>
+
+<label>Number of questions</label>
+<input id="num" type="number" min="1" max="30" value="10">
+
+<label>Difficulty</label>
+<select id="level">
+<option value="easy">Easy</option>
+<option value="medium" selected>Medium</option>
+<option value="hard">Hard</option>
+</select>
+
+<label>Question type</label>
+<select id="type">
+<option value="mixed">Mixed</option>
+<option value="exp">Polynomial × exponential</option>
+<option value="trig">Polynomial × sine/cosine</option>
+<option value="log">Logarithmic</option>
+<option value="exptrig">Exponential × sine/cosine</option>
+</select>
+
+<button onclick="generate()">Generate Exercises</button>
+<button onclick="toggleSolutions()">Show / Hide Solutions</button>
+<button onclick="toggleAnswers()">Show / Hide Final Answers</button>
+
+<div id="output"></div>
+</div>
+
+<script>
+function randint(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+function choose(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function factorial(n){let r=1;for(let i=2;i<=n;i++)r*=i;return r}
+function xPower(p){return p===0?"":p===1?"x":`x^{${p}}`}
+function coeff(k,n,a){return Math.pow(-1,k)*factorial(n)/factorial(n-k)/Math.pow(a,k+1)}
+function term(c,p,fn,arg){if(c===0)return"";const s=c<0?"-":"";c=Math.abs(c);const cf=c===1?"":c;return `${s}${cf}${p?xPower(p):""}${fn}(${arg})`}
+function joinTerms(t){let o="";t.forEach(x=>{if(!x)return;o+=(o&&x[0]!=="-"?" + ":"")+x});return o||"0"}
+
+function makeProblem(type,level){
+ const maxPow=level==="easy"?1:level==="medium"?2:3;
+ const maxA=level==="easy"?2:3;
+ const n=randint(1,maxPow),a=randint(1,maxA);
+ const types=type==="mixed"?["exp","trig","log","exptrig"]:[type];
+ const t=choose(types);
+ if(t==="exp"){
+  let terms=[];for(let k=0;k<=n;k++)terms.push(term(coeff(k,n,a),n-k,"e",`${a}x`));
+  return{q:`\\int x^{${n}}e^{${a}x}\\,dx`,
+   steps:[`Choose \\(u=x^{${n}}\\) and \\(dv=e^{${a}x}\\,dx\\).`,
+   `Then \\(du=${n===1?"":n+"x^{${n-1}}"}dx\\) and \\(v=\\frac{e^{${a}x}}{${a}}\\).`,
+   `Apply integration by parts repeatedly until the polynomial factor disappears.`],
+   ans:joinTerms(terms)+"+C"};
+ }
+ if(t==="trig"){
+  const isSin=Math.random()<0.5,fn=isSin?"\\sin":"\\cos";
+  let terms=[];for(let k=0;k<=n;k++){const c=coeff(k,n,a);const f=(k%2===0)?(isSin?"\\cos":"\\sin"):(isSin?"\\sin":"\\cos");terms.push(term(c,n-k,f,`${a}x`))}
+  return{q:`\\int x^{${n}}${fn}(${a}x)\\,dx`,
+   steps:[`Choose \\(u=x^{${n}}\\) and \\(dv=${fn}(${a}x)\\,dx\\).`,
+   `Then \\(du=${n===1?"":n+"x^{${n-1}}"}dx\\) and \\(v=${isSin?"-\\frac{\\cos("+a+"x)}{"+a+"}":"\\frac{\\sin("+a+"x)}{"+a+"}"}\\).`,
+   `Apply integration by parts repeatedly, alternating between sine and cosine.`],
+   ans:joinTerms(terms)+"+C"};
+ }
+ if(t==="log"){
+  if(n===0)return{q:"\\int \\ln(x)\\,dx",steps:["Choose \\(u=\\ln(x)\\) and \\(dv=dx\\).","Then \\(du=\\frac1x dx\\) and \\(v=x\\).","Apply \\(\\int u\\,dv=uv-\\int v\\,du\\).","\\(\\int \\ln(x)dx=x\\ln(x)-\\int x\\cdot\\frac1x dx=x\\ln(x)-x+C\\)."],ans:"x\\ln(x)-x+C"};
+  return{q:`\\int x^{${n}}\\ln(x)\\,dx`,
+   steps:[`Choose \\(u=\\ln(x)\\) and \\(dv=x^{${n}}dx\\).`,
+   `Then \\(du=\\frac1x dx\\) and \\(v=\\frac{x^{${n+1}}}{${n+1}}\\).`,
+   `Apply integration by parts: \\(uv-\\int v\\,du\\).`,
+   `This gives \\(\\frac{x^{${n+1}}\\ln(x)}{${n+1}}-\\frac{1}{${n+1}}\\int x^{${n}}dx\\).`,
+   `Evaluate the remaining power-rule integral.`],
+   ans:`\\frac{x^{${n+1}}\\ln(x)}{${n+1}}-\\frac{x^{${n+1}}}{${(n+1)*(n+1)}}+C`};
+ }
+ const isSin=Math.random()<0.5,fn=isSin?"\\sin":"\\cos";
+ return{q:`\\int e^{${a}x}${fn}(${a}x)\\,dx`,
+  steps:[`Let \\(I=\\int e^{${a}x}${fn}(${a}x)\\,dx\\).`,
+  `Use integration by parts twice; the original integral will reappear.`,
+  `Move the repeated integral to one side and solve for \\(I\\).`,
+  `The result is a combination of \\(e^{${a}x}\\sin(${a}x)\\) and \\(e^{${a}x}\\cos(${a}x)\\).`],
+  ans:isSin?`\\frac{e^{${a}x}}{${2*a}}\\left(\\sin(${a}x)-\\cos(${a}x)\\right)+C`:`\\frac{e^{${a}x}}{${2*a}}\\left(\\sin(${a}x)+\\cos(${a}x)\\right)+C`};
+}
+function generate(){
+ const num=parseInt(document.getElementById("num").value)||10;
+ const level=document.getElementById("level").value;
+ const type=document.getElementById("type").value;
+ let h="";
+ for(let i=1;i<=num;i++){const p=makeProblem(type,level);
+  h+=`<div class="problem"><strong>${i}.</strong> \\(${p.q}\\)</div>`;
+  h+=`<div class="solution hidden"><strong>Step-by-step solution</strong><br>`;
+  p.steps.forEach(s=>h+=`<div class="step">• ${s}</div>`);h+=`</div>`;
+  h+=`<div class="answer hidden"><strong>Final answer:</strong> \\(${p.a}\\)</div>`}
+ document.getElementById("output").innerHTML=h;renderMath()}
+function toggleSolutions(){document.querySelectorAll(".solution").forEach(e=>e.classList.toggle("hidden"));renderMath()}
+function toggleAnswers(){document.querySelectorAll(".answer").forEach(e=>e.classList.toggle("hidden"));renderMath()}
+function renderMath(){if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise()}
+window.MathJax={tex:{inlineMath:[["\\(","\\)"]]}};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</body>
+</html>
