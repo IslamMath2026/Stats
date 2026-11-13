@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bell Curve Quest — Interactive Empirical Rule Arena</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface-light: #334155;
+            --primary: #38bdf8;
+            --accent: #a855f7;
+            --gold: #facc15;
+            --green: #4ade80;
+            --red: #f87171;
+            --text: #f8fafc;
+            --muted: #94a3b8;
+        }
+        * {
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        body {
+            background: radial-gradient(circle at top right, #1e1b4b, var(--bg) 60%);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 980px;
+            margin: 0 auto;
+        }
+        /* Top Game HUD */
+        .hud {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 14px 24px;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .brand h1 {
+            margin: 0;
+            font-size: 1.4rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .stats-bar {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+        .stat-pill {
+            background: var(--bg);
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border: 1px solid var(--surface-light);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .stat-pill span.val {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--gold);
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Controls */
+        .controls-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: flex-end;
+            justify-content: space-between;
+        }
+        .inputs-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .field label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .field input {
+            background: var(--bg);
+            border: 2px solid var(--surface-light);
+            color: var(--text);
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.05rem;
+            font-weight: 700;
+            width: 140px;
+            text-align: center;
+            transition: 0.2s;
+        }
+        .field input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        button {
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s, background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        button:active { transform: scale(0.97); }
+        .btn-primary {
+            background: linear-gradient(135deg, #0284c7, #2563eb);
+            color: white;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+        }
+        .btn-primary:hover { background: linear-gradient(135deg, #0369a1, #1d4ed8); }
+        .btn-magic {
+            background: linear-gradient(135deg, #9333ea, #db2777);
+            color: white;
+            box-shadow: 0 4px 14px rgba(147, 51, 234, 0.4);
+        }
+        .btn-magic:hover { background: linear-gradient(135deg, #7e22ce, #be185d); }
+        .btn-ghost {
+            background: var(--surface-light);
+            color: var(--text);
+        }
+        .btn-ghost:hover { background: #475569; }
+
+        /* Chart Area */
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .scenario-badge {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--primary);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+        .toggle-hint {
+            font-size: 0.85rem;
+            color: var(--muted);
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .chart-box {
+            width: 100%;
+            overflow-x: auto;
+            text-align: center;
+        }
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+        svg text {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .mono-svg {
+            font-family: 'JetBrains Mono', monospace !important;
+        }
+
+        /* Interactive Quiz Arena */
+        .arena {
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(30, 27, 75, 0.9));
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 18px;
+            padding: 24px;
+        }
+        .arena-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .q-tag {
+            background: rgba(168, 85, 247, 0.2);
+            color: #e879f9;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+        .question-prompt {
+            font-size: 1.25rem;
+            font-weight: 700;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .option-btn {
+            background: var(--surface);
+            border: 2px solid var(--surface-light);
+            color: var(--text);
+            padding: 14px;
+            border-radius: 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.15rem;
+            font-weight: 700;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--primary);
+            background: rgba(56, 189, 248, 0.1);
+            transform: translateY(-2px);
+        }
+        .option-btn.correct-choice {
+            background: rgba(74, 222, 128, 0.2) !important;
+            border-color: var(--green) !important;
+            color: var(--green) !important;
+        }
+        .option-btn.wrong-choice {
+            background: rgba(248, 113, 113, 0.2) !important;
+            border-color: var(--red) !important;
+            color: var(--red) !important;
+        }
+        .feedback-banner {
+            display: none;
+            padding: 16px;
+            border-radius: 12px;
+            margin-top: 12px;
+            font-size: 0.98rem;
+            line-height: 1.6;
+            animation: popIn 0.25s ease-out;
+        }
+        .feedback-banner.win {
+            display: block;
+            background: rgba(74, 222, 128, 0.12);
+            border: 1px solid rgba(74, 222, 128, 0.4);
+            color: #bbf7d0;
+        }
+        .feedback-banner.lose {
+            display: block;
+            background: rgba(248, 113, 113, 0.12);
+            border: 1px solid rgba(248, 113, 113, 0.4);
+            color: #fecaca;
+        }
+        @keyframes popIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        #confettiCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="confettiCanvas"></canvas>
+
+<div class="container">
+    <!-- Top HUD -->
+    <div class="hud">
+        <div class="brand">
+            <span style="font-size: 1.6rem;">🔔</span>
+            <h1>Bell Curve Quest</h1>
+        </div>
+        <div class="stats-bar">
+            <div class="stat-pill">🔥 Streak: <span class="val" id="streakVal">0</span></div>
+            <div class="stat-pill">⭐ Score: <span class="val" id="scoreVal">0</span></div>
+            <div class="stat-pill">🏆 Rank: <span class="val" id="rankVal" style="color:#38bdf8;">Rookie</span></div>
+        </div>
+    </div>
+
+    <!-- Control Lab -->
+    <div class="card">
+        <div class="controls-grid">
+            <div class="inputs-wrap">
+                <div class="field">
+                    <label>Mean (x̄)</label>
+                    <input type="number" id="meanInput" value="50" step="any">
+                </div>
+                <div class="field">
+                    <label>Std Dev (SD)</label>
+                    <input type="number" id="sdInput" value="5" min="0.1" step="any">
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn-primary" onclick="applyCustomValues()">Apply Values</button>
+                <button class="btn-magic" onclick="generateStoryScenario()">✨ Random Real-World Story</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bell Curve Visualizer -->
+    <div class="card">
+        <div class="chart-header">
+            <div class="scenario-badge" id="scenarioTitle">📊 Standard Practice Curve (Mean = 50, SD = 5)</div>
+            <label class="toggle-hint">
+                <input type="checkbox" id="highlightToggle" checked onchange="drawCurve()"> Highlight Target Zone on Answer
+            </label>
+        </div>
+        <div class="chart-box">
+            <svg id="bellSvg" viewBox="0 0 840 310" width="840" height="310"></svg>
+        </div>
+    </div>
+
+    <!-- Quiz Arena -->
+    <div class="card arena">
+        <div class="arena-top">
+            <span class="q-tag" id="qCategory">Challenge Mode</span>
+            <button class="btn-ghost" onclick="nextQuestion()" style="padding: 8px 14px; font-size: 0.85rem;">Skip / Next Question ➔</button>
+        </div>
+        <div class="question-prompt" id="questionText">Loading challenge...</div>
+        <div class="options-grid" id="optionsGrid"></div>
+        <div class="feedback-banner" id="feedbackBox"></div>
+    </div>
+</div>
+
+<script>
+    let mean = 50;
+    let sd = 5;
+    let unitName = "units";
+    let groupName = "items";
+    let score = 0;
+    let streak = 0;
+    let currentQ = null;
+    let answered = false;
+    let activeHighlight = null; // [zStart, zEnd]
+
+    const stories = [
+        { title: "🎓 University Exam Scores", mean: 70, sd: 10, unit: "pts", group: "students", context: "exam scores" },
+        { title: "🏀 Basketball Player Heights", mean: 195, sd: 6, unit: "cm", group: "players", context: "heights" },
+        { title: "☕ Coffee Shop Daily Cups", mean: 240, sd: 20, unit: "cups", group: "days", context: "daily sales" },
+        { title: "✈️ Airline Luggage Weights", mean: 20, sd: 3, unit: "kg", group: "suitcases", context: "luggage weights" },
+        { title: "⚡ Smartphone Battery Life", mean: 14, sd: 2, unit: "hrs", group: "phones", context: "battery life" },
+        { title: "🧠 IQ Test Distribution", mean: 100, sd: 15, unit: "pts", group: "people", context: "IQ scores" },
+        { title: "🚀 Delivery Drone Speeds", mean: 60, sd: 5, unit: "km/h", group: "drones", context: "flight speeds" }
+    ];
+
+    function normalPDF(z) {
+        return Math.exp(-0.5 * z * z) / Math.sqrt(2 * Math.PI);
+    }
+
+    function applyCustomValues() {
+        const m = parseFloat(document.getElementById('meanInput').value);
+        const s = parseFloat(document.getElementById('sdInput').value);
+        if (isNaN(m) || isNaN(s) || s <= 0) {
+            alert("Please enter valid numbers (SD must be greater than 0).");
+            return;
+        }
+        mean = m;
+        sd = s;
+        unitName = "units";
+        groupName = "items";
+        document.getElementById('scenarioTitle').textContent = `📊 Custom Distribution (Mean = ${mean}, SD = ${sd})`;
+        activeHighlight = null;
+        drawCurve();
+        nextQuestion();
+    }
+
+    function generateStoryScenario() {
+        const pick = stories[Math.floor(Math.random() * stories.length)];
+        mean = pick.mean;
+        sd = pick.sd;
+        unitName = pick.unit;
+        groupName = pick.group;
+        document.getElementById('meanInput').value = mean;
+        document.getElementById('sdInput').value = sd;
+        document.getElementById('scenarioTitle').textContent = `${pick.title} (Mean = ${mean} ${unitName}, SD = ${sd} ${unitName})`;
+        activeHighlight = null;
+        drawCurve();
+        nextQuestion();
+    }
+
+    function drawCurve() {
+        const svg = document.getElementById('bellSvg');
+        svg.innerHTML = '';
+
+        const width = 840;
+        const padX = 65;
+        const plotW = width - 2 * padX;
+        const baseY = 235;
+        const maxH = 185;
+
+        const zToX = (z) => padX + ((z + 4) / 8) * plotW;
+        const pdfToY = (p) => baseY - (p / normalPDF(0)) * maxH;
+
+        const showHighlight = document.getElementById('highlightToggle').checked && activeHighlight !== null;
+
+        // 8 Rooms definition
+        const rooms = [
+            { z1: -4, z2: -3, baseColor: '#334155', pct: '0.15%' },
+            { z1: -3, z2: -2, baseColor: '#1d4ed8', pct: '2.35%' },
+            { z1: -2, z2: -1, baseColor: '#0284c7', pct: '13.5%' },
+            { z1: -1, z2: 0,  baseColor: '#0ea5e9', pct: '34%' },
+            { z1: 0,  z2: 1,  baseColor: '#0ea5e9', pct: '34%' },
+            { z1: 1,  z2: 2,  baseColor: '#0284c7', pct: '13.5%' },
+            { z1: 2,  z2: 3,  baseColor: '#1d4ed8', pct: '2.35%' },
+            { z1: 3,  z2: 4,  baseColor: '#334155', pct: '0.15%' }
+        ];
+
+        rooms.forEach(r => {
+            let d = `M ${zToX(r.z1)} ${baseY} `;
+            for (let z = r.z1; z <= r.z2; z += 0.05) {
+                d += `L ${zToX(z)} ${pdfToY(normalPDF(z))} `;
+            }
+            d += `L ${zToX(r.z2)} ${pdfToY(normalPDF(r.z2))} L ${zToX(r.z2)} ${baseY} Z`;
+
+            // Check if this room is inside activeHighlight
+            let isLit = false;
+            if (showHighlight) {
+                if (r.z1 >= activeHighlight[0] && r.z2 <= activeHighlight[1]) {
+                    isLit = true;
+                }
+            }
+
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("d", d);
+            path.setAttribute("fill", isLit ? "#facc15" : r.baseColor);
+            path.setAttribute("fill-opacity", showHighlight && !isLit ? "0.25" : "0.85");
+            path.setAttribute("stroke", "#0f172a");
+            path.setAttribute("stroke-width", "2");
+            svg.appendChild(path);
+
+            // Percentage labels inside rooms
+            if (Math.abs(r.z1) < 3 && Math.abs(r.z2) <= 3) {
+                const midZ = (r.z1 + r.z2) / 2;
+                const yPos = r.pct === '34%' ? baseY - 65 : (r.pct === '13.5%' ? baseY - 26 : baseY - 8);
+                const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                lbl.setAttribute("x", zToX(midZ));
+                lbl.setAttribute("y", yPos);
+                lbl.setAttribute("text-anchor", "middle");
+                lbl.setAttribute("fill", isLit ? "#0f172a" : "#ffffff");
+                lbl.setAttribute("font-size", r.pct === '2.35%' ? "11" : "14");
+                lbl.setAttribute("font-weight", "800");
+                lbl.classList.add("mono-svg");
+                lbl.textContent = r.pct;
+                svg.appendChild(lbl);
+            }
+        });
+
+        // Base Axis
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", padX - 20);
+        line.setAttribute("y1", baseY);
+        line.setAttribute("x2", width - padX + 20);
+        line.setAttribute("y2", baseY);
+        line.setAttribute("stroke", "#94a3b8");
+        line.setAttribute("stroke-width", "2");
+        svg.appendChild(line);
+
+        // Ticks & Values
+        for (let z = -3; z <= 3; z++) {
+            const x = zToX(z);
+            const val = Number((mean + z * sd).toFixed(2));
+
+            const tick = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            tick.setAttribute("x1", x);
+            tick.setAttribute("y1", baseY);
+            tick.setAttribute("x2", x);
+            tick.setAttribute("y2", baseY + 8);
+            tick.setAttribute("stroke", "#94a3b8");
+            tick.setAttribute("stroke-width", "2");
+            svg.appendChild(tick);
+
+            const valTxt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            valTxt.setAttribute("x", x);
+            valTxt.setAttribute("y", baseY + 28);
+            valTxt.setAttribute("text-anchor", "middle");
+            valTxt.setAttribute("font-size", "15");
+            valTxt.setAttribute("font-weight", "800");
+            valTxt.setAttribute("fill", z === 0 ? "#38bdf8" : "#f8fafc");
+            valTxt.classList.add("mono-svg");
+            valTxt.textContent = val;
+            svg.appendChild(valTxt);
+
+            const subTxt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            subTxt.setAttribute("x", x);
+            subTxt.setAttribute("y", baseY + 48);
+            subTxt.setAttribute("text-anchor", "middle");
+            subTxt.setAttribute("font-size", "11");
+            subTxt.setAttribute("font-weight", "600");
+            subTxt.setAttribute("fill", z === 0 ? "#38bdf8" : "#94a3b8");
+            subTxt.textContent = z === 0 ? "MEAN" : (z > 0 ? `+${z} SD` : `${z} SD`);
+            svg.appendChild(subTxt);
+        }
+    }
+
+    function nextQuestion() {
+        answered = false;
+        activeHighlight = null;
+        drawCurve();
+
+        const fb = document.getElementById('feedbackBox');
+        fb.className = 'feedback-banner';
+        fb.innerHTML = '';
+
+        const v = (z) => Number((mean + z * sd).toFixed(2));
+
+        const bank = [
+            {
+                tag: "Core Rule • ±1 SD",
+                q: `About what percentage of ${groupName} fall between ${v(-1)} and ${v(1)} ${unitName}?`,
+                ans: "68%",
+                choices: ["68%", "34%", "95%", "16%"],
+                zone: [-1, 1],
+                exp: `${v(-1)} and ${v(1)} are 1 SD away from the mean. Add the two center rooms: 34% + 34% = 68%.`
+            },
+            {
+                tag: "Core Rule • ±2 SD",
+                q: `About what percentage of ${groupName} fall between ${v(-2)} and ${v(2)} ${unitName}?`,
+                ans: "95%",
+                choices: ["68%", "95%", "99.7%", "47.5%"],
+                zone: [-2, 2],
+                exp: `${v(-2)} and ${v(2)} are 2 SDs away from the mean, which captures 95% of the data.`
+            },
+            {
+                tag: "Core Rule • ±3 SD",
+                q: `Which interval contains about 99.7% of the ${groupName}?`,
+                ans: `${v(-3)} to ${v(3)}`,
+                choices: [`${v(-2)} to ${v(2)}`, `${v(-3)} to ${v(3)}`, `${v(-1)} to ${v(1)}`, `${v(0)} to ${v(3)}`],
+                zone: [-3, 3],
+                exp: `99.7% corresponds to Mean ± 3 SD = ${mean} ± ${3*sd}, which is ${v(-3)} to ${v(3)}.`
+            },
+            {
+                tag: "Tail Logic • Above +1 SD",
+                q: `About what percentage of ${groupName} are above ${v(1)} ${unitName}?`,
+                ans: "16%",
+                choices: ["16%", "32%", "34%", "2.5%"],
+                zone: [1, 4],
+                exp: `Outside ±1 SD is 32% (100% - 68%). Split equally into two tails: 32% ÷ 2 = 16% (or 13.5% + 2.5%).`
+            },
+            {
+                tag: "Tail Logic • Above +2 SD",
+                q: `About what percentage of ${groupName} are above ${v(2)} ${unitName}?`,
+                ans: "2.5%",
+                choices: ["2.5%", "5%", "16%", "0.15%"],
+                zone: [2, 4],
+                exp: `Outside ±2 SD is 5% (100% - 95%). The right tail alone is half of 5%, which is 2.5%.`
+            },
+            {
+                tag: "Asymmetric Zone",
+                q: `About what percentage of ${groupName} fall between ${v(-1)} and ${v(2)} ${unitName}?`,
+                ans: "81.5%",
+                choices: ["81.5%", "68%", "47.5%", "84%"],
+                zone: [-1, 2],
+                exp: `Combine the rooms from -1 SD to Mean (34%) plus Mean to +2 SD (47.5%): 34% + 47.5% = 81.5%.`
+            },
+            {
+                tag: "Half-Curve Zone",
+                q: `About what percentage of ${groupName} lie between ${mean} and ${v(2)} ${unitName}?`,
+                ans: "47.5%",
+                choices: ["47.5%", "34%", "95%", "49.85%"],
+                zone: [0, 2],
+                exp: `From the Mean (${mean}) to +2 SD (${v(2)}) is exactly half of the 95% zone: 95% ÷ 2 = 47.5%.`
+            },
+            {
+                tag: "Real-World Count",
+                q: `Out of 200 ${groupName}, how many are expected to be between ${v(-2)} and ${v(2)} ${unitName}?`,
+                ans: "190",
+                choices: ["190", "136", "195", "180"],
+                zone: [-2, 2],
+                exp: `95% fall between ${v(-2)} and ${v(2)}. Multiply 0.95 × 200 = 190 ${groupName}.`
+            },
+            {
+                tag: "Real-World Count",
+                q: `Out of 1,000 ${groupName}, how many are expected to exceed ${v(1)} ${unitName}?`,
+                ans: "160",
+                choices: ["160", "320", "340", "25"],
+                zone: [1, 4],
+                exp: `16% are above ${v(1)}. Multiply 0.16 × 1,000 = 160 ${groupName}.`
+            }
+        ];
+
+        currentQ = bank[Math.floor(Math.random() * bank.length)];
+        document.getElementById('qCategory').textContent = currentQ.tag;
+        document.getElementById('questionText').textContent = currentQ.q;
+
+        // Shuffle choices
+        const shuffled = [...currentQ.choices].sort(() => Math.random() - 0.5);
+        const grid = document.getElementById('optionsGrid');
+        grid.innerHTML = '';
+
+        shuffled.forEach(choice => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = choice;
+            btn.onclick = () => handleChoice(btn, choice);
+            grid.appendChild(btn);
+        });
+    }
+
+    function handleChoice(btnElement, selected) {
+        if (answered) return;
+        answered = true;
+
+        const allBtns = document.querySelectorAll('.option-btn');
+        allBtns.forEach(b => b.disabled = true);
+
+        const fb = document.getElementById('feedbackBox');
+        activeHighlight = currentQ.zone;
+        drawCurve();
+
+        if (selected === currentQ.ans) {
+            btnElement.classList.add('correct-choice');
+            streak++;
+            score += 100 + (streak * 10);
+            updateHUD();
+            launchConfetti();
+            fb.className = 'feedback-banner win';
+            fb.innerHTML = `🎉 <strong>Spot on! +${100 + streak * 10} pts</strong><br>${currentQ.exp}`;
+        } else {
+            btnElement.classList.add('wrong-choice');
+            allBtns.forEach(b => {
+                if (b.textContent === currentQ.ans) b.classList.add('correct-choice');
+            });
+            streak = 0;
+            updateHUD();
+            fb.className = 'feedback-banner lose';
+            fb.innerHTML = `💡 <strong>Not quite! The correct answer is ${currentQ.ans}.</strong><br>${currentQ.exp}`;
+        }
+    }
+
+    function updateHUD() {
+        document.getElementById('streakVal').textContent = streak;
+        document.getElementById('scoreVal').textContent = score;
+        let rank = "Rookie";
+        if (score >= 1500) rank = "Stats Legend 👑";
+        else if (score >= 800) rank = "Curve Master 🔥";
+        else if (score >= 300) rank = "Data Explorer 🚀";
+        document.getElementById('rankVal').textContent = rank;
+    }
+
+    // Lightweight Confetti Celebration
+    function launchConfetti() {
+        const canvas = document.getElementById('confettiCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const colors = ['#38bdf8', '#a855f7', '#facc15', '#4ade80', '#f472b6'];
+        let pieces = Array.from({ length: 65 }, () => ({
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            vx: (Math.random() - 0.5) * 14,
+            vy: (Math.random() - 0.7) * 14,
+            size: Math.random() * 7 + 4,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            alpha: 1
+        }));
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            pieces.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.35;
+                p.alpha -= 0.018;
+                ctx.globalAlpha = Math.max(0, p.alpha);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+            });
+            pieces = pieces.filter(p => p.alpha > 0);
+            if (pieces.length > 0) requestAnimationFrame(animate);
+            else ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        animate();
+    }
+
+    // Initialize
+    drawCurve();
+    nextQuestion();
+</script>
+
+</body>
+</html>
