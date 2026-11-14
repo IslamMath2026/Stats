@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Statistics Homework Generator</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f6f9;
+    color: #1f2937;
+    padding: 20px;
+    line-height: 1.6;
+  }
+  /* Lock Screen */
+  #loginOverlay {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+  }
+  .login-card {
+    background: #ffffff;
+    padding: 32px 28px;
+    border-radius: 18px;
+    width: 100%;
+    max-width: 380px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  }
+  .login-card h2 {
+    font-size: 1.35rem;
+    color: #111827;
+    margin-bottom: 8px;
+  }
+  .login-card p {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin-bottom: 20px;
+  }
+  .login-card input {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 1.1rem;
+    text-align: center;
+    border: 2px solid #d1d5db;
+    border-radius: 10px;
+    margin-bottom: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .login-card input:focus {
+    border-color: #2563eb;
+  }
+  .login-card button {
+    width: 100%;
+    padding: 12px;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 1.05rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .login-card button:hover {
+    background: #1d4ed8;
+  }
+  #loginError {
+    color: #dc2626;
+    font-size: 0.88rem;
+    margin-top: 10px;
+    display: none;
+    font-weight: 600;
+  }
+  #appContent {
+    display: none;
+  }
+
+  .container {
+    max-width: 850px;
+    margin: 0 auto;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  header h1 {
+    font-size: 1.8rem;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .control-panel {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+    border: 1px solid #e5e7eb;
+  }
+  .chapter-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .chapter-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: background 0.2s;
+  }
+  .chapter-item:hover {
+    background: #f9fafb;
+  }
+  .chapter-label {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #1f2937;
+    text-align: left;
+  }
+  .chapter-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #2563eb;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 14px;
+    font-weight: 600;
+  }
+  .settings-row input[type="number"] {
+    width: 70px;
+    padding: 6px 10px;
+    font-size: 1rem;
+    text-align: center;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-weight: bold;
+  }
+  .note-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 18px;
+    font-size: 0.95rem;
+    color: #374151;
+    cursor: pointer;
+  }
+  .note-row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #2563eb;
+  }
+  .btn-primary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto 14px auto;
+    padding: 12px 20px;
+    background-color: #2563eb;
+    color: #ffffff;
+    font-size: 1.05rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-primary:hover {
+    background-color: #1d4ed8;
+  }
+  .secondary-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+  }
+  .btn-secondary {
+    flex: 1;
+    max-width: 240px;
+    padding: 10px 16px;
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1f2937;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.2s;
+  }
+  .btn-secondary:hover {
+    background: #f3f4f6;
+  }
+  .hw-header-box {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 16px 20px;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 20px;
+    text-align: left;
+  }
+  .hw-header-box p {
+    font-size: 1.05rem;
+    color: #111827;
+    margin-bottom: 6px;
+  }
+  .student-info {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed #d1d5db;
+    font-size: 0.95rem;
+    color: #4b5563;
+  }
+  .chapter-section {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 20px;
+    text-align: left;
+  }
+  .chapter-title {
+    color: #2563eb;
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #2563eb;
+    margin-bottom: 16px;
+  }
+  .question-card {
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  .question-card:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+  .q-text {
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #111827;
+  }
+  .data-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    display: inline-block;
+    margin: 6px 0 10px 0;
+  }
+  table.freq-table {
+    border-collapse: collapse;
+    margin: 8px 0 12px 0;
+    width: auto;
+    min-width: 260px;
+  }
+  table.freq-table th, table.freq-table td {
+    border: 1px solid #cbd5e1;
+    padding: 6px 14px;
+    text-align: center;
+  }
+  table.freq-table th {
+    background-color: #f1f5f9;
+    font-weight: 600;
+  }
+  .options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .option-item {
+    padding: 6px 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 0.95rem;
+  }
+  .option-item.correct-highlight {
+    background-color: #dcfce7;
+    border-color: #16a34a;
+    color: #14532d;
+    font-weight: bold;
+  }
+  .solution-box {
+    display: none;
+    margin-top: 10px;
+    padding: 10px 14px;
+    background-color: #eff6ff;
+    border-left: 4px solid #2563eb;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: #1e3a8a;
+  }
+  body.show-answers .solution-box {
+    display: block;
+  }
+  @media print {
+    .no-print, #loginOverlay { display: none !important; }
+    body { background: #ffffff; padding: 0; }
+    .container { max-width: 100%; }
+    .chapter-section, .hw-header-box {
+      box-shadow: none;
+      border: 1px solid #ccc;
+      break-inside: avoid;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div id="loginOverlay">
+  <div class="login-card">
+    <h2>🔒 Statistics Homework Generator</h2>
+    <p>Enter password to continue</p>
+    <input type="password" id="passInput" placeholder="••••••" onkeypress="if(event.key==='Enter') checkPass()">
+    <button onclick="checkPass()">Login</button>
+    <div id="loginError">Incorrect password</div>
+  </div>
+</div>
+
+<div id="appContent" class="container">
+  <header class="no-print">
+    <h1>📘 Statistics Homework Generator</h1>
+  </header>
+
+  <div class="control-panel no-print">
+    <div class="chapter-list">
+      <label class="chapter-item">
+        <span class="chapter-label">Chapter 1: Introduction to Statistics</span>
+        <input type="checkbox" class="ch-check" value="1" checked>
+      </label>
+      <label class="chapter-item">
+        <span class="chapter-label">Chapter 2: Raw Data (centre and spread)</span>
+        <input type="checkbox" class="ch-check" value="2" checked>
+      </label>
+      <label class="chapter-item">
+        <span class="chapter-label">Chapter 3: Percentiles, Quartiles and IQR</span>
+        <input type="checkbox" class="ch-check" value="3" checked>
+      </label>
+      <label class="chapter-item">
+        <span class="chapter-label">Chapter 4: Grouped Data: Mean, Variance and SD</span>
+        <input type="checkbox" class="ch-check" value="4" checked>
+      </label>
+      <label class="chapter-item">
+        <span class="chapter-label">Chapter 5: Grouped Data: Median and Mode</span>
+        <input type="checkbox" class="ch-check" value="5" checked>
+      </label>
+      <label class="chapter-item">
+        <span class="chapter-label">Chapter 6: Linear Transformation</span>
+        <input type="checkbox" class="ch-check" value="6" checked>
+      </label>
+      <label class="chapter-item">
+        <span class="chapter-label">Chapter 7: The Empirical Rule</span>
+        <input type="checkbox" class="ch-check" value="7" checked>
+      </label>
+    </div>
+
+    <div class="settings-row">
+      <label for="qCount">Questions per chapter:</label>
+      <input type="number" id="qCount" value="3" min="1" max="10">
+    </div>
+
+    <label class="note-row">
+      <input type="checkbox" id="easyCh7" checked>
+      <span>Easy questions for Chapter 7</span>
+    </label>
+
+    <button class="btn-primary" onclick="generateHomework()">
+      <span>🎲</span> Generate New Homework
+    </button>
+
+    <div class="secondary-actions">
+      <button class="btn-secondary" onclick="toggleAnswers()">
+        <span>👁️</span> Show / Hide Answers
+      </button>
+      <button class="btn-secondary" onclick="window.print()">
+        <span>🖨️</span> Print
+      </button>
+    </div>
+  </div>
+
+  <div class="hw-header-box">
+    <p><strong>Homework</strong> — circle one answer per question. Show your work.</p>
+    <div class="student-info">
+      <span>Name: ___________________________</span>
+      <span>ID: _____________________</span>
+      <span>Section: _________</span>
+    </div>
+  </div>
+
+  <div id="homeworkContainer"></div>
+</div>
+
+<script>
+// Password: 121314
+const PASS_HASH = "121314";
+
+function checkPass() {
+  const val = document.getElementById("passInput").value.trim();
+  if (val === PASS_HASH) {
+    document.getElementById("loginOverlay").style.display = "none";
+    document.getElementById("appContent").style.display = "block";
+    generateHomework();
+  } else {
+    document.getElementById("loginError").style.display = "block";
+  }
+}
+
+function randInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+function shuffle(arr) {
+  let a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function round2(num) {
+  return Math.round((num + Number.EPSILON) * 100) / 100;
+}
+
+function makeNumericOptions(correct, step = 1, decimals = 2) {
+  let opts = new Set([Number(correct.toFixed(decimals))]);
+  let attempts = 0;
+  while (opts.size < 4 && attempts < 50) {
+    attempts++;
+    let offset = (randInt(1, 4) * step) * (Math.random() < 0.5 ? 1 : -1);
+    let cand = Number((correct + offset).toFixed(decimals));
+    if (cand >= 0 || correct < 0) opts.add(cand);
+  }
+  while (opts.size < 4) {
+    opts.add(Number((correct + opts.size * step).toFixed(decimals)));
+  }
+  let arr = shuffle([...opts]);
+  let labels = ['A', 'B', 'C', 'D'];
+  let ansIndex = arr.indexOf(Number(correct.toFixed(decimals)));
+  return {
+    options: arr.map((v, i) => `${labels[i]}) ${v}`),
+    correctIndex: ansIndex
+  };
+}
+
+// Chapter 1
+const ch1Bank = [
+  {
+    q: "Which of the following represents a quantitative continuous variable?",
+    opts: ["A) Number of students in a class", "B) Blood type (A, B, AB, O)", "C) Height of a student in centimeters", "D) Eye color"],
+    ans: 2,
+    sol: "Height is measured on a continuous numerical scale."
+  },
+  {
+    q: "A survey of 150 students at a university found that 68% drink coffee daily. The number 68% is an example of a:",
+    opts: ["A) Parameter", "B) Statistic", "C) Population", "D) Qualitative variable"],
+    ans: 1,
+    sol: "A numerical summary calculated from a sample (150 students) is a statistic."
+  },
+  {
+    q: "What is the level of measurement for student letter grades (A, B, C, D, F)?",
+    opts: ["A) Nominal", "B) Ordinal", "C) Interval", "D) Ratio"],
+    ans: 1,
+    sol: "Letter grades have a meaningful order/ranking, making them ordinal."
+  },
+  {
+    q: "Which of the following is an example of a discrete quantitative variable?",
+    opts: ["A) Weight of a newborn baby", "B) Time spent studying", "C) Number of defective items in a batch", "D) Temperature in Celsius"],
+    ans: 2,
+    sol: "Countable whole numbers (number of defective items) are discrete."
+  },
+  {
+    q: "The average age of all 12,000 students enrolled at a university is 20.4 years. This value (20.4) is a:",
+    opts: ["A) Statistic", "B) Sample", "C) Parameter", "D) Constant variable"],
+    ans: 2,
+    sol: "A numerical measure describing an entire population is a parameter."
+  },
+  {
+    q: "What is the level of measurement for nationalities (Jordanian, Egyptian, Syrian)?",
+    opts: ["A) Nominal", "B) Ordinal", "C) Interval", "D) Ratio"],
+    ans: 0,
+    sol: "Categories with no inherent ranking are at the nominal level."
+  }
+];
+
+function genCh1(count) {
+  return shuffle(ch1Bank).slice(0, count);
+}
+
+// Chapter 2
+function genCh2(count) {
+  let qs = [];
+  for (let i = 0; i < count; i++) {
+    let type = i % 3;
+    if (type === 0) {
+      let n = 5;
+      let data = Array.from({length: n}, () => randInt(4, 20));
+      let sum = data.reduce((a,b) => a+b, 0);
+      let rem = sum % n;
+      if (rem !== 0) data[0] += (n - rem);
+      let mean = data.reduce((a,b) => a+b, 0) / n;
+      let mo = makeNumericOptions(mean, 1.5, 1);
+      qs.push({
+        q: `Find the sample mean ($\bar{x}$) of the following raw data:<br><div class="data-box">${data.join(', ')}</div>`,
+        opts: mo.options,
+        ans: mo.correctIndex,
+        sol: `Sum = ${data.reduce((a,b)=>a+b,0)}, n = ${n}. Mean = ${data.reduce((a,b)=>a+b,0)} / ${n} = ${mean}.`
+      });
+    } else if (type === 1) {
+      let data = Array.from({length: 6}, () => randInt(5, 30));
+      let sorted = [...data].sort((a,b) => a-b);
+      let median = (sorted[2] + sorted[3]) / 2;
+      let mo = makeNumericOptions(median, 1.5, 1);
+      qs.push({
+        q: `Find the median of the following dataset:<br><div class="data-box">${data.join(', ')}</div>`,
+        opts: mo.options,
+        ans: mo.correctIndex,
+        sol: `Ordered data: ${sorted.join(', ')}. Median = (${sorted[2]} + ${sorted[3]}) / 2 = ${median}.`
+      });
+    } else {
+      let base = randInt(8, 15);
+      let data = [base - 4, base - 2, base, base + 2, base + 4];
+      let mean = base;
+      let sqDiff = data.reduce((acc, v) => acc + Math.pow(v - mean, 2), 0);
+      let s2 = sqDiff / (data.length - 1);
+      let mo = makeNumericOptions(s2, 2, 2);
+      qs.push({
+        q: `Calculate the sample variance ($s^2$) for the following sample:<br><div class="data-box">${data.join(', ')}</div>`,
+        opts: mo.options,
+        ans: mo.correctIndex,
+        sol: `Mean = ${mean}. Sum of squared deviations = ${sqDiff}. $s^2$ = ${sqDiff} / ${data.length - 1} = ${s2}.`
+      });
+    }
+  }
+  return qs;
+}
+
+// Chapter 3
+function genCh3(count) {
+  let qs = [];
+  for (let i = 0; i < count; i++) {
+    let data = Array.from({length: 7}, () => randInt(10, 50)).sort((a,b) => a-b);
+    let q1 = data[1];
+    let q3 = data[5];
+    let iqr = q3 - q1;
+    let type = i % 2;
+    if (type === 0) {
+      let mo = makeNumericOptions(iqr, 2, 0);
+      qs.push({
+        q: `Find the Interquartile Range (IQR) for the ordered dataset:<br><div class="data-box">${data.join(', ')}</div>`,
+        opts: mo.options,
+        ans: mo.correctIndex,
+        sol: `Median is ${data[3]}. Lower half: [${data.slice(0,3).join(', ')}] $\Rightarrow Q_1 = ${q1}$. Upper half: [${data.slice(4).join(', ')}] $\Rightarrow Q_3 = ${q3}$. IQR = ${q3} - ${q1} = ${iqr}.`
+      });
+    } else {
+      let upperFence = q3 + 1.5 * iqr;
+      let mo = makeNumericOptions(upperFence, 3, 1);
+      qs.push({
+        q: `Given $Q_1 = ${q1}$ and $Q_3 = ${q3}$, calculate the upper fence for detecting outliers ($Q_3 + 1.5 \times \text{IQR}$):`,
+        opts: mo.options,
+        ans: mo.correctIndex,
+        sol: `IQR = ${q3} - ${q1} = ${iqr}. Upper fence = ${q3} + 1.5(${iqr}) = ${upperFence}.`
+      });
+    }
+  }
+  return qs;
+}
+
+// Chapter 4
+function genCh4(count) {
+  let qs = [];
+  for (let i = 0; i < count; i++) {
+    let start = randInt(0, 2) * 10;
+    let freqs = [randInt(2, 6), randInt(4, 10), randInt(3, 8), randInt(1, 5)];
+    let mids = [start + 5, start + 15, start + 25, start + 35];
+    let N = freqs.reduce((a,b) => a+b, 0);
+    let sumFM = freqs.reduce((acc, f, idx) => acc + f * mids[idx], 0);
+    let mean = round2(sumFM / N);
+
+    let tableHTML = `<table class="freq-table">
+      <tr><th>Class Interval</th><th>Frequency ($f$)</th></tr>
+      <tr><td>${start} – ${start+10}</td><td>${freqs[0]}</td></tr>
+      <tr><td>${start+10} – ${start+20}</td><td>${freqs[1]}</td></tr>
+      <tr><td>${start+20} – ${start+30}</td><td>${freqs[2]}</td></tr>
+      <tr><td>${start+30} – ${start+40}</td><td>${freqs[3]}</td></tr>
+    </table>`;
+
+    if (i % 2 === 0) {
+      let mo = makeNumericOptions(mean, 1.25, 2);
+      qs.push({
+        q: `Estimate the sample mean from the following grouped frequency distribution:${tableHTML}`,
+        opts: mo.options,
+        ans: mo.correctIndex,
+        sol: `Midpoints: ${mids.join(', ')}. $\sum f \cdot x_m = ${sumFM}$, $n = ${N}$. Mean = ${sumFM} / ${N} = ${mean}.`
+      });
+    } else {
+      let sumSq = freqs.reduce((acc, f, idx) => acc + f * Math.pow(mids[idx] - mean, 2), 0);
+      let s2 = round2(sumSq / (N - 1));
+      let sd = round2(Math.sqrt(s2));
+      let mo = makeNumericOptions(sd, 0.85, 2);
+      qs.push({
+        q: `Estimate the sample standard deviation ($s$) for the grouped data below:${tableHTML}`,
+        opts: mo.options,
+        ans: mo.correctIndex,
+        sol: `Mean = ${mean}. $\sum f(x_m - \bar{x})^2 = ${round2(sumSq)}$. $s^2 = ${s2} \Rightarrow s = \sqrt{${s2}} \approx ${sd}$.`
+      });
+    }
+  }
+  return qs;
+}
+
+// Chapter 5
+function genCh5(count) {
+  let qs = [];
+  for (let i = 0; i < count; i++) {
+    let h = 10;
+    let f1 = randInt(3, 6);
+    let f2 = randInt(10, 16);
+    let f3 = randInt(4, 8);
+    let f4 = randInt(2, 5);
+    let freqs = [f1, f2, f3, f4];
+    let N = f1 + f2 + f3 + f4;
+
+    let tableHTML = `<table class="freq-table">
+      <tr><th>Class</th><th>Frequency ($f$)</th></tr>
+      <tr><td>10 – 20</td><td>${f1}</td></tr>
+      <tr><td>20 – 30</td><td>${f2}</td></tr>
+      <tr><td>30 – 40</td><td>${f3}</td></tr>
+      <tr><td>40 – 50</td><td>${f4}</td></tr>
+    </table>`;
+
+    if (i % 2 === 0) {
+      let L = 20;
+      let mode = round2(L + ((f2 - f1) / ((f2 - f1) + (f2 - f3))) * h);
+      let mo = makeNumericOptions(mode, 1.1, 2);
+      qs.push({
+        q: `Calculate the estimated Mode for the grouped frequency table below:${tableHTML}`,
+        opts: mo.options,
+        ans: mo.correctIndex,
+        sol: `Modal class is 20–30 ($L=20, f_m=${f2}, f_1=${f1}, f_2=${f3}, h=10$). Mode = $20 + \frac{${f2}-${f1}}{(${f2}-${f1})+(${f2}-${f3})} \times 10 = ${mode}$.`
+      });
+    } else {
+      let halfN = N / 2;
+      let cum = [f1, f1+f2, f1+f2+f3, N];
+      let medIdx = cum.findIndex(c => c >= halfN);
+      let L = 10 + medIdx * 10;
+      let cfPrev = medIdx === 0 ? 0 : cum[medIdx - 1];
+      let fMed = freqs[medIdx];
+      let median = round2(L + ((halfN - cfPrev) / fMed) * h);
+      let mo = makeNumericOptions(median, 1.3, 2);
+      qs.push({
+        q: `Estimate the Median for the following grouped data:${tableHTML}`,
+        opts: mo.options,
+        ans: mo.correctIndex,
+        sol: `$n/2 = ${halfN}$. Median class is ${L}–${L+10} ($L=${L}, cf=${cfPrev}, f=${fMed}$). Median = $${L} + \frac{${halfN} - ${cfPrev}}{${fMed}} \times 10 = ${median}$.`
+      });
+    }
+  }
+  return qs;
+}
+
+// Chapter 6
+function genCh6(count) {
+  let qs = [];
+  for (let i = 0; i < count; i++) {
+    let meanX = randInt(20, 60);
+    let sdX = randInt(3, 10);
+    let a = randInt(2, 5);
+    let b = randInt(5, 25);
+    if (i % 2 === 0) {
+      let newMean = a * meanX + b;
+      let mo = makeNumericOptions(newMean, 5, 0);
+      qs.push({
+        q: `A dataset $X$ has a mean $\bar{x} = ${meanX}$ and standard deviation $s_x = ${sdX}$. If each value is transformed using $Y = ${a}X + ${b}$, what is the new mean $\bar{y}$?`,
+        opts: mo.options,
+        ans: mo.correctIndex,
+        sol: `$\bar{y} = a\bar{x} + b = ${a}(${meanX}) + ${b} = ${newMean}$.`
+      });
+    } else {
+      let newSD = a * sdX;
+      let mo = makeNumericOptions(newSD, 3, 0);
+      qs.push({
+        q: `A dataset $X$ has a mean $\bar{x} = ${meanX}$ and standard deviation $s_x = ${sdX}$. If each value is transformed using $Y = ${a}X - ${b}$, what is the new standard deviation $s_y$?`,
+        opts: mo.options,
+        ans: mo.correctIndex,
+        sol: `Adding/subtracting a constant does not affect spread: $s_y = |a|s_x = ${a} \times ${sdX} = ${newSD}$.`
+      });
+    }
+  }
+  return qs;
+}
+
+// Chapter 7
+function genCh7(count, isEasy) {
+  let qs = [];
+  for (let i = 0; i < count; i++) {
+    let mean = randInt(5, 10) * 10;
+    let sd = randInt(2, 8);
+    if (isEasy) {
+      let k = randInt(1, 3);
+      let pct = k === 1 ? "68%" : (k === 2 ? "95%" : "99.7%");
+      let low = mean - k * sd;
+      let high = mean + k * sd;
+      let opts = shuffle(["68%", "95%", "99.7%", "50%"]);
+      qs.push({
+        q: `Exam scores follow a bell-shaped (normal) distribution with mean $\mu = ${mean}$ and standard deviation $\sigma = ${sd}$. According to the Empirical Rule, approximately what percentage of scores lie between ${low} and ${high}?`,
+        opts: opts.map((v, idx) => `${['A','B','C','D'][idx]}) ${v}`),
+        ans: opts.indexOf(pct),
+        sol: `${low} and ${high} are ${k} standard deviation(s) from the mean (${mean} $\pm$ ${k}(${sd})), which corresponds to ${pct}.`
+      });
+    } else {
+      let low = mean - sd;
+      let high = mean + 2 * sd;
+      let pct = 81.5;
+      let mo = makeNumericOptions(pct, 6.5, 1);
+      qs.push({
+        q: `A normal distribution has mean $\mu = ${mean}$ and standard deviation $\sigma = ${sd}$. Using the Empirical Rule, find the percentage of data between ${low} and ${high}:`,
+        opts: mo.options.map(o => o + "%"),
+        ans: mo.correctIndex,
+        sol: `Between $\mu - \sigma$ (${low}) and $\mu$ is 34%. Between $\mu$ and $\mu + 2\sigma$ (${high}) is 47.5%. Total = 34% + 47.5% = 81.5%.`
+      });
+    }
+  }
+  return qs;
+}
+
+const chapterNames = {
+  1: "Chapter 1: Introduction to Statistics",
+  2: "Chapter 2: Raw Data (centre and spread)",
+  3: "Chapter 3: Percentiles, Quartiles and IQR",
+  4: "Chapter 4: Grouped Data: Mean, Variance and SD",
+  5: "Chapter 5: Grouped Data: Median and Mode",
+  6: "Chapter 6: Linear Transformation",
+  7: "Chapter 7: The Empirical Rule"
+};
+
+function generateHomework() {
+  const container = document.getElementById("homeworkContainer");
+  container.innerHTML = "";
+  const count = Math.max(1, Math.min(10, parseInt(document.getElementById("qCount").value) || 3));
+  const easyCh7 = document.getElementById("easyCh7").checked;
+  const checkedBoxes = document.querySelectorAll(".ch-check:checked");
+
+  if (checkedBoxes.length === 0) {
+    container.innerHTML = `<div class="chapter-section" style="text-align:center;">Please select at least one chapter to generate questions.</div>`;
+    return;
+  }
+
+  let qGlobalNum = 1;
+
+  checkedBoxes.forEach(cb => {
+    const chId = parseInt(cb.value);
+    let questions = [];
+    if (chId === 1) questions = genCh1(count);
+    if (chId === 2) questions = genCh2(count);
+    if (chId === 3) questions = genCh3(count);
+    if (chId === 4) questions = genCh4(count);
+    if (chId === 5) questions = genCh5(count);
+    if (chId === 6) questions = genCh6(count);
+    if (chId === 7) questions = genCh7(count, easyCh7);
+
+    const section = document.createElement("div");
+    section.className = "chapter-section";
+    let html = `<div class="chapter-title">${chapterNames[chId]}</div>`;
+
+    questions.forEach(item => {
+      const optsHTML = item.opts.map((opt, idx) => {
+        const isCorrect = idx === item.ans;
+        return `<div class="option-item ${isCorrect ? 'ans-opt' : ''}" data-correct="${isCorrect}">${opt}</div>`;
+      }).join("");
+
+      html += `
+        <div class="question-card">
+          <div class="q-text">${qGlobalNum}. ${formatMath(item.q)}</div>
+          <div class="options-grid">${optsHTML}</div>
+          <div class="solution-box"><strong>Solution:</strong> ${formatMath(item.sol)}</div>
+        </div>
+      `;
+      qGlobalNum++;
+    });
+
+    section.innerHTML = html;
+    container.appendChild(section);
+  });
+
+  if (document.body.classList.contains("show-answers")) {
+    highlightCorrectOptions(true);
+  }
+}
+
+function formatMath(str) {
+  return str
+    .replace(/\$\bar\{x\}\$/g, 'x̄')
+    .replace(/\$\bar\{y\}\$/g, 'ȳ')
+    .replace(/\$s\^2\$/g, 's²')
+    .replace(/\$Q_1\$/g, 'Q₁')
+    .replace(/\$Q_3\$/g, 'Q₃')
+    .replace(/\$\times\$/g, '×')
+    .replace(/\$\text\{IQR\}\$/g, 'IQR')
+    .replace(/\$\sum f \cdot x_m\$/g, '∑(f · xₘ)')
+    .replace(/\$\sum f\(x_m - \bar\{x\}\)\^2\$/g, '∑f(xₘ - x̄)²')
+    .replace(/\$\Rightarrow\$/g, '⇒')
+    .replace(/\$\approx\$/g, '≈')
+    .replace(/\$\sqrt\{([^}]+)\}\$/g, '√($1)')
+    .replace(/\$\mu\$/g, 'μ')
+    .replace(/\$\sigma\$/g, 'σ')
+    .replace(/\$\pm\$/g, '±')
+    .replace(/\$\frac\{([^}]+)\}\{([^}]+)\}\$/g, '($1) / ($2)')
+    .replace(/\$/g, '');
+}
+
+function highlightCorrectOptions(show) {
+  document.querySelectorAll(".ans-opt").forEach(el => {
+    if (show) el.classList.add("correct-highlight");
+    else el.classList.remove("correct-highlight");
+  });
+}
+
+function toggleAnswers() {
+  const isShowing = document.body.classList.toggle("show-answers");
+  highlightCorrectOptions(isShowing);
+}
+</script>
+</body>
+</html>
