@@ -3,21 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Statistics Homework Generator</title>
+<title>Midterm Worksheet Generator - Statistics</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f6f9;
+    background-color: #eef2f6;
     color: #1f2937;
     padding: 20px;
-    line-height: 1.6;
+    line-height: 1.55;
   }
+
   /* Lock Screen */
   #loginOverlay {
     position: fixed;
     inset: 0;
-    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+    background: linear-gradient(135deg, #1b365d 0%, #2b6cb0 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -27,51 +28,45 @@
   .login-card {
     background: #ffffff;
     padding: 32px 28px;
-    border-radius: 18px;
+    border-radius: 16px;
     width: 100%;
-    max-width: 380px;
+    max-width: 370px;
     text-align: center;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
   }
   .login-card h2 {
     font-size: 1.35rem;
-    color: #111827;
-    margin-bottom: 8px;
+    color: #1b365d;
+    margin-bottom: 6px;
   }
   .login-card p {
     font-size: 0.9rem;
-    color: #6b7280;
-    margin-bottom: 20px;
+    color: #64748b;
+    margin-bottom: 18px;
   }
   .login-card input {
     width: 100%;
-    padding: 12px 14px;
-    font-size: 1.1rem;
+    padding: 12px;
+    font-size: 1.15rem;
     text-align: center;
-    border: 2px solid #d1d5db;
+    border: 2px solid #cbd5e1;
     border-radius: 10px;
     margin-bottom: 14px;
     outline: none;
-    transition: border-color 0.2s;
   }
-  .login-card input:focus {
-    border-color: #2563eb;
-  }
+  .login-card input:focus { border-color: #2563eb; }
   .login-card button {
     width: 100%;
     padding: 12px;
-    background: #2563eb;
+    background: #1b365d;
     color: #ffffff;
     font-size: 1.05rem;
     font-weight: bold;
     border: none;
     border-radius: 10px;
     cursor: pointer;
-    transition: background 0.2s;
   }
-  .login-card button:hover {
-    background: #1d4ed8;
-  }
+  .login-card button:hover { background: #142847; }
   #loginError {
     color: #dc2626;
     font-size: 0.88rem;
@@ -79,261 +74,335 @@
     display: none;
     font-weight: 600;
   }
-  #appContent {
-    display: none;
-  }
 
-  .container {
-    max-width: 850px;
-    margin: 0 auto;
-  }
-  header {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  header h1 {
-    font-size: 1.8rem;
-    color: #111827;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  }
+  #appContent { display: none; }
+
+  /* Control Panel (No Print) */
   .control-panel {
+    max-width: 860px;
+    margin: 0 auto 24px auto;
     background: #ffffff;
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    margin-bottom: 20px;
-    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 20px 24px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    border: 1px solid #d1d5db;
   }
-  .chapter-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-  .chapter-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    cursor: pointer;
-    padding: 6px 10px;
-    border-radius: 8px;
-    transition: background 0.2s;
-  }
-  .chapter-item:hover {
-    background: #f9fafb;
-  }
-  .chapter-label {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    font-size: 1rem;
-    font-weight: 500;
-    color: #1f2937;
-    text-align: left;
-  }
-  .chapter-item input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    accent-color: #2563eb;
-    cursor: pointer;
-    flex-shrink: 0;
-  }
-  .settings-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
+  .control-panel h1 {
+    font-size: 1.35rem;
+    color: #1b365d;
     margin-bottom: 14px;
-    font-weight: 600;
-  }
-  .settings-row input[type="number"] {
-    width: 70px;
-    padding: 6px 10px;
-    font-size: 1rem;
     text-align: center;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-weight: bold;
   }
-  .note-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 18px;
-    font-size: 0.95rem;
-    color: #374151;
-    cursor: pointer;
-  }
-  .note-row input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: #2563eb;
-  }
-  .btn-primary {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    max-width: 320px;
-    margin: 0 auto 14px auto;
-    padding: 12px 20px;
-    background-color: #2563eb;
-    color: #ffffff;
-    font-size: 1.05rem;
-    font-weight: bold;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  .btn-primary:hover {
-    background-color: #1d4ed8;
-  }
-  .secondary-actions {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-  }
-  .btn-secondary {
-    flex: 1;
-    max-width: 240px;
-    padding: 10px 16px;
-    background: #ffffff;
-    border: 1px solid #d1d5db;
-    border-radius: 10px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #1f2937;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: background 0.2s;
-  }
-  .btn-secondary:hover {
-    background: #f3f4f6;
-  }
-  .hw-header-box {
-    background: #ffffff;
-    border-radius: 12px;
-    padding: 16px 20px;
-    border: 1px solid #e5e7eb;
-    margin-bottom: 20px;
-    text-align: left;
-  }
-  .hw-header-box p {
-    font-size: 1.05rem;
-    color: #111827;
-    margin-bottom: 6px;
-  }
-  .student-info {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 12px;
-    padding-top: 10px;
-    border-top: 1px dashed #d1d5db;
-    font-size: 0.95rem;
-    color: #4b5563;
-  }
-  .chapter-section {
-    background: #ffffff;
-    border-radius: 12px;
-    padding: 20px;
-    border: 1px solid #e5e7eb;
-    margin-bottom: 20px;
-    text-align: left;
-  }
-  .chapter-title {
-    color: #2563eb;
-    font-size: 1.2rem;
-    font-weight: bold;
-    padding-bottom: 8px;
-    border-bottom: 2px solid #2563eb;
+  .chapters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 8px 18px;
     margin-bottom: 16px;
   }
-  .question-card {
-    margin-bottom: 18px;
-    padding-bottom: 14px;
-    border-bottom: 1px solid #f3f4f6;
-  }
-  .question-card:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-    padding-bottom: 0;
-  }
-  .q-text {
-    font-weight: 600;
-    margin-bottom: 10px;
-    color: #111827;
-  }
-  .data-box {
+  .ch-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-family: 'Courier New', Courier, monospace;
-    font-weight: bold;
-    display: inline-block;
-    margin: 6px 0 10px 0;
+    border-radius: 8px;
+    font-size: 0.92rem;
+    font-weight: 500;
+    cursor: pointer;
   }
-  table.freq-table {
-    border-collapse: collapse;
-    margin: 8px 0 12px 0;
-    width: auto;
-    min-width: 260px;
+  .ch-option input { width: 17px; height: 17px; accent-color: #1b365d; }
+  .controls-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding-top: 10px;
+    border-top: 1px solid #e5e7eb;
   }
-  table.freq-table th, table.freq-table td {
+  .controls-bar label {
+    font-size: 0.92rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .controls-bar input[type="number"] {
+    width: 62px;
+    padding: 6px;
+    text-align: center;
     border: 1px solid #cbd5e1;
-    padding: 6px 14px;
+    border-radius: 6px;
+    font-weight: bold;
+  }
+  .btn {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-gen { background: #1b365d; color: #ffffff; }
+  .btn-gen:hover { background: #132744; }
+  .btn-print { background: #0f766e; color: #ffffff; }
+  .btn-print:hover { background: #0d5e58; }
+  .btn-toggle { background: #f1f5f9; color: #1e293b; border: 1px solid #cbd5e1; }
+  .btn-toggle:hover { background: #e2e8f0; }
+
+  /* Worksheet Sheet Container */
+  .sheet {
+    max-width: 860px;
+    margin: 0 auto 30px auto;
+    background: #ffffff;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: 1px solid #d1d5db;
+    padding: 0 0 35px 0;
+  }
+
+  /* Top Color Bar */
+  .rainbow-bar {
+    display: flex;
+    height: 8px;
+    width: 100%;
+  }
+  .rainbow-bar span { flex: 1; }
+  .rb-teal { background: #26897e; }
+  .rb-blue { background: #2271b3; }
+  .rb-orange { background: #d9822b; }
+  .rb-purple { background: #6b469b; }
+  .rb-crimson { background: #c5305c; }
+  .rb-green { background: #2b8a57; }
+
+  .sheet-inner {
+    padding: 28px 38px;
+  }
+
+  /* Dark Navy Header Banner */
+  .banner-box {
+    background-color: #1f3a60;
+    color: #ffffff;
+    padding: 22px 28px 0 28px;
+    margin-bottom: 18px;
+  }
+  .banner-box h2 {
+    font-size: 1.95rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    margin-bottom: 4px;
+  }
+  .banner-box p {
+    font-size: 1.02rem;
+    color: #dbeafe;
+    margin-bottom: 18px;
+  }
+  .banner-stripe {
+    display: flex;
+    height: 7px;
+    margin: 0 -28px;
+  }
+  .banner-stripe span { flex: 1; }
+
+  /* Student Info Line */
+  .student-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    font-size: 0.96rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 14px;
+  }
+  .student-row div {
+    flex: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .student-row .line {
+    flex: 1;
+    border-bottom: 1.5px solid #4b5563;
+    height: 14px;
+  }
+
+  /* Instructions Callout */
+  .instructions-box {
+    background-color: #f1f5f9;
+    border-left: 4px solid #1f3a60;
+    padding: 11px 16px;
+    font-size: 0.92rem;
+    color: #1e293b;
+    margin-bottom: 22px;
+  }
+
+  /* Chapter Banners */
+  .chapter-banner {
+    color: #ffffff;
+    font-size: 1.12rem;
+    font-weight: 700;
+    padding: 8px 16px;
+    margin: 22px 0 12px 0;
+  }
+  .ch-1 { background-color: #26897e; }
+  .ch-2 { background-color: #2271b3; }
+  .ch-3 { background-color: #d9822b; }
+  .ch-4 { background-color: #6b469b; }
+  .ch-5 { background-color: #c5305c; }
+  .ch-6 { background-color: #2b8a57; }
+  .ch-7 { background-color: #26897e; }
+
+  /* Shared Context Note & Frequency Table */
+  .context-note {
+    font-style: italic;
+    color: #374151;
+    font-size: 0.93rem;
+    margin-bottom: 10px;
+  }
+  .styled-table {
+    border-collapse: collapse;
+    margin: 8px 0 14px 0;
+    min-width: 240px;
+    font-size: 0.92rem;
+  }
+  .styled-table th {
+    color: #ffffff;
+    font-weight: 700;
+    padding: 6px 18px;
+    text-align: center;
+    border: 1px solid #cbd5e1;
+  }
+  .styled-table td {
+    padding: 5px 18px;
+    text-align: center;
+    border: 1px solid #cbd5e1;
+  }
+  .tbl-ch4 th { background-color: #6b469b; }
+  .tbl-ch4 tr:nth-child(even) td { background-color: #f5f3ff; }
+  .tbl-ch5 th { background-color: #c5305c; }
+  .tbl-ch5 tr:nth-child(even) td { background-color: #fff1f2; }
+
+  /* Questions & Options */
+  .q-block {
+    margin-bottom: 13px;
+    page-break-inside: avoid;
+  }
+  .q-title {
+    font-size: 0.96rem;
+    color: #111827;
+    margin-bottom: 5px;
+  }
+  .q-num {
+    font-weight: 700;
+    margin-right: 4px;
+  }
+  .opts-4col {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px 12px;
+    padding-left: 18px;
+    font-size: 0.92rem;
+  }
+  .opts-2col {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5px 18px;
+    padding-left: 18px;
+    font-size: 0.92rem;
+  }
+  .opt-letter {
+    font-weight: 700;
+    margin-right: 4px;
+  }
+  .opt-item.highlight-ans {
+    background-color: #dcfce7;
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-weight: 700;
+    color: #14532d;
+  }
+
+  /* Answer Key & Short Solutions Sections */
+  .page-break-section {
+    page-break-before: always;
+    margin-top: 30px;
+    padding-top: 10px;
+  }
+  .ak-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 0.9rem;
     text-align: center;
   }
-  table.freq-table th {
-    background-color: #f1f5f9;
-    font-weight: 600;
+  .ak-table th {
+    background-color: #2271b3;
+    color: #ffffff;
+    padding: 7px 6px;
+    border: 1px solid #cbd5e1;
   }
-  .options-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 8px;
-    margin-top: 8px;
+  .ak-table td {
+    padding: 6px;
+    border: 1px solid #cbd5e1;
   }
-  .option-item {
-    padding: 6px 10px;
-    border: 1px solid #e5e7eb;
-    border-radius: 6px;
-    font-size: 0.95rem;
-  }
-  .option-item.correct-highlight {
-    background-color: #dcfce7;
-    border-color: #16a34a;
-    color: #14532d;
-    font-weight: bold;
-  }
-  .solution-box {
-    display: none;
-    margin-top: 10px;
-    padding: 10px 14px;
+  .ak-table tr:nth-child(even) td {
     background-color: #eff6ff;
-    border-left: 4px solid #2563eb;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    color: #1e3a8a;
   }
-  body.show-answers .solution-box {
-    display: block;
+  .ak-q { font-weight: 700; }
+
+  .sol-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 0.88rem;
   }
+  .sol-table th {
+    background-color: #d9822b;
+    color: #ffffff;
+    padding: 7px 10px;
+    border: 1px solid #cbd5e1;
+    text-align: center;
+  }
+  .sol-table td {
+    padding: 6px 10px;
+    border: 1px solid #cbd5e1;
+  }
+  .sol-table tr:nth-child(even) td {
+    background-color: #fffbeb;
+  }
+  .sol-center { text-align: center; font-weight: 700; }
+
+  .footer-note {
+    text-align: center;
+    font-size: 0.82rem;
+    color: #6b7280;
+    margin-top: 24px;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 8px;
+  }
+
+  @media (max-width: 650px) {
+    .opts-4col { grid-template-columns: repeat(2, 1fr); }
+    .opts-2col { grid-template-columns: 1fr; }
+    .sheet-inner { padding: 18px 16px; }
+    .student-row { flex-direction: column; gap: 8px; }
+  }
+
   @media print {
     .no-print, #loginOverlay { display: none !important; }
     body { background: #ffffff; padding: 0; }
-    .container { max-width: 100%; }
-    .chapter-section, .hw-header-box {
+    .sheet {
       box-shadow: none;
-      border: 1px solid #ccc;
-      break-inside: avoid;
+      border: none;
+      max-width: 100%;
+      margin: 0;
+    }
+    .banner-box, .chapter-banner, .styled-table th, .ak-table th, .sol-table th, .rainbow-bar span, .banner-stripe span, .instructions-box, .styled-table tr:nth-child(even) td, .ak-table tr:nth-child(even) td, .sol-table tr:nth-child(even) td {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
     }
   }
 </style>
@@ -342,105 +411,99 @@
 
 <div id="loginOverlay">
   <div class="login-card">
-    <h2>🔒 Statistics Homework Generator</h2>
-    <p>Enter password to continue</p>
+    <h2>🔒 Midterm Worksheet Generator</h2>
+    <p>Enter password to access</p>
     <input type="password" id="passInput" placeholder="••••••" onkeypress="if(event.key==='Enter') checkPass()">
     <button onclick="checkPass()">Login</button>
     <div id="loginError">Incorrect password</div>
   </div>
 </div>
 
-<div id="appContent" class="container">
-  <header class="no-print">
-    <h1>📘 Statistics Homework Generator</h1>
-  </header>
-
+<div id="appContent">
   <div class="control-panel no-print">
-    <div class="chapter-list">
-      <label class="chapter-item">
-        <span class="chapter-label">Chapter 1: Introduction to Statistics</span>
-        <input type="checkbox" class="ch-check" value="1" checked>
-      </label>
-      <label class="chapter-item">
-        <span class="chapter-label">Chapter 2: Raw Data (centre and spread)</span>
-        <input type="checkbox" class="ch-check" value="2" checked>
-      </label>
-      <label class="chapter-item">
-        <span class="chapter-label">Chapter 3: Percentiles, Quartiles and IQR</span>
-        <input type="checkbox" class="ch-check" value="3" checked>
-      </label>
-      <label class="chapter-item">
-        <span class="chapter-label">Chapter 4: Grouped Data: Mean, Variance and SD</span>
-        <input type="checkbox" class="ch-check" value="4" checked>
-      </label>
-      <label class="chapter-item">
-        <span class="chapter-label">Chapter 5: Grouped Data: Median and Mode</span>
-        <input type="checkbox" class="ch-check" value="5" checked>
-      </label>
-      <label class="chapter-item">
-        <span class="chapter-label">Chapter 6: Linear Transformation</span>
-        <input type="checkbox" class="ch-check" value="6" checked>
-      </label>
-      <label class="chapter-item">
-        <span class="chapter-label">Chapter 7: The Empirical Rule</span>
-        <input type="checkbox" class="ch-check" value="7" checked>
-      </label>
+    <h1>📘 Midterm Worksheet Generator (Statistics)</h1>
+    <div class="chapters-grid">
+      <label class="ch-option"><span>Chapter 1: Introduction to Statistics</span><input type="checkbox" class="ch-cb" value="1" checked></label>
+      <label class="ch-option"><span>Chapter 2: Raw Data (centre and spread)</span><input type="checkbox" class="ch-cb" value="2" checked></label>
+      <label class="ch-option"><span>Chapter 3: Percentiles, Quartiles and IQR</span><input type="checkbox" class="ch-cb" value="3" checked></label>
+      <label class="ch-option"><span>Chapter 4: Grouped Data: Mean, Variance and SD</span><input type="checkbox" class="ch-cb" value="4" checked></label>
+      <label class="ch-option"><span>Chapter 5: Grouped Data: Median and Mode</span><input type="checkbox" class="ch-cb" value="5" checked></label>
+      <label class="ch-option"><span>Chapter 6: Linear Transformation</span><input type="checkbox" class="ch-cb" value="6" checked></label>
+      <label class="ch-option"><span>Chapter 7: The Empirical Rule</span><input type="checkbox" class="ch-cb" value="7" checked></label>
     </div>
-
-    <div class="settings-row">
-      <label for="qCount">Questions per chapter:</label>
-      <input type="number" id="qCount" value="3" min="1" max="10">
-    </div>
-
-    <label class="note-row">
-      <input type="checkbox" id="easyCh7" checked>
-      <span>Easy questions for Chapter 7</span>
-    </label>
-
-    <button class="btn-primary" onclick="generateHomework()">
-      <span>🎲</span> Generate New Homework
-    </button>
-
-    <div class="secondary-actions">
-      <button class="btn-secondary" onclick="toggleAnswers()">
-        <span>👁️</span> Show / Hide Answers
-      </button>
-      <button class="btn-secondary" onclick="window.print()">
-        <span>🖨️</span> Print
-      </button>
+    <div class="controls-bar">
+      <label>Worksheet Title:
+        <input type="text" id="wsTitle" value="Midterm Worksheet" style="padding:6px 10px; border:1px solid #cbd5e1; border-radius:6px; font-weight:600; width:170px;">
+      </label>
+      <label>Questions / Chapter:
+        <input type="number" id="qPerCh" value="6" min="2" max="10">
+      </label>
+      <button class="btn btn-gen" onclick="buildWorksheet()">🎲 Generate New Worksheet</button>
+      <button class="btn btn-toggle" onclick="toggleInlineAnswers()">👁️ Highlight Answers</button>
+      <button class="btn btn-print" onclick="window.print()">🖨️ Print / Save PDF</button>
     </div>
   </div>
 
-  <div class="hw-header-box">
-    <p><strong>Homework</strong> — circle one answer per question. Show your work.</p>
-    <div class="student-info">
-      <span>Name: ___________________________</span>
-      <span>ID: _____________________</span>
-      <span>Section: _________</span>
+  <div class="sheet" id="worksheetSheet">
+    <div class="rainbow-bar">
+      <span class="rb-teal"></span><span class="rb-blue"></span><span class="rb-orange"></span>
+      <span class="rb-purple"></span><span class="rb-crimson"></span><span class="rb-green"></span>
+    </div>
+
+    <div class="sheet-inner">
+      <div class="banner-box">
+        <h2 id="displayTitle">Midterm Worksheet</h2>
+        <p>Statistics: circle the correct answer</p>
+        <div class="banner-stripe">
+          <span class="rb-teal"></span><span class="rb-blue"></span><span class="rb-orange"></span>
+          <span class="rb-purple"></span><span class="rb-crimson"></span><span class="rb-green"></span>
+        </div>
+      </div>
+
+      <div class="student-row">
+        <div><span>Name:</span><span class="line"></span></div>
+        <div><span>University ID:</span><span class="line"></span></div>
+        <div style="max-width: 190px;"><span>Date:</span><span class="line"></span></div>
+      </div>
+
+      <div class="instructions-box">
+        <strong>Instructions:</strong> there are <span id="totalQCount">42</span> multiple-choice questions covering the selected chapters. <strong>Circle one answer</strong> for each question. Show your work on scrap paper. The answer key with short solutions is on the last pages: try the questions first.
+      </div>
+
+      <div id="questionsArea"></div>
+
+      <!-- Answer Key Page -->
+      <div class="page-break-section" id="answerKeySection">
+        <div class="chapter-banner ch-2" style="margin-top:0;">Answer key</div>
+        <div id="answerKeyContainer"></div>
+      </div>
+
+      <!-- Short Solutions Page -->
+      <div class="page-break-section" id="solutionsSection">
+        <div class="chapter-banner ch-3" style="margin-top:0;">Short solutions</div>
+        <div id="solutionsContainer"></div>
+      </div>
+
+      <div class="footer-note" id="footerNote">Midterm Worksheet &nbsp;|&nbsp; Statistics</div>
     </div>
   </div>
-
-  <div id="homeworkContainer"></div>
 </div>
 
 <script>
-// Password: 121314
 const PASS_HASH = "121314";
+let showInline = false;
 
 function checkPass() {
-  const val = document.getElementById("passInput").value.trim();
-  if (val === PASS_HASH) {
+  if (document.getElementById("passInput").value.trim() === PASS_HASH) {
     document.getElementById("loginOverlay").style.display = "none";
     document.getElementById("appContent").style.display = "block";
-    generateHomework();
+    buildWorksheet();
   } else {
     document.getElementById("loginError").style.display = "block";
   }
 }
 
-function randInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 function shuffle(arr) {
   let a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -449,407 +512,638 @@ function shuffle(arr) {
   }
   return a;
 }
-function round2(num) {
-  return Math.round((num + Number.EPSILON) * 100) / 100;
-}
+function r2(n) { return Math.round((n + Number.EPSILON) * 100) / 100; }
 
-function makeNumericOptions(correct, step = 1, decimals = 2) {
-  let opts = new Set([Number(correct.toFixed(decimals))]);
-  let attempts = 0;
-  while (opts.size < 4 && attempts < 50) {
-    attempts++;
-    let offset = (randInt(1, 4) * step) * (Math.random() < 0.5 ? 1 : -1);
-    let cand = Number((correct + offset).toFixed(decimals));
-    if (cand >= 0 || correct < 0) opts.add(cand);
+function makeOpts(correct, distractors, layout = "4col") {
+  let unique = [correct];
+  for (let d of distractors) {
+    if (unique.length < 4 && !unique.includes(d)) unique.push(d);
   }
-  while (opts.size < 4) {
-    opts.add(Number((correct + opts.size * step).toFixed(decimals)));
+  let counter = 1;
+  while (unique.length < 4) {
+    let cand = typeof correct === "number" ? r2(correct + counter * 2) : `Option ${counter}`;
+    if (!unique.includes(cand)) unique.push(cand);
+    counter++;
   }
-  let arr = shuffle([...opts]);
-  let labels = ['A', 'B', 'C', 'D'];
-  let ansIndex = arr.indexOf(Number(correct.toFixed(decimals)));
+  let shuffled = shuffle(unique);
+  const letters = ["A", "B", "C", "D"];
   return {
-    options: arr.map((v, i) => `${labels[i]}) ${v}`),
-    correctIndex: ansIndex
+    options: shuffled,
+    ansLetter: letters[shuffled.indexOf(correct)],
+    layout: layout
   };
 }
 
-// Chapter 1
-const ch1Bank = [
-  {
-    q: "Which of the following represents a quantitative continuous variable?",
-    opts: ["A) Number of students in a class", "B) Blood type (A, B, AB, O)", "C) Height of a student in centimeters", "D) Eye color"],
-    ans: 2,
-    sol: "Height is measured on a continuous numerical scale."
-  },
-  {
-    q: "A survey of 150 students at a university found that 68% drink coffee daily. The number 68% is an example of a:",
-    opts: ["A) Parameter", "B) Statistic", "C) Population", "D) Qualitative variable"],
-    ans: 1,
-    sol: "A numerical summary calculated from a sample (150 students) is a statistic."
-  },
-  {
-    q: "What is the level of measurement for student letter grades (A, B, C, D, F)?",
-    opts: ["A) Nominal", "B) Ordinal", "C) Interval", "D) Ratio"],
-    ans: 1,
-    sol: "Letter grades have a meaningful order/ranking, making them ordinal."
-  },
-  {
-    q: "Which of the following is an example of a discrete quantitative variable?",
-    opts: ["A) Weight of a newborn baby", "B) Time spent studying", "C) Number of defective items in a batch", "D) Temperature in Celsius"],
-    ans: 2,
-    sol: "Countable whole numbers (number of defective items) are discrete."
-  },
-  {
-    q: "The average age of all 12,000 students enrolled at a university is 20.4 years. This value (20.4) is a:",
-    opts: ["A) Statistic", "B) Sample", "C) Parameter", "D) Constant variable"],
-    ans: 2,
-    sol: "A numerical measure describing an entire population is a parameter."
-  },
-  {
-    q: "What is the level of measurement for nationalities (Jordanian, Egyptian, Syrian)?",
-    opts: ["A) Nominal", "B) Ordinal", "C) Interval", "D) Ratio"],
-    ans: 0,
-    sol: "Categories with no inherent ranking are at the nominal level."
-  }
-];
-
-function genCh1(count) {
-  return shuffle(ch1Bank).slice(0, count);
-}
-
-// Chapter 2
-function genCh2(count) {
-  let qs = [];
-  for (let i = 0; i < count; i++) {
-    let type = i % 3;
-    if (type === 0) {
-      let n = 5;
-      let data = Array.from({length: n}, () => randInt(4, 20));
-      let sum = data.reduce((a,b) => a+b, 0);
-      let rem = sum % n;
-      if (rem !== 0) data[0] += (n - rem);
-      let mean = data.reduce((a,b) => a+b, 0) / n;
-      let mo = makeNumericOptions(mean, 1.5, 1);
-      qs.push({
-        q: `Find the sample mean ($\bar{x}$) of the following raw data:<br><div class="data-box">${data.join(', ')}</div>`,
-        opts: mo.options,
-        ans: mo.correctIndex,
-        sol: `Sum = ${data.reduce((a,b)=>a+b,0)}, n = ${n}. Mean = ${data.reduce((a,b)=>a+b,0)} / ${n} = ${mean}.`
-      });
-    } else if (type === 1) {
-      let data = Array.from({length: 6}, () => randInt(5, 30));
-      let sorted = [...data].sort((a,b) => a-b);
-      let median = (sorted[2] + sorted[3]) / 2;
-      let mo = makeNumericOptions(median, 1.5, 1);
-      qs.push({
-        q: `Find the median of the following dataset:<br><div class="data-box">${data.join(', ')}</div>`,
-        opts: mo.options,
-        ans: mo.correctIndex,
-        sol: `Ordered data: ${sorted.join(', ')}. Median = (${sorted[2]} + ${sorted[3]}) / 2 = ${median}.`
-      });
-    } else {
-      let base = randInt(8, 15);
-      let data = [base - 4, base - 2, base, base + 2, base + 4];
-      let mean = base;
-      let sqDiff = data.reduce((acc, v) => acc + Math.pow(v - mean, 2), 0);
-      let s2 = sqDiff / (data.length - 1);
-      let mo = makeNumericOptions(s2, 2, 2);
-      qs.push({
-        q: `Calculate the sample variance ($s^2$) for the following sample:<br><div class="data-box">${data.join(', ')}</div>`,
-        opts: mo.options,
-        ans: mo.correctIndex,
-        sol: `Mean = ${mean}. Sum of squared deviations = ${sqDiff}. $s^2$ = ${sqDiff} / ${data.length - 1} = ${s2}.`
-      });
+// Chapter 1 Generator
+function genChapter1(count) {
+  const pool = [
+    {
+      q: "Which of the following is <strong>discrete</strong> quantitative data?",
+      ...makeOpts("The number of students in a class", ["The height of a student", "The weight of a bag", "The colour of a car"], "2col"),
+      sol: "Discrete data is countable. Height and weight are continuous; colour is qualitative."
+    },
+    {
+      q: "Which of the following is <strong>qualitative</strong> (non-numerical) data?",
+      ...makeOpts("Blood type", ["Age in years", "Exam mark", "Height in cm"], "4col"),
+      sol: "Blood type is descriptive, not numerical."
+    },
+    () => {
+      let samp = randInt(15, 30) * 10;
+      let pop = randInt(4, 9) * 1000;
+      return {
+        q: `A researcher chooses ${samp} students from all ${pop} students of a university. The ${samp} students are called:`,
+        ...makeOpts("A sample", ["The population", "A class", "A frequency"], "4col"),
+        sol: `A subset of the population is a sample (size n = ${samp}). The population is all ${pop} (N).`
+      };
+    },
+    () => {
+      let arr = Array.from({length: 7}, () => randInt(0, 6));
+      let idx = randInt(2, 6);
+      let ans = arr[idx - 1];
+      let dist = arr.filter(x => x !== ans);
+      return {
+        q: `In the sample ${arr.join(", ")}, what is x<sub>${idx}</sub>?`,
+        ...makeOpts(ans, [...new Set(dist), ans + 1, ans + 2], "4col"),
+        sol: `x<sub>${idx}</sub> is the ${idx}th observation in the order collected: ${arr.slice(0, idx - 1).join(", ")}, <strong>${ans}</strong>.`
+      };
+    },
+    {
+      q: "Which of the following is <strong>continuous</strong> quantitative data?",
+      ...makeOpts("Temperature in degrees Celsius", ["Number of cars in a parking lot", "Marital status", "Number of siblings"], "2col"),
+      sol: "Temperature is measured on a continuous scale and can take decimal values."
+    },
+    {
+      q: "A numerical value calculated from an entire population is called a:",
+      ...makeOpts("Parameter", ["Statistic", "Sample", "Variable"], "4col"),
+      sol: "A parameter describes a population, whereas a statistic describes a sample."
+    },
+    {
+      q: "What is the level of measurement for university letter grades (A, B, C, D, F)?",
+      ...makeOpts("Ordinal", ["Nominal", "Interval", "Ratio"], "4col"),
+      sol: "Letter grades have a natural ranking/order, so they are ordinal."
+    },
+    {
+      q: "What is the level of measurement for eye colours (Brown, Blue, Green)?",
+      ...makeOpts("Nominal", ["Ordinal", "Interval", "Ratio"], "4col"),
+      sol: "Eye colours are categories with no inherent order (nominal)."
     }
-  }
-  return qs;
+  ];
+  return shuffle(pool).slice(0, count).map(item => typeof item === "function" ? item() : item);
 }
 
-// Chapter 3
-function genCh3(count) {
-  let qs = [];
-  for (let i = 0; i < count; i++) {
-    let data = Array.from({length: 7}, () => randInt(10, 50)).sort((a,b) => a-b);
-    let q1 = data[1];
-    let q3 = data[5];
-    let iqr = q3 - q1;
-    let type = i % 2;
-    if (type === 0) {
-      let mo = makeNumericOptions(iqr, 2, 0);
-      qs.push({
-        q: `Find the Interquartile Range (IQR) for the ordered dataset:<br><div class="data-box">${data.join(', ')}</div>`,
-        opts: mo.options,
-        ans: mo.correctIndex,
-        sol: `Median is ${data[3]}. Lower half: [${data.slice(0,3).join(', ')}] $\Rightarrow Q_1 = ${q1}$. Upper half: [${data.slice(4).join(', ')}] $\Rightarrow Q_3 = ${q3}$. IQR = ${q3} - ${q1} = ${iqr}.`
-      });
-    } else {
-      let upperFence = q3 + 1.5 * iqr;
-      let mo = makeNumericOptions(upperFence, 3, 1);
-      qs.push({
-        q: `Given $Q_1 = ${q1}$ and $Q_3 = ${q3}$, calculate the upper fence for detecting outliers ($Q_3 + 1.5 \times \text{IQR}$):`,
-        opts: mo.options,
-        ans: mo.correctIndex,
-        sol: `IQR = ${q3} - ${q1} = ${iqr}. Upper fence = ${q3} + 1.5(${iqr}) = ${upperFence}.`
-      });
+// Chapter 2 Generator
+function genChapter2(count) {
+  let list = [];
+  // Q1: Mean
+  let m = randInt(6, 14);
+  let d1 = [m - 4, m - 2, m - 1, m + 2, m + 5];
+  let sum1 = d1.reduce((a,b)=>a+b,0);
+  list.push({
+    q: `The mean of ${d1.join(", ")} is:`,
+    ...makeOpts(m, [m - 1, m + 1, sum1], "4col"),
+    sol: `Σx = ${sum1}, n = 5, so mean = ${sum1} ÷ 5 = ${m}.`
+  });
+
+  // Q2: Median (even n)
+  let base = randInt(5, 12);
+  let d2Sorted = [base - 2, base, base + 2, base + 4, base + 5, base + 7];
+  let d2 = shuffle(d2Sorted);
+  let med2 = (d2Sorted[2] + d2Sorted[3]) / 2;
+  list.push({
+    q: `The median of ${d2.join(", ")} is:`,
+    ...makeOpts(med2, [d2Sorted[2], d2Sorted[3], r2(d2.reduce((a,b)=>a+b,0)/6)], "4col"),
+    sol: `Sorted: ${d2Sorted.join(", ")}. n = 6 (even), so average the 3rd and 4th: (${d2Sorted[2]} + ${d2Sorted[3]}) ÷ 2 = ${med2}.`
+  });
+
+  // Q3: Median (odd n)
+  let d3Sorted = [randInt(2,4), randInt(5,7), randInt(8,11), randInt(12,14), randInt(15,18)];
+  let d3 = shuffle(d3Sorted);
+  let mean3 = r2(d3.reduce((a,b)=>a+b,0)/5);
+  list.push({
+    q: `The median of ${d3.join(", ")} is:`,
+    ...makeOpts(d3Sorted[2], [d3Sorted[1], d3Sorted[3], mean3], "4col"),
+    sol: `Sort first: ${d3Sorted.join(", ")}. n = 5, the 3rd value is ${d3Sorted[2]}. (${mean3} is the mean.)`
+  });
+
+  // Q4: Mode
+  let modeVal = randInt(2, 9);
+  let o1 = modeVal + 2, o2 = modeVal + 4;
+  let d4 = shuffle([modeVal, o1, modeVal, o2, o1, modeVal]);
+  list.push({
+    q: `The mode of ${d4.join(", ")} is:`,
+    ...makeOpts(modeVal, [o1, o2, r2(d4.reduce((a,b)=>a+b,0)/6)], "4col"),
+    sol: `${modeVal} appears three times, more than any other value.`
+  });
+
+  // Q5: Range
+  let min5 = randInt(10, 18), max5 = randInt(45, 65);
+  let d5 = shuffle([min5, min5 + 7, randInt(25, 35), randInt(36, 44), max5]);
+  let range5 = max5 - min5;
+  list.push({
+    q: `The range of ${d5.join(", ")} is:`,
+    ...makeOpts(range5, [min5, max5, max5 + min5], "4col"),
+    sol: `R = largest − smallest = ${max5} − ${min5} = ${range5}.`
+  });
+
+  // Q6: Population variance
+  let c6 = randInt(4, 9);
+  let d6 = [c6 - 3, c6 - 1, c6 + 1, c6 + 3];
+  // squared diffs: 9 + 1 + 1 + 9 = 20 -> pop var = 20/4 = 5, sample var = 20/3 = 6.67
+  list.push({
+    q: `The population variance of ${d6.join(", ")} is:`,
+    ...makeOpts(5, [6.67, 2.24, 20], "4col"),
+    sol: `Mean = ${c6}. Squared differences: 9, 1, 1, 9, sum = 20. Population: 20 ÷ 4 = 5. (6.67 is the sample variance.)`
+  });
+
+  // Q7: Sample SD
+  let c7 = randInt(4, 10);
+  let d7 = [c7 - 2, c7, c7 + 2];
+  // sq diffs: 4 + 0 + 4 = 8 -> sample var = 8/2 = 4 -> SD = 2
+  list.push({
+    q: `The sample standard deviation of ${d7.join(", ")} is:`,
+    ...makeOpts(2, [4, 1.63, 8], "4col"),
+    sol: `Mean = ${c7}. Squared differences: 4, 0, 4, sum = 8. Sample variance = 8 ÷ 2 = 4, so SD = 2.`
+  });
+
+  // Q8: Formula conceptual
+  list.push({
+    q: `When the data is a <strong>sample</strong>, the variance is found by dividing Σ(x − mean)<sup>2</sup> by:`,
+    ...makeOpts("n − 1", ["n", "n + 1", "n²"], "2col"),
+    sol: `Sample variance divides by n − 1; population variance divides by n.`
+  });
+
+  return list.slice(0, count);
+}
+
+// Chapter 3 Generator (Shared sorted dataset n = 10)
+function genChapter3(count) {
+  let start = randInt(2, 5);
+  let d = [
+    start,
+    start + 2,
+    start + 4,
+    start + 6,
+    start + 7,
+    start + 9,
+    start + 12,
+    start + 15,
+    start + 19,
+    start + 22
+  ];
+  // n = 10:
+  // P30: i = 0.30 * 10 = 3 (whole) -> avg 3rd & 4th: (d[2]+d[3])/2 = start + 5
+  // P45: i = 0.45 * 10 = 4.5 -> round up to 5 -> 5th value = d[4]
+  // Q1 (P25): i = 2.5 -> round up to 3 -> 3rd value = d[2]
+  // Q3 (P75): i = 7.5 -> round up to 8 -> 8th value = d[7]
+  // IQR: d[7] - d[2] = 11
+  // P90: i = 9 (whole) -> avg 9th & 10th: (d[8]+d[9])/2 = start + 20.5
+
+  let p30 = (d[2] + d[3]) / 2;
+  let p45 = d[4];
+  let q1 = d[2];
+  let q3 = d[7];
+  let iqr = q3 - q1;
+  let p90 = (d[8] + d[9]) / 2;
+
+  let qs = [
+    {
+      q: "Find the 30th percentile.",
+      ...makeOpts(p30, [d[2], d[3], d[4]], "4col"),
+      sol: `i = 0.30 × 10 = 3 (whole), so average the 3rd and 4th values: (${d[2]} + ${d[3]}) ÷ 2 = ${p30}.`
+    },
+    {
+      q: "Find the 45th percentile.",
+      ...makeOpts(p45, [(d[3]+d[4])/2, d[3], d[5]], "4col"),
+      sol: `i = 4.5 (not whole), round up to 5, so take the 5th value = ${p45}.`
+    },
+    {
+      q: "Find Q1.",
+      ...makeOpts(q1, [d[1], (d[1]+d[2])/2, d[3]], "4col"),
+      sol: `Q1 is the 25th percentile: i = 2.5, round up to 3, so the 3rd value = ${q1}.`
+    },
+    {
+      q: "Find Q3.",
+      ...makeOpts(q3, [d[6], (d[6]+d[7])/2, d[8]], "4col"),
+      sol: `Q3 is the 75th percentile: i = 7.5, round up to 8, so the 8th value = ${q3}.`
+    },
+    {
+      q: "Find the IQR.",
+      ...makeOpts(iqr, [iqr - 2, iqr + 3, iqr + 4], "4col"),
+      sol: `IQR = Q3 − Q1 = ${q3} − ${q1} = ${iqr}.`
+    },
+    {
+      q: "Find the 90th percentile.",
+      ...makeOpts(p90, [d[8], d[9], d[9] - 1], "4col"),
+      sol: `i = 9 (whole), so average the 9th and 10th values: (${d[8]} + ${d[9]}) ÷ 2 = ${p90}.`
+    },
+    {
+      q: "Find the 60th percentile.",
+      ...makeOpts((d[5]+d[6])/2, [d[5], d[6], d[7]], "4col"),
+      sol: `i = 0.60 × 10 = 6 (whole), so average the 6th and 7th values: (${d[5]} + ${d[6]}) ÷ 2 = ${(d[5]+d[6])/2}.`
     }
-  }
-  return qs;
+  ];
+
+  return {
+    headerHTML: `<div class="context-note">Use this sorted data (n = 10) for the next questions: <strong>${d.join(", ")}</strong>. Use the course method: i = (P ÷ 100) × n.</div>`,
+    questions: qs.slice(0, count)
+  };
 }
 
-// Chapter 4
-function genCh4(count) {
-  let qs = [];
-  for (let i = 0; i < count; i++) {
-    let start = randInt(0, 2) * 10;
-    let freqs = [randInt(2, 6), randInt(4, 10), randInt(3, 8), randInt(1, 5)];
-    let mids = [start + 5, start + 15, start + 25, start + 35];
-    let N = freqs.reduce((a,b) => a+b, 0);
-    let sumFM = freqs.reduce((acc, f, idx) => acc + f * mids[idx], 0);
-    let mean = round2(sumFM / N);
+// Chapter 4 Generator (Shared Frequency Table N = 20)
+function genChapter4(count) {
+  let f1 = randInt(3, 5);
+  let f2 = 10 - f1;
+  let freqs = [f1, f2, f2, f1]; // symmetric around 20, N = 20!
+  let mids = [5, 15, 25, 35];
+  let N = 20;
+  let sumFx = freqs.reduce((acc, f, idx) => acc + f * mids[idx], 0); // 400
+  let mean = sumFx / N; // 20
+  let sumFx2 = freqs.reduce((acc, f, idx) => acc + f * mids[idx] * mids[idx], 0);
+  let popVar = r2(sumFx2 / N - mean * mean);
+  let popSD = r2(Math.sqrt(popVar));
 
-    let tableHTML = `<table class="freq-table">
-      <tr><th>Class Interval</th><th>Frequency ($f$)</th></tr>
-      <tr><td>${start} – ${start+10}</td><td>${freqs[0]}</td></tr>
-      <tr><td>${start+10} – ${start+20}</td><td>${freqs[1]}</td></tr>
-      <tr><td>${start+20} – ${start+30}</td><td>${freqs[2]}</td></tr>
-      <tr><td>${start+30} – ${start+40}</td><td>${freqs[3]}</td></tr>
-    </table>`;
+  let tableHTML = `
+    <div class="context-note">Use this table (N = 20) for the next questions.</div>
+    <table class="styled-table tbl-ch4">
+      <thead><tr><th>Class</th><th>f</th></tr></thead>
+      <tbody>
+        <tr><td>0 – 10</td><td>${freqs[0]}</td></tr>
+        <tr><td>10 – 20</td><td>${freqs[1]}</td></tr>
+        <tr><td>20 – 30</td><td>${freqs[2]}</td></tr>
+        <tr><td>30 – 40</td><td>${freqs[3]}</td></tr>
+      </tbody>
+    </table>
+  `;
 
-    if (i % 2 === 0) {
-      let mo = makeNumericOptions(mean, 1.25, 2);
-      qs.push({
-        q: `Estimate the sample mean from the following grouped frequency distribution:${tableHTML}`,
-        opts: mo.options,
-        ans: mo.correctIndex,
-        sol: `Midpoints: ${mids.join(', ')}. $\sum f \cdot x_m = ${sumFM}$, $n = ${N}$. Mean = ${sumFM} / ${N} = ${mean}.`
-      });
-    } else {
-      let sumSq = freqs.reduce((acc, f, idx) => acc + f * Math.pow(mids[idx] - mean, 2), 0);
-      let s2 = round2(sumSq / (N - 1));
-      let sd = round2(Math.sqrt(s2));
-      let mo = makeNumericOptions(sd, 0.85, 2);
-      qs.push({
-        q: `Estimate the sample standard deviation ($s$) for the grouped data below:${tableHTML}`,
-        opts: mo.options,
-        ans: mo.correctIndex,
-        sol: `Mean = ${mean}. $\sum f(x_m - \bar{x})^2 = ${round2(sumSq)}$. $s^2 = ${s2} \Rightarrow s = \sqrt{${s2}} \approx ${sd}$.`
-      });
+  let qs = [
+    {
+      q: "What is the midpoint of the class 20 – 30?",
+      ...makeOpts(25, [20, 30, 50], "4col"),
+      sol: "x = (20 + 30) ÷ 2 = 25."
+    },
+    {
+      q: "The mean of the grouped data in the table is:",
+      ...makeOpts(mean, [22.5, 18, 25], "4col"),
+      sol: `Midpoints 5, 15, 25, 35. Σfx = ${freqs[0]*5} + ${freqs[1]*15} + ${freqs[2]*25} + ${freqs[3]*35} = ${sumFx}. Mean = ${sumFx} ÷ 20 = ${mean}.`
+    },
+    {
+      q: `For the same table Σfx<sup>2</sup> = ${sumFx2}. The population variance is:`,
+      ...makeOpts(popVar, [r2(sumFx2/N), r2(sumFx2/N + mean*mean), popVar + 20], "4col"),
+      sol: `σ² = Σfx² ÷ N − mean² = ${sumFx2/N} − ${mean*mean} = ${popVar}.`
+    },
+    {
+      q: "The population standard deviation of the same data is approximately:",
+      ...makeOpts(popSD, [popVar, r2(popSD * 2), 5], "4col"),
+      sol: `SD = √${popVar} ≈ ${popSD}.`
+    },
+    {
+      q: "Which formula gives the population variance of grouped data?",
+      ...makeOpts("Σfx² ÷ N − x̄²", ["(Σfx)² ÷ N − x̄²", "Σfx² ÷ N + x̄²", "Σfx² ÷ N"], "2col"),
+      sol: "Variance = Σfx² ÷ N − x̄². The other options are common mistakes."
+    },
+    {
+      q: "Class A has SD = 3.2 and class B has SD = 6.1 on the same exam. Which class has more consistent scores?",
+      ...makeOpts("Class A, because its SD is smaller", ["Class B, because its SD is larger", "Both are equally consistent", "It cannot be known"], "2col"),
+      sol: "A smaller standard deviation means the scores are closer to the mean."
     }
-  }
-  return qs;
+  ];
+
+  return {
+    headerHTML: tableHTML,
+    questions: qs.slice(0, count)
+  };
 }
 
-// Chapter 5
-function genCh5(count) {
-  let qs = [];
-  for (let i = 0; i < count; i++) {
-    let h = 10;
-    let f1 = randInt(3, 6);
-    let f2 = randInt(10, 16);
-    let f3 = randInt(4, 8);
-    let f4 = randInt(2, 5);
-    let freqs = [f1, f2, f3, f4];
-    let N = f1 + f2 + f3 + f4;
+// Chapter 5 Generator (Two tables: no gaps + with gaps)
+function genChapter5(count) {
+  // Table 1 (N = 30, no gaps)
+  let f1 = randInt(2, 3), f2 = randInt(4, 6), f3 = randInt(10, 12), f4 = randInt(6, 8);
+  let f5 = 30 - (f1 + f2 + f3 + f4);
+  let freqs1 = [f1, f2, f3, f4, f5];
+  let cfBefore = f1 + f2; // < 15
+  let med1 = r2(20 + ((15 - cfBefore) / f3) * 10);
+  let d1 = f3 - f2, d2 = f3 - f4;
+  let mode1 = r2(20 + (d1 / (d1 + d2)) * 10);
 
-    let tableHTML = `<table class="freq-table">
-      <tr><th>Class</th><th>Frequency ($f$)</th></tr>
-      <tr><td>10 – 20</td><td>${f1}</td></tr>
-      <tr><td>20 – 30</td><td>${f2}</td></tr>
-      <tr><td>30 – 40</td><td>${f3}</td></tr>
-      <tr><td>40 – 50</td><td>${f4}</td></tr>
-    </table>`;
+  let tbl1 = `
+    <div class="context-note">Use this table (N = 30) for the next three questions. The classes have no gaps.</div>
+    <table class="styled-table tbl-ch5">
+      <thead><tr><th>Class</th><th>f</th></tr></thead>
+      <tbody>
+        <tr><td>0 – 10</td><td>${f1}</td></tr>
+        <tr><td>10 – 20</td><td>${f2}</td></tr>
+        <tr><td>20 – 30</td><td>${f3}</td></tr>
+        <tr><td>30 – 40</td><td>${f4}</td></tr>
+        <tr><td>40 – 50</td><td>${f5}</td></tr>
+      </tbody>
+    </table>
+  `;
 
-    if (i % 2 === 0) {
-      let L = 20;
-      let mode = round2(L + ((f2 - f1) / ((f2 - f1) + (f2 - f3))) * h);
-      let mo = makeNumericOptions(mode, 1.1, 2);
-      qs.push({
-        q: `Calculate the estimated Mode for the grouped frequency table below:${tableHTML}`,
-        opts: mo.options,
-        ans: mo.correctIndex,
-        sol: `Modal class is 20–30 ($L=20, f_m=${f2}, f_1=${f1}, f_2=${f3}, h=10$). Mode = $20 + \frac{${f2}-${f1}}{(${f2}-${f1})+(${f2}-${f3})} \times 10 = ${mode}$.`
-      });
-    } else {
-      let halfN = N / 2;
-      let cum = [f1, f1+f2, f1+f2+f3, N];
-      let medIdx = cum.findIndex(c => c >= halfN);
-      let L = 10 + medIdx * 10;
-      let cfPrev = medIdx === 0 ? 0 : cum[medIdx - 1];
-      let fMed = freqs[medIdx];
-      let median = round2(L + ((halfN - cfPrev) / fMed) * h);
-      let mo = makeNumericOptions(median, 1.3, 2);
-      qs.push({
-        q: `Estimate the Median for the following grouped data:${tableHTML}`,
-        opts: mo.options,
-        ans: mo.correctIndex,
-        sol: `$n/2 = ${halfN}$. Median class is ${L}–${L+10} ($L=${L}, cf=${cfPrev}, f=${fMed}$). Median = $${L} + \frac{${halfN} - ${cfPrev}}{${fMed}} \times 10 = ${median}$.`
-      });
+  // Table 2 (N = 30, with gaps)
+  let g1 = randInt(4, 6), g2 = randInt(8, 9), g3 = randInt(11, 13);
+  let g4 = 30 - (g1 + g2 + g3);
+  let cfG = g1 + g2; // < 15
+  let med2 = r2(10.5 + ((15 - cfG) / g3) * 5);
+  let gd1 = g3 - g2, gd2 = g3 - g4;
+  let mode2 = r2(10.5 + (gd1 / (gd1 + gd2)) * 5);
+
+  let tbl2 = `
+    <div class="context-note" style="margin-top:12px;">Use this table (N = 30) for the next two questions. The classes have gaps, so convert to real boundaries first.</div>
+    <table class="styled-table tbl-ch5">
+      <thead><tr><th>Class</th><th>f</th></tr></thead>
+      <tbody>
+        <tr><td>1 – 5</td><td>${g1}</td></tr>
+        <tr><td>6 – 10</td><td>${g2}</td></tr>
+        <tr><td>11 – 15</td><td>${g3}</td></tr>
+        <tr><td>16 – 20</td><td>${g4}</td></tr>
+      </tbody>
+    </table>
+  `;
+
+  let qs = [
+    {
+      preHTML: tbl1,
+      q: "The median class is:",
+      ...makeOpts("20 – 30", ["30 – 40", "10 – 20", "40 – 50"], "4col"),
+      sol: `cf: ${f1}, ${f1+f2}, ${f1+f2+f3}, ${30-f5}, 30. N ÷ 2 = 15 and the first cf ≥ 15 is ${f1+f2+f3}, so the median class is 20 – 30.`
+    },
+    {
+      q: "The median is approximately:",
+      ...makeOpts(med1, [mode1, r2(med1 + 2.5), r2(med1 - 3.1)], "4col"),
+      sol: `L = 20, cf before = ${cfBefore}, f = ${f3}, h = 10: 20 + ((15 − ${cfBefore}) ÷ ${f3}) × 10 = ${med1}.`
+    },
+    {
+      q: "The mode is approximately:",
+      ...makeOpts(mode1, [med1, 25.00, 30.00], "4col"),
+      sol: `Modal class 20 – 30: d₁ = ${f3} − ${f2} = ${d1}, d₂ = ${f3} − ${f4} = ${d2}. Mode = 20 + (${d1} ÷ ${d1+d2}) × 10 = ${mode1}.`
+    },
+    {
+      q: "The classes are written 1 – 5, 6 – 10, 11 – 15, ... For the class 6 – 10, the values of L and h are:",
+      ...makeOpts("L = 5.5, h = 5", ["L = 6, h = 4", "L = 5.5, h = 4", "L = 6, h = 5"], "4col"),
+      sol: "Convert to real boundaries 5.5 – 10.5: L = 5.5 and h = 10.5 − 5.5 = 5."
+    },
+    {
+      preHTML: tbl2,
+      q: "The median is approximately:",
+      ...makeOpts(med2, [mode2, 10.50, 12.50], "4col"),
+      sol: `cf: ${g1}, ${g1+g2}, ${g1+g2+g3}, 30. N ÷ 2 = 15, median class 11 – 15 = 10.5 – 15.5. L = 10.5, cf before = ${cfG}, f = ${g3}, h = 5: 10.5 + ((15 − ${cfG}) ÷ ${g3}) × 5 = ${med2}.`
+    },
+    {
+      q: "The mode is approximately:",
+      ...makeOpts(mode2, [med2, 11.50, 12.00], "4col"),
+      sol: `Modal class 11 – 15: d₁ = ${g3} − ${g2} = ${gd1}, d₂ = ${g3} − ${g4} = ${gd2}. Mode = 10.5 + (${gd1} ÷ ${gd1+gd2}) × 5 = ${mode2}.`
+    },
+    {
+      q: "In a modal class, the two neighbouring classes have equal frequencies. The mode is:",
+      ...makeOpts("In the middle of the modal class", ["At the lower boundary of the modal class", "At the upper boundary of the modal class", "Equal to the frequency of the modal class"], "2col"),
+      sol: "When d₁ = d₂, d₁ ÷ (d₁ + d₂) = 0.5, placing the mode right at the midpoint of the modal class."
     }
-  }
-  return qs;
+  ];
+
+  return {
+    headerHTML: "",
+    questions: qs.slice(0, count)
+  };
 }
 
-// Chapter 6
-function genCh6(count) {
-  let qs = [];
-  for (let i = 0; i < count; i++) {
-    let meanX = randInt(20, 60);
-    let sdX = randInt(3, 10);
-    let a = randInt(2, 5);
-    let b = randInt(5, 25);
-    if (i % 2 === 0) {
-      let newMean = a * meanX + b;
-      let mo = makeNumericOptions(newMean, 5, 0);
-      qs.push({
-        q: `A dataset $X$ has a mean $\bar{x} = ${meanX}$ and standard deviation $s_x = ${sdX}$. If each value is transformed using $Y = ${a}X + ${b}$, what is the new mean $\bar{y}$?`,
-        opts: mo.options,
-        ans: mo.correctIndex,
-        sol: `$\bar{y} = a\bar{x} + b = ${a}(${meanX}) + ${b} = ${newMean}$.`
-      });
-    } else {
-      let newSD = a * sdX;
-      let mo = makeNumericOptions(newSD, 3, 0);
-      qs.push({
-        q: `A dataset $X$ has a mean $\bar{x} = ${meanX}$ and standard deviation $s_x = ${sdX}$. If each value is transformed using $Y = ${a}X - ${b}$, what is the new standard deviation $s_y$?`,
-        opts: mo.options,
-        ans: mo.correctIndex,
-        sol: `Adding/subtracting a constant does not affect spread: $s_y = |a|s_x = ${a} \times ${sdX} = ${newSD}$.`
-      });
+// Chapter 6 Generator
+function genChapter6(count) {
+  let m1 = randInt(8, 15), a1 = randInt(2, 4), b1 = randInt(3, 9);
+  let ans1 = a1 * m1 + b1;
+
+  let sd2 = randInt(3, 6), a2 = randInt(2, 5), b2 = randInt(2, 8);
+  let ans2 = a2 * sd2;
+
+  let v3 = randInt(4, 10), a3 = randInt(2, 4), b3 = randInt(3, 9);
+  let ans3 = a3 * a3 * v3;
+
+  let iqr4 = randInt(5, 10), a4 = randInt(2, 4), b4 = randInt(4, 12);
+  let ans4 = a4 * iqr4;
+
+  let med5 = randInt(12, 25), a5 = randInt(2, 3), b5 = randInt(5, 15);
+  let ans5 = -a5 * med5 + b5;
+
+  let p25 = randInt(2, 5), p75 = randInt(7, 12), a6 = randInt(2, 4), b6 = randInt(6, 14);
+  let ans6 = -a6 * p75 + b6; // negative slope reverses order: P25(Y) comes from P75(X)
+
+  let qs = [
+    {
+      q: `A sample X has mean ${m1}. If y = ${a1}x + ${b1}, the mean of Y is:`,
+      ...makeOpts(ans1, [a1 * m1, ans1 + 5, ans1 - 5], "4col"),
+      sol: `ȳ = ${a1}(${m1}) + ${b1} = ${ans1}.`
+    },
+    {
+      q: `The standard deviation of X is ${sd2}. If y = −${a2}x + ${b2}, the standard deviation of Y is:`,
+      ...makeOpts(ans2, [-ans2, ans2 + b2, a2 * a2 * sd2], "4col"),
+      sol: `SD(Y) = |−${a2}| × ${sd2} = ${ans2} (standard deviation is always positive).`
+    },
+    {
+      q: `The variance of X is ${v3}. If y = ${a3}x − ${b3}, the variance of Y is:`,
+      ...makeOpts(ans3, [a3 * v3, ans3 - b3, v3], "4col"),
+      sol: `Var(Y) = (${a3})² × ${v3} = ${a3*a3} × ${v3} = ${ans3}.`
+    },
+    {
+      q: `The IQR of X is ${iqr4}. If y = −${a4}x + ${b4}, the IQR of Y is:`,
+      ...makeOpts(ans4, [-ans4, ans4 - b4, ans4 + b4], "4col"),
+      sol: `IQR(Y) = |−${a4}| × ${iqr4} = ${ans4}.`
+    },
+    {
+      q: `The median of X is ${med5}. If y = −${a5}x + ${b5}, the median of Y is:`,
+      ...makeOpts(ans5, [a5 * med5 + b5, -a5 * med5, ans5 - 10], "4col"),
+      sol: `Median(Y) = −${a5}(${med5}) + ${b5} = ${ans5}.`
+    },
+    {
+      q: `For X: P<sub>25</sub> = ${p25} and P<sub>75</sub> = ${p75}. If y = −${a6}x + ${b6}, then P<sub>25</sub>(y) is:`,
+      ...makeOpts(ans6, [-a6 * p25 + b6, a6 * p25 + b6, Math.abs(ans6)], "4col"),
+      sol: `Negative slope reverses order, so P₂₅(Y) = −${a6}(P₇₅) + ${b6} = −${a6}(${p75}) + ${b6} = ${ans6}.`
     }
-  }
-  return qs;
+  ];
+
+  return {
+    headerHTML: "",
+    questions: qs.slice(0, count)
+  };
 }
 
-// Chapter 7
-function genCh7(count, isEasy) {
-  let qs = [];
-  for (let i = 0; i < count; i++) {
-    let mean = randInt(5, 10) * 10;
-    let sd = randInt(2, 8);
-    if (isEasy) {
-      let k = randInt(1, 3);
-      let pct = k === 1 ? "68%" : (k === 2 ? "95%" : "99.7%");
-      let low = mean - k * sd;
-      let high = mean + k * sd;
-      let opts = shuffle(["68%", "95%", "99.7%", "50%"]);
-      qs.push({
-        q: `Exam scores follow a bell-shaped (normal) distribution with mean $\mu = ${mean}$ and standard deviation $\sigma = ${sd}$. According to the Empirical Rule, approximately what percentage of scores lie between ${low} and ${high}?`,
-        opts: opts.map((v, idx) => `${['A','B','C','D'][idx]}) ${v}`),
-        ans: opts.indexOf(pct),
-        sol: `${low} and ${high} are ${k} standard deviation(s) from the mean (${mean} $\pm$ ${k}(${sd})), which corresponds to ${pct}.`
-      });
-    } else {
-      let low = mean - sd;
-      let high = mean + 2 * sd;
-      let pct = 81.5;
-      let mo = makeNumericOptions(pct, 6.5, 1);
-      qs.push({
-        q: `A normal distribution has mean $\mu = ${mean}$ and standard deviation $\sigma = ${sd}$. Using the Empirical Rule, find the percentage of data between ${low} and ${high}:`,
-        opts: mo.options.map(o => o + "%"),
-        ans: mo.correctIndex,
-        sol: `Between $\mu - \sigma$ (${low}) and $\mu$ is 34%. Between $\mu$ and $\mu + 2\sigma$ (${high}) is 47.5%. Total = 34% + 47.5% = 81.5%.`
-      });
+// Chapter 7 Generator
+function genChapter7(count) {
+  let mean = randInt(4, 8) * 10; // e.g., 50
+  let sd = randInt(4, 8);        // e.g., 5
+
+  let qs = [
+    {
+      q: `About what percentage of the data lies between ${mean - sd} and ${mean + sd}?`,
+      ...makeOpts("68%", ["34%", "95%", "99.7%"], "4col"),
+      sol: `${mean - sd} to ${mean + sd} is μ ± 1σ (${mean} ± ${sd}), which contains 68% of the data.`
+    },
+    {
+      q: `About what percentage lies between ${mean - 2*sd} and ${mean + 2*sd}?`,
+      ...makeOpts("95%", ["47.5%", "68%", "99.7%"], "4col"),
+      sol: `${mean - 2*sd} to ${mean + 2*sd} is μ ± 2σ (${mean} ± ${2*sd}), which contains 95% of the data.`
+    },
+    {
+      q: `About what percentage lies above ${mean + 2*sd}?`,
+      ...makeOpts("2.5%", ["5%", "16%", "34%"], "4col"),
+      sol: `95% lies within ±2σ, leaving 5% in both tails, so 5% ÷ 2 = 2.5% above ${mean + 2*sd}.`
+    },
+    {
+      q: `About what percentage lies between ${mean} and ${mean + 2*sd}?`,
+      ...makeOpts("47.5%", ["34%", "49.85%", "95%"], "4col"),
+      sol: `Half of 95% (from μ to μ + 2σ) is 95% ÷ 2 = 47.5%.`
+    },
+    {
+      q: `About what percentage lies above ${mean + sd}?`,
+      ...makeOpts("16%", ["32%", "34%", "68%"], "4col"),
+      sol: `68% lies within ±1σ, leaving 32% outside, so 32% ÷ 2 = 16% above ${mean + sd}.`
+    },
+    {
+      q: `Which interval contains about 99.7% of the data?`,
+      ...makeOpts(`${mean - 3*sd} to ${mean + 3*sd}`, [`${mean - 2*sd} to ${mean + 2*sd}`, `${mean - sd} to ${mean + sd}`, `${mean - 4*sd} to ${mean + 4*sd}`], "4col"),
+      sol: `99.7% lies within μ ± 3σ = ${mean} ± 3(${sd}) = ${mean - 3*sd} to ${mean + 3*sd}.`
     }
-  }
-  return qs;
+  ];
+
+  return {
+    headerHTML: `<div class="context-note">For the next questions the data is bell-shaped with mean ${mean} and standard deviation ${sd}.</div>`,
+    questions: qs.slice(0, count)
+  };
 }
 
-const chapterNames = {
-  1: "Chapter 1: Introduction to Statistics",
-  2: "Chapter 2: Raw Data (centre and spread)",
-  3: "Chapter 3: Percentiles, Quartiles and IQR",
-  4: "Chapter 4: Grouped Data: Mean, Variance and SD",
-  5: "Chapter 5: Grouped Data: Median and Mode",
-  6: "Chapter 6: Linear Transformation",
-  7: "Chapter 7: The Empirical Rule"
+const chapterMeta = {
+  1: { title: "Chapter 1: Introduction to Statistics", css: "ch-1" },
+  2: { title: "Chapter 2: Raw Data (centre and spread)", css: "ch-2" },
+  3: { title: "Chapter 3: Percentiles, Quartiles and IQR", css: "ch-3" },
+  4: { title: "Chapter 4: Grouped Data: Mean, Variance and SD", css: "ch-4" },
+  5: { title: "Chapter 5: Grouped Data: Median and Mode", css: "ch-5" },
+  6: { title: "Chapter 6: Linear Transformation", css: "ch-6" },
+  7: { title: "Chapter 7: The Empirical Rule", css: "ch-7" }
 };
 
-function generateHomework() {
-  const container = document.getElementById("homeworkContainer");
-  container.innerHTML = "";
-  const count = Math.max(1, Math.min(10, parseInt(document.getElementById("qCount").value) || 3));
-  const easyCh7 = document.getElementById("easyCh7").checked;
-  const checkedBoxes = document.querySelectorAll(".ch-check:checked");
+function buildWorksheet() {
+  const titleText = document.getElementById("wsTitle").value.trim() || "Midterm Worksheet";
+  document.getElementById("displayTitle").textContent = titleText;
+  document.getElementById("footerNote").innerHTML = `${titleText} &nbsp;|&nbsp; Statistics`;
 
-  if (checkedBoxes.length === 0) {
-    container.innerHTML = `<div class="chapter-section" style="text-align:center;">Please select at least one chapter to generate questions.</div>`;
+  const qPerCh = Math.max(2, Math.min(10, parseInt(document.getElementById("qPerCh").value) || 6));
+  const selected = Array.from(document.querySelectorAll(".ch-cb:checked")).map(cb => parseInt(cb.value));
+
+  const qArea = document.getElementById("questionsArea");
+  const akArea = document.getElementById("answerKeyContainer");
+  const solArea = document.getElementById("solutionsContainer");
+  qArea.innerHTML = "";
+  akArea.innerHTML = "";
+  solArea.innerHTML = "";
+
+  if (selected.length === 0) {
+    qArea.innerHTML = "<p style='text-align:center; padding:20px;'>Please select at least one chapter.</p>";
     return;
   }
 
-  let qGlobalNum = 1;
+  let allQuestions = [];
+  let qNum = 1;
 
-  checkedBoxes.forEach(cb => {
-    const chId = parseInt(cb.value);
-    let questions = [];
-    if (chId === 1) questions = genCh1(count);
-    if (chId === 2) questions = genCh2(count);
-    if (chId === 3) questions = genCh3(count);
-    if (chId === 4) questions = genCh4(count);
-    if (chId === 5) questions = genCh5(count);
-    if (chId === 6) questions = genCh6(count);
-    if (chId === 7) questions = genCh7(count, easyCh7);
+  selected.forEach(ch => {
+    const meta = chapterMeta[ch];
+    let blockHTML = `<div class="chapter-banner ${meta.css}">${meta.title}</div>`;
+    let items = [];
 
-    const section = document.createElement("div");
-    section.className = "chapter-section";
-    let html = `<div class="chapter-title">${chapterNames[chId]}</div>`;
+    if (ch === 1) items = genChapter1(qPerCh);
+    if (ch === 2) items = genChapter2(qPerCh);
+    if (ch === 3) {
+      let res = genChapter3(qPerCh);
+      blockHTML += res.headerHTML;
+      items = res.questions;
+    }
+    if (ch === 4) {
+      let res = genChapter4(qPerCh);
+      blockHTML += res.headerHTML;
+      items = res.questions;
+    }
+    if (ch === 5) {
+      let res = genChapter5(qPerCh);
+      blockHTML += res.headerHTML;
+      items = res.questions;
+    }
+    if (ch === 6) {
+      let res = genChapter6(qPerCh);
+      blockHTML += res.headerHTML;
+      items = res.questions;
+    }
+    if (ch === 7) {
+      let res = genChapter7(qPerCh);
+      blockHTML += res.headerHTML;
+      items = res.questions;
+    }
 
-    questions.forEach(item => {
-      const optsHTML = item.opts.map((opt, idx) => {
-        const isCorrect = idx === item.ans;
-        return `<div class="option-item ${isCorrect ? 'ans-opt' : ''}" data-correct="${isCorrect}">${opt}</div>`;
+    const letters = ["A", "B", "C", "D"];
+    items.forEach(item => {
+      if (item.preHTML) blockHTML += item.preHTML;
+      const gridClass = item.layout === "2col" ? "opts-2col" : "opts-4col";
+      let optsHTML = item.options.map((opt, idx) => {
+        const L = letters[idx];
+        const isAns = L === item.ansLetter;
+        return `<div class="opt-item ${isAns ? 'is-correct' : ''}"><span class="opt-letter">${L}</span> ${opt}</div>`;
       }).join("");
 
-      html += `
-        <div class="question-card">
-          <div class="q-text">${qGlobalNum}. ${formatMath(item.q)}</div>
-          <div class="options-grid">${optsHTML}</div>
-          <div class="solution-box"><strong>Solution:</strong> ${formatMath(item.sol)}</div>
+      blockHTML += `
+        <div class="q-block">
+          <div class="q-title"><span class="q-num">Q${qNum}.</span> ${item.q}</div>
+          <div class="${gridClass}">${optsHTML}</div>
         </div>
       `;
-      qGlobalNum++;
+
+      allQuestions.push({ num: qNum, ans: item.ansLetter, sol: item.sol });
+      qNum++;
     });
 
-    section.innerHTML = html;
-    container.appendChild(section);
+    qArea.innerHTML += blockHTML;
   });
 
-  if (document.body.classList.contains("show-answers")) {
-    highlightCorrectOptions(true);
+  document.getElementById("totalQCount").textContent = allQuestions.length;
+
+  // Build 6-pair (12-column) Answer Key Table just like Page 5
+  const cols = 6;
+  const rows = Math.ceil(allQuestions.length / cols);
+  let akHTML = `<table class="ak-table"><thead><tr>`;
+  for (let c = 0; c < cols; c++) akHTML += `<th>Q</th><th>Ans</th>`;
+  akHTML += `</tr></thead><tbody>`;
+
+  for (let r = 0; r < rows; r++) {
+    akHTML += `<tr>`;
+    for (let c = 0; c < cols; c++) {
+      let idx = c * rows + r;
+      if (idx < allQuestions.length) {
+        akHTML += `<td class="ak-q">${allQuestions[idx].num}</td><td>${allQuestions[idx].ans}</td>`;
+      } else {
+        akHTML += `<td></td><td></td>`;
+      }
+    }
+    akHTML += `</tr>`;
   }
-}
+  akHTML += `</tbody></table>`;
+  akArea.innerHTML = akHTML;
 
-function formatMath(str) {
-  return str
-    .replace(/\$\bar\{x\}\$/g, 'x̄')
-    .replace(/\$\bar\{y\}\$/g, 'ȳ')
-    .replace(/\$s\^2\$/g, 's²')
-    .replace(/\$Q_1\$/g, 'Q₁')
-    .replace(/\$Q_3\$/g, 'Q₃')
-    .replace(/\$\times\$/g, '×')
-    .replace(/\$\text\{IQR\}\$/g, 'IQR')
-    .replace(/\$\sum f \cdot x_m\$/g, '∑(f · xₘ)')
-    .replace(/\$\sum f\(x_m - \bar\{x\}\)\^2\$/g, '∑f(xₘ - x̄)²')
-    .replace(/\$\Rightarrow\$/g, '⇒')
-    .replace(/\$\approx\$/g, '≈')
-    .replace(/\$\sqrt\{([^}]+)\}\$/g, '√($1)')
-    .replace(/\$\mu\$/g, 'μ')
-    .replace(/\$\sigma\$/g, 'σ')
-    .replace(/\$\pm\$/g, '±')
-    .replace(/\$\frac\{([^}]+)\}\{([^}]+)\}\$/g, '($1) / ($2)')
-    .replace(/\$/g, '');
-}
-
-function highlightCorrectOptions(show) {
-  document.querySelectorAll(".ans-opt").forEach(el => {
-    if (show) el.classList.add("correct-highlight");
-    else el.classList.remove("correct-highlight");
+  // Build Short Solutions Table just like Page 6
+  let solHTML = `<table class="sol-table"><thead><tr><th style="width:55px;">Q</th><th style="width:65px;">Ans</th><th>Solution</th></tr></thead><tbody>`;
+  allQuestions.forEach(q => {
+    solHTML += `<tr><td class="sol-center">${q.num}</td><td class="sol-center">${q.ans}</td><td>${q.sol}</td></tr>`;
   });
+  solHTML += `</tbody></table>`;
+  solArea.innerHTML = solHTML;
+
+  applyHighlight();
 }
 
-function toggleAnswers() {
-  const isShowing = document.body.classList.toggle("show-answers");
-  highlightCorrectOptions(isShowing);
+function toggleInlineAnswers() {
+  showInline = !showInline;
+  applyHighlight();
+}
+
+function applyHighlight() {
+  document.querySelectorAll(".is-correct").forEach(el => {
+    if (showInline) el.classList.add("highlight-ans");
+    else el.classList.remove("highlight-ans");
+  });
 }
 </script>
 </body>
