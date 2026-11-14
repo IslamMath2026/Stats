@@ -717,15 +717,19 @@ function genLecture4(count) {
   let sumFx2 = freqs.reduce((acc, f, idx) => acc + f * mids[idx] * mids[idx], 0);
   let popVar = r2(sumFx2 / N - mean * mean);
 
+  let cf1 = freqs[0];
+  let cf2 = cf1 + freqs[1];
+  let cf3 = cf2 + freqs[2];
+  let cf4 = cf3 + freqs[3];
   let tableHTML = `
     <div class="context-note">Use this table (N = 20) for the next questions.</div>
     <table class="styled-table tbl-ch4">
-      <thead><tr><th>Class</th><th>f</th></tr></thead>
+      <thead><tr><th>Class</th><th>f</th><th>cf</th></tr></thead>
       <tbody>
-        <tr><td>0 – 10</td><td>${freqs[0]}</td></tr>
-        <tr><td>10 – 20</td><td>${freqs[1]}</td></tr>
-        <tr><td>20 – 30</td><td>${freqs[2]}</td></tr>
-        <tr><td>30 – 40</td><td>${freqs[3]}</td></tr>
+        <tr><td>0 – 10</td><td>${freqs[0]}</td><td>${cf1}</td></tr>
+        <tr><td>10 – 20</td><td>${freqs[1]}</td><td>${cf2}</td></tr>
+        <tr><td>20 – 30</td><td>${freqs[2]}</td><td>${cf3}</td></tr>
+        <tr><td>30 – 40</td><td>${freqs[3]}</td><td>${cf4}</td></tr>
       </tbody>
     </table>
   `;
@@ -765,16 +769,21 @@ function genLecture5(count) {
   let med1 = 26.67;
   let mode1 = 27.27;
 
+  let c1 = f1;
+  let c2 = c1 + f2;
+  let c3 = c2 + f3;
+  let c4 = c3 + f4;
+  let c5 = c4 + f5;
   let tbl1 = `
     <div class="context-note">Use this table (N = 30) for the next questions. The classes have no gaps.</div>
     <table class="styled-table tbl-ch5">
-      <thead><tr><th>Class</th><th>f</th></tr></thead>
+      <thead><tr><th>Class</th><th>f</th><th>cf</th></tr></thead>
       <tbody>
-        <tr><td>0 – 10</td><td>${f1}</td></tr>
-        <tr><td>10 – 20</td><td>${f2}</td></tr>
-        <tr><td>20 – 30</td><td>${f3}</td></tr>
-        <tr><td>30 – 40</td><td>${f4}</td></tr>
-        <tr><td>40 – 50</td><td>${f5}</td></tr>
+        <tr><td>0 – 10</td><td>${f1}</td><td>${c1}</td></tr>
+        <tr><td>10 – 20</td><td>${f2}</td><td>${c2}</td></tr>
+        <tr><td>20 – 30</td><td>${f3}</td><td>${c3}</td></tr>
+        <tr><td>30 – 40</td><td>${f4}</td><td>${c4}</td></tr>
+        <tr><td>40 – 50</td><td>${f5}</td><td>${c5}</td></tr>
       </tbody>
     </table>
   `;
