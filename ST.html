@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Statistics Homework - د. إسلام الصرايرة</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #eef2f6;
+    color: #1f2937;
+    padding: 20px;
+    line-height: 1.55;
+  }
+
+  /* Lock Screen */
+  #loginOverlay {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #1b365d 0%, #2b6cb0 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+  }
+  .login-card {
+    background: #ffffff;
+    padding: 32px 28px;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 370px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+  }
+  .login-card h2 {
+    font-size: 1.35rem;
+    color: #1b365d;
+    margin-bottom: 6px;
+  }
+  .login-card p {
+    font-size: 0.9rem;
+    color: #64748b;
+    margin-bottom: 18px;
+  }
+  .login-card input {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.15rem;
+    text-align: center;
+    border: 2px solid #cbd5e1;
+    border-radius: 10px;
+    margin-bottom: 14px;
+    outline: none;
+  }
+  .login-card input:focus { border-color: #2563eb; }
+  .login-card button {
+    width: 100%;
+    padding: 12px;
+    background: #1b365d;
+    color: #ffffff;
+    font-size: 1.05rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .login-card button:hover { background: #142847; }
+  #loginError {
+    color: #dc2626;
+    font-size: 0.88rem;
+    margin-top: 10px;
+    display: none;
+    font-weight: 600;
+  }
+
+  #appContent { display: none; }
+
+  /* Control Panel (No Print) */
+  .control-panel {
+    max-width: 860px;
+    margin: 0 auto 24px auto;
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 20px 24px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    border: 1px solid #d1d5db;
+  }
+  .control-panel h1 {
+    font-size: 1.35rem;
+    color: #1b365d;
+    margin-bottom: 14px;
+    text-align: center;
+  }
+  .chapters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 8px 18px;
+    margin-bottom: 16px;
+  }
+  .ch-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.92rem;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .ch-option input { width: 17px; height: 17px; accent-color: #1b365d; }
+  .controls-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding-top: 10px;
+    border-top: 1px solid #e5e7eb;
+  }
+  .controls-bar label {
+    font-size: 0.92rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .controls-bar input[type="number"] {
+    width: 62px;
+    padding: 6px;
+    text-align: center;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-weight: bold;
+  }
+  .btn {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-gen { background: #1b365d; color: #ffffff; }
+  .btn-gen:hover { background: #132744; }
+  .btn-print { background: #0f766e; color: #ffffff; }
+  .btn-print:hover { background: #0d5e58; }
+  .btn-grade { background: #b45309; color: #ffffff; }
+  .btn-grade:hover { background: #92400e; }
+
+  /* Worksheet Sheet Container */
+  .sheet {
+    max-width: 860px;
+    margin: 0 auto 30px auto;
+    background: #ffffff;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: 1px solid #d1d5db;
+    padding: 0 0 35px 0;
+  }
+
+  /* Top Color Bar */
+  .rainbow-bar {
+    display: flex;
+    height: 8px;
+    width: 100%;
+  }
+  .rainbow-bar span { flex: 1; }
+  .rb-teal { background: #26897e; }
+  .rb-blue { background: #2271b3; }
+  .rb-orange { background: #d9822b; }
+  .rb-purple { background: #6b469b; }
+  .rb-crimson { background: #c5305c; }
+  .rb-green { background: #2b8a57; }
+
+  .sheet-inner {
+    padding: 28px 38px;
+  }
+
+  /* Dark Navy Header Banner */
+  .banner-box {
+    background-color: #1f3a60;
+    color: #ffffff;
+    padding: 22px 28px 0 28px;
+    margin-bottom: 18px;
+  }
+  .banner-box h2 {
+    font-size: 1.95rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    margin-bottom: 4px;
+  }
+  .banner-box p {
+    font-size: 1.02rem;
+    color: #dbeafe;
+    margin-bottom: 18px;
+  }
+  .banner-stripe {
+    display: flex;
+    height: 7px;
+    margin: 0 -28px;
+  }
+  .banner-stripe span { flex: 1; }
+
+  /* Student Info Line */
+  .student-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    font-size: 0.96rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 14px;
+  }
+  .student-row div {
+    flex: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .student-row .line {
+    flex: 1;
+    border-bottom: 1.5px solid #4b5563;
+    height: 14px;
+  }
+
+  /* Instructions Callout */
+  .instructions-box {
+    background-color: #f1f5f9;
+    border-left: 4px solid #1f3a60;
+    padding: 11px 16px;
+    font-size: 0.92rem;
+    color: #1e293b;
+    margin-bottom: 22px;
+  }
+
+  /* Chapter Banners */
+  .chapter-banner {
+    color: #ffffff;
+    font-size: 1.12rem;
+    font-weight: 700;
+    padding: 8px 16px;
+    margin: 22px 0 12px 0;
+  }
+  .ch-1 { background-color: #26897e; }
+  .ch-2 { background-color: #2271b3; }
+  .ch-3 { background-color: #d9822b; }
+  .ch-4 { background-color: #6b469b; }
+  .ch-5 { background-color: #c5305c; }
+  .ch-6 { background-color: #2b8a57; }
+  .ch-7 { background-color: #26897e; }
+
+  /* Shared Context Note & Frequency Table */
+  .context-note {
+    font-style: italic;
+    color: #374151;
+    font-size: 0.93rem;
+    margin-bottom: 10px;
+  }
+  .styled-table {
+    border-collapse: collapse;
+    margin: 8px 0 14px 0;
+    min-width: 240px;
+    font-size: 0.92rem;
+  }
+  .styled-table th {
+    color: #ffffff;
+    font-weight: 700;
+    padding: 6px 18px;
+    text-align: center;
+    border: 1px solid #cbd5e1;
+  }
+  .styled-table td {
+    padding: 5px 18px;
+    text-align: center;
+    border: 1px solid #cbd5e1;
+  }
+  .tbl-ch4 th { background-color: #6b469b; }
+  .tbl-ch4 tr:nth-child(even) td { background-color: #f5f3ff; }
+  .tbl-ch5 th { background-color: #c5305c; }
+  .tbl-ch5 tr:nth-child(even) td { background-color: #fff1f2; }
+
+  /* Questions & Interactive Radio Options */
+  .q-block {
+    margin-bottom: 15px;
+    page-break-inside: avoid;
+  }
+  .q-title {
+    font-size: 0.96rem;
+    color: #111827;
+    margin-bottom: 6px;
+  }
+  .q-num {
+    font-weight: 700;
+    margin-right: 4px;
+  }
+  .opts-4col {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px 12px;
+    padding-left: 18px;
+    font-size: 0.92rem;
+  }
+  .opts-2col {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5px 18px;
+    padding-left: 18px;
+    font-size: 0.92rem;
+  }
+  .opt-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    padding: 3px 6px;
+    border-radius: 6px;
+    transition: background 0.15s;
+  }
+  .opt-label:hover {
+    background-color: #f1f5f9;
+  }
+  .opt-label input[type="radio"] {
+    accent-color: #1b365d;
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+  }
+  .opt-letter {
+    font-weight: 700;
+  }
+
+  /* Grading Result Box */
+  #scoreBox {
+    display: none;
+    background: #f0fdf4;
+    border: 2px solid #22c55e;
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 24px;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #166534;
+  }
+
+  .opt-label.correct-choice {
+    background-color: #dcfce7 !important;
+    border-color: #16a34a;
+    color: #14532d;
+  }
+  .opt-label.wrong-choice {
+    background-color: #fee2e2 !important;
+    color: #991b1b;
+  }
+
+  /* Answer Key & Short Solutions Sections (Hidden by default for students) */
+  .hidden-section {
+    display: none;
+  }
+  body.show-solutions .hidden-section {
+    display: block;
+  }
+
+  .page-break-section {
+    page-break-before: always;
+    margin-top: 30px;
+    padding-top: 10px;
+  }
+  .ak-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    text-align: center;
+  }
+  .ak-table th {
+    background-color: #2271b3;
+    color: #ffffff;
+    padding: 7px 6px;
+    border: 1px solid #cbd5e1;
+  }
+  .ak-table td {
+    padding: 6px;
+    border: 1px solid #cbd5e1;
+  }
+  .ak-table tr:nth-child(even) td {
+    background-color: #eff6ff;
+  }
+  .ak-q { font-weight: 700; }
+
+  .sol-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 0.88rem;
+  }
+  .sol-table th {
+    background-color: #d9822b;
+    color: #ffffff;
+    padding: 7px 10px;
+    border: 1px solid #cbd5e1;
+    text-align: center;
+  }
+  .sol-table td {
+    padding: 6px 10px;
+    border: 1px solid #cbd5e1;
+  }
+  .sol-table tr:nth-child(even) td {
+    background-color: #fffbeb;
+  }
+  .sol-center { text-align: center; font-weight: 700; }
+
+  .footer-note {
+    text-align: center;
+    font-size: 0.82rem;
+    color: #6b7280;
+    margin-top: 24px;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 8px;
+  }
+
+  @media (max-width: 650px) {
+    .opts-4col { grid-template-columns: repeat(2, 1fr); }
+    .opts-2col { grid-template-columns: 1fr; }
+    .sheet-inner { padding: 18px 16px; }
+    .student-row { flex-direction: column; gap: 8px; }
+  }
+
+  @media print {
+    .no-print, #loginOverlay { display: none !important; }
+    body { background: #ffffff; padding: 0; }
+    .sheet {
+      box-shadow: none;
+      border: none;
+      max-width: 100%;
+      margin: 0;
+    }
+    .banner-box, .chapter-banner, .styled-table th, .ak-table th, .sol-table th, .rainbow-bar span, .banner-stripe span, .instructions-box, .styled-table tr:nth-child(even) td, .ak-table tr:nth-child(even) td, .sol-table tr:nth-child(even) td {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div id="loginOverlay">
+  <div class="login-card">
+    <h2>🔒 Statistics Homework Portal</h2>
+    <p>Enter password to access</p>
+    <input type="password" id="passInput" placeholder="••••••" onkeypress="if(event.key==='Enter') checkPass()">
+    <button onclick="checkPass()">Login</button>
+    <div id="loginError">Incorrect password</div>
+  </div>
+</div>
+
+<div id="appContent">
+  <div class="control-panel no-print">
+    <h1>📘 Statistics Homework Portal (Dr. Islam Alsaraireh)</h1>
+    <div class="chapters-grid">
+      <label class="ch-option"><span>Chapter 1: Introduction to Statistics</span><input type="checkbox" class="ch-cb" value="1" checked></label>
+      <label class="ch-option"><span>Chapter 2: Raw Data (centre and spread)</span><input type="checkbox" class="ch-cb" value="2" checked></label>
+      <label class="ch-option"><span>Chapter 3: Percentiles, Quartiles and IQR</span><input type="checkbox" class="ch-cb" value="3" checked></label>
+      <label class="ch-option"><span>Chapter 4: Grouped Data: Mean, Variance and SD</span><input type="checkbox" class="ch-cb" value="4" checked></label>
+      <label class="ch-option"><span>Chapter 5: Grouped Data: Median and Mode</span><input type="checkbox" class="ch-cb" value="5" checked></label>
+      <label class="ch-option"><span>Chapter 6: Linear Transformation</span><input type="checkbox" class="ch-cb" value="6" checked></label>
+      <label class="ch-option"><span>Chapter 7: The Empirical Rule</span><input type="checkbox" class="ch-cb" value="7" checked></label>
+    </div>
+    <div class="controls-bar">
+      <label>Homework Title:
+        <input type="text" id="wsTitle" value="Statistics Homework - د. إسلام الصرايرة" style="padding:6px 10px; border:1px solid #cbd5e1; border-radius:6px; font-weight:600; width:220px;">
+      </label>
+      <label>Questions / Chapter:
+        <input type="number" id="qPerCh" value="4" min="2" max="8">
+      </label>
+      <button class="btn btn-gen" onclick="buildWorksheet()">🎲 Generate New Homework</button>
+      <button class="btn btn-grade" onclick="gradeHomework()">✅ Submit & Grade</button>
+      <button class="btn btn-print" onclick="window.print()">🖨️ Print / Save PDF</button>
+    </div>
+  </div>
+
+  <div class="sheet" id="worksheetSheet">
+    <div class="rainbow-bar">
+      <span class="rb-teal"></span><span class="rb-blue"></span><span class="rb-orange"></span>
+      <span class="rb-purple"></span><span class="rb-crimson"></span><span class="rb-green"></span>
+    </div>
+
+    <div class="sheet-inner">
+      <div class="banner-box">
+        <h2 id="displayTitle">Statistics Homework - د. إسلام الصرايرة</h2>
+        <p>Circle or select one answer per question. Show your work on scratch paper.</p>
+        <div class="banner-stripe">
+          <span class="rb-teal"></span><span class="rb-blue"></span><span class="rb-orange"></span>
+          <span class="rb-purple"></span><span class="rb-crimson"></span><span class="rb-green"></span>
+        </div>
+      </div>
+
+      <div class="student-row">
+        <div><span>Name:</span><span class="line"></span></div>
+        <div><span>University ID:</span><span class="line"></span></div>
+        <div style="max-width: 190px;"><span>Date:</span><span class="line"></span></div>
+      </div>
+
+      <div class="instructions-box">
+        <strong>Instructions:</strong> There are <span id="totalQCount">28</span> multiple-choice questions covering the selected chapters. Select one answer for each question and click <strong>Submit & Grade</strong> to check your score.
+      </div>
+
+      <div id="scoreBox"></div>
+
+      <div id="questionsArea"></div>
+
+      <!-- Answer Key Page (Hidden for students until grading or print) -->
+      <div class="page-break-section hidden-section" id="answerKeySection">
+        <div class="chapter-banner ch-2" style="margin-top:0;">Answer key</div>
+        <div id="answerKeyContainer"></div>
+      </div>
+
+      <!-- Short Solutions Page (Hidden for students until grading or print) -->
+      <div class="page-break-section hidden-section" id="solutionsSection">
+        <div class="chapter-banner ch-3" style="margin-top:0;">Short solutions</div>
+        <div id="solutionsContainer"></div>
+      </div>
+
+      <div class="footer-note" id="footerNote">Statistics Homework - د. إسلام الصرايرة &nbsp;|&nbsp; Student Portal</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PASS_HASH = "121314";
+let currentQuestions = [];
+
+function checkPass() {
+  if (document.getElementById("passInput").value.trim() === PASS_HASH) {
+    document.getElementById("loginOverlay").style.display = "none";
+    document.getElementById("appContent").style.display = "block";
+    buildWorksheet();
+  } else {
+    document.getElementById("loginError").style.display = "block";
+  }
+}
+
+function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function shuffle(arr) {
+  let a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function r2(n) { return Math.round((n + Number.EPSILON) * 100) / 100; }
+
+function makeOpts(correct, distractors, layout = "4col") {
+  let unique = [correct];
+  for (let d of distractors) {
+    if (unique.length < 4 && !unique.includes(d)) unique.push(d);
+  }
+  let counter = 1;
+  while (unique.length < 4) {
+    let cand = typeof correct === "number" ? r2(correct + counter * 2) : `Option ${counter}`;
+    if (!unique.includes(cand)) unique.push(cand);
+    counter++;
+  }
+  let shuffled = shuffle(unique);
+  const letters = ["A", "B", "C", "D"];
+  return {
+    options: shuffled,
+    ansLetter: letters[shuffled.indexOf(correct)],
+    layout: layout
+  };
+}
+
+// Chapter 1 Generator
+function genChapter1(count) {
+  const pool = [
+    {
+      q: "Which of the following is <strong>discrete</strong> quantitative data?",
+      ...makeOpts("The number of students in a class", ["The height of a student", "The weight of a bag", "The colour of a car"], "2col"),
+      sol: "Discrete data is countable. Height and weight are continuous; colour is qualitative."
+    },
+    {
+      q: "Which of the following is <strong>qualitative</strong> (non-numerical) data?",
+      ...makeOpts("Blood type", ["Age in years", "Exam mark", "Height in cm"], "4col"),
+      sol: "Blood type is descriptive, not numerical."
+    },
+    () => {
+      let samp = randInt(15, 30) * 10;
+      let pop = randInt(4, 9) * 1000;
+      return {
+        q: `A researcher chooses ${samp} students from all ${pop} students of a university. The ${samp} students are called:`,
+        ...makeOpts("A sample", ["The population", "A class", "A frequency"], "4col"),
+        sol: `A subset of the population is a sample (size n = ${samp}). The population is all ${pop} (N).`
+      };
+    },
+    () => {
+      let arr = Array.from({length: 7}, () => randInt(0, 6));
+      let idx = randInt(2, 6);
+      let ans = arr[idx - 1];
+      let dist = arr.filter(x => x !== ans);
+      return {
+        q: `In the sample ${arr.join(", ")}, what is x<sub>${idx}</sub>?`,
+        ...makeOpts(ans, [...new Set(dist), ans + 1, ans + 2], "4col"),
+        sol: `x<sub>${idx}</sub> is the ${idx}th observation in the order collected: ${arr.slice(0, idx - 1).join(", ")}, <strong>${ans}</strong>.`
+      };
+    },
+    {
+      q: "Which of the following is <strong>continuous</strong> quantitative data?",
+      ...makeOpts("Temperature in degrees Celsius", ["Number of cars in a parking lot", "Marital status", "Number of siblings"], "2col"),
+      sol: "Temperature is measured on a continuous scale and can take decimal values."
+    },
+    {
+      q: "A numerical value calculated from an entire population is called a:",
+      ...makeOpts("Parameter", ["Statistic", "Sample", "Variable"], "4col"),
+      sol: "A parameter describes a population, whereas a statistic describes a sample."
+    }
+  ];
+  return shuffle(pool).slice(0, count).map(item => typeof item === "function" ? item() : item);
+}
+
+// Chapter 2 Generator
+function genChapter2(count) {
+  let list = [];
+  let m = randInt(6, 14);
+  let d1 = [m - 4, m - 2, m - 1, m + 2, m + 5];
+  let sum1 = d1.reduce((a,b)=>a+b,0);
+  list.push({
+    q: `The mean of ${d1.join(", ")} is:`,
+    ...makeOpts(m, [m - 1, m + 1, sum1], "4col"),
+    sol: `Σx = ${sum1}, n = 5, so mean = ${sum1} ÷ 5 = ${m}.`
+  });
+
+  let base = randInt(5, 12);
+  let d2Sorted = [base - 2, base, base + 2, base + 4, base + 5, base + 7];
+  let d2 = shuffle(d2Sorted);
+  let med2 = (d2Sorted[2] + d2Sorted[3]) / 2;
+  list.push({
+    q: `The median of ${d2.join(", ")} is:`,
+    ...makeOpts(med2, [d2Sorted[2], d2Sorted[3], r2(d2.reduce((a,b)=>a+b,0)/6)], "4col"),
+    sol: `Sorted: ${d2Sorted.join(", ")}. n = 6 (even), so average the 3rd and 4th: (${d2Sorted[2]} + ${d2Sorted[3]}) ÷ 2 = ${med2}.`
+  });
+
+  let modeVal = randInt(2, 9);
+  let o1 = modeVal + 2, o2 = modeVal + 4;
+  let d4 = shuffle([modeVal, o1, modeVal, o2, o1, modeVal]);
+  list.push({
+    q: `The mode of ${d4.join(", ")} is:`,
+    ...makeOpts(modeVal, [o1, o2, r2(d4.reduce((a,b)=>a+b,0)/6)], "4col"),
+    sol: `${modeVal} appears three times, more than any other value.`
+  });
+
+  let min5 = randInt(10, 18), max5 = randInt(45, 65);
+  let d5 = shuffle([min5, min5 + 7, randInt(25, 35), randInt(36, 44), max5]);
+  let range5 = max5 - min5;
+  list.push({
+    q: `The range of ${d5.join(", ")} is:`,
+    ...makeOpts(range5, [min5, max5, max5 + min5], "4col"),
+    sol: `R = largest − smallest = ${max5} − ${min5} = ${range5}.`
+  });
+
+  return list.slice(0, count);
+}
+
+// Chapter 3 Generator
+function genChapter3(count) {
+  let start = randInt(2, 5);
+  let d = [start, start + 2, start + 4, start + 6, start + 7, start + 9, start + 12, start + 15, start + 19, start + 22];
+  let p30 = (d[2] + d[3]) / 2;
+  let q1 = d[2];
+  let q3 = d[7];
+  let iqr = q3 - q1;
+
+  let qs = [
+    {
+      q: "Find the 30th percentile.",
+      ...makeOpts(p30, [d[2], d[3], d[4]], "4col"),
+      sol: `i = 0.30 × 10 = 3 (whole), so average the 3rd and 4th values: (${d[2]} + ${d[3]}) ÷ 2 = ${p30}.`
+    },
+    {
+      q: "Find Q1.",
+      ...makeOpts(q1, [d[1], (d[1]+d[2])/2, d[3]], "4col"),
+      sol: `Q1 is the 25th percentile: i = 2.5, round up to 3, so the 3rd value = ${q1}.`
+    },
+    {
+      q: "Find Q3.",
+      ...makeOpts(q3, [d[6], (d[6]+d[7])/2, d[8]], "4col"),
+      sol: `Q3 is the 75th percentile: i = 7.5, round up to 8, so the 8th value = ${q3}.`
+    },
+    {
+      q: "Find the IQR.",
+      ...makeOpts(iqr, [iqr - 2, iqr + 3, iqr + 4], "4col"),
+      sol: `IQR = Q3 − Q1 = ${q3} − ${q1} = ${iqr}.`
+    }
+  ];
+
+  return {
+    headerHTML: `<div class="context-note">Use this sorted data (n = 10) for the next questions: <strong>${d.join(", ")}</strong>. Use the course method: i = (P ÷ 100) × n.</div>`,
+    questions: qs.slice(0, count)
+  };
+}
+
+// Chapter 4 Generator
+function genChapter4(count) {
+  let f1 = randInt(3, 5);
+  let f2 = 10 - f1;
+  let freqs = [f1, f2, f2, f1];
+  let mids = [5, 15, 25, 35];
+  let N = 20;
+  let sumFx = freqs.reduce((acc, f, idx) => acc + f * mids[idx], 0);
+  let mean = sumFx / N;
+  let sumFx2 = freqs.reduce((acc, f, idx) => acc + f * mids[idx] * mids[idx], 0);
+  let popVar = r2(sumFx2 / N - mean * mean);
+
+  let tableHTML = `
+    <div class="context-note">Use this table (N = 20) for the next questions.</div>
+    <table class="styled-table tbl-ch4">
+      <thead><tr><th>Class</th><th>f</th></tr></thead>
+      <tbody>
+        <tr><td>0 – 10</td><td>${freqs[0]}</td></tr>
+        <tr><td>10 – 20</td><td>${freqs[1]}</td></tr>
+        <tr><td>20 – 30</td><td>${freqs[2]}</td></tr>
+        <tr><td>30 – 40</td><td>${freqs[3]}</td></tr>
+      </tbody>
+    </table>
+  `;
+
+  let qs = [
+    {
+      q: "What is the midpoint of the class 20 – 30?",
+      ...makeOpts(25, [20, 30, 50], "4col"),
+      sol: "x = (20 + 30) ÷ 2 = 25."
+    },
+    {
+      q: "The mean of the grouped data in the table is:",
+      ...makeOpts(mean, [22.5, 18, 25], "4col"),
+      sol: `Midpoints 5, 15, 25, 35. Mean = ${sumFx} ÷ 20 = ${mean}.`
+    },
+    {
+      q: `For the same table Σfx<sup>2</sup> = ${sumFx2}. The population variance is:`,
+      ...makeOpts(popVar, [r2(sumFx2/N), r2(sumFx2/N + mean*mean), popVar + 20], "4col"),
+      sol: `σ² = Σfx² ÷ N − mean² = ${sumFx2/N} − ${mean*mean} = ${popVar}.`
+    },
+    {
+      q: "Class A has SD = 3.2 and class B has SD = 6.1 on the same exam. Which class has more consistent scores?",
+      ...makeOpts("Class A, because its SD is smaller", ["Class B, because its SD is larger", "Both are equally consistent", "It cannot be known"], "2col"),
+      sol: "A smaller standard deviation means the scores are closer to the mean."
+    }
+  ];
+
+  return {
+    headerHTML: tableHTML,
+    questions: qs.slice(0, count)
+  };
+}
+
+// Chapter 5 Generator
+function genChapter5(count) {
+  let f1 = 2, f2 = 5, f3 = 11, f4 = 8, f5 = 4;
+  let med1 = 26.67;
+  let mode1 = 27.27;
+
+  let tbl1 = `
+    <div class="context-note">Use this table (N = 30) for the next questions. The classes have no gaps.</div>
+    <table class="styled-table tbl-ch5">
+      <thead><tr><th>Class</th><th>f</th></tr></thead>
+      <tbody>
+        <tr><td>0 – 10</td><td>${f1}</td></tr>
+        <tr><td>10 – 20</td><td>${f2}</td></tr>
+        <tr><td>20 – 30</td><td>${f3}</td></tr>
+        <tr><td>30 – 40</td><td>${f4}</td></tr>
+        <tr><td>40 – 50</td><td>${f5}</td></tr>
+      </tbody>
+    </table>
+  `;
+
+  let qs = [
+    {
+      preHTML: tbl1,
+      q: "The median class is:",
+      ...makeOpts("20 – 30", ["30 – 40", "10 – 20", "40 – 50"], "4col"),
+      sol: "N ÷ 2 = 15 and the first cf ≥ 15 is 18 (class 20 – 30)."
+    },
+    {
+      q: "The median is approximately:",
+      ...makeOpts(26.67, [27.27, 29.00, 22.73], "4col"),
+      sol: "L = 20, cf before = 7, f = 11, h = 10: 20 + ((15 − 7) ÷ 11) × 10 = 26.67."
+    },
+    {
+      q: "The mode is approximately:",
+      ...makeOpts(27.27, [26.67, 30.00, 25.00], "4col"),
+      sol: "Modal class 20 – 30: d₁ = 11 − 5 = 6, d₂ = 11 − 8 = 3. Mode = 20 + (6 ÷ (6 + 3)) × 10 = 27.27."
+    },
+    {
+      q: "The classes are written 1 – 5, 6 – 10, 11 – 15, ... For the class 6 – 10, the values of L and h are:",
+      ...makeOpts("L = 5.5, h = 5", ["L = 6, h = 4", "L = 5.5, h = 4", "L = 6, h = 5"], "4col"),
+      sol: "Convert to real boundaries 5.5 – 10.5: L = 5.5 and h = 10.5 − 5.5 = 5."
+    }
+  ];
+
+  return {
+    headerHTML: "",
+    questions: qs.slice(0, count)
+  };
+}
+
+// Chapter 6 Generator
+function genChapter6(count) {
+  let m1 = 10, a1 = 2, b1 = 5;
+  let ans1 = 25;
+  let sd2 = 4, a2 = -3, b2 = 4;
+  let ans2 = 12;
+  let v3 = 9, a3 = 4, b3 = 7;
+  let ans3 = 144;
+  let iqr4 = 7, a4 = -2, b4 = 10;
+  let ans4 = 14;
+
+  let qs = [
+    {
+      q: "A sample X has mean 10. If y = 2x + 5, the mean of Y is:",
+      ...makeOpts(ans1, [30, 20, 15], "4col"),
+      sol: "ȳ = 2(10) + 5 = 25."
+    },
+    {
+      q: "The standard deviation of X is 4. If y = −3x + 4, the standard deviation of Y is:",
+      ...makeOpts(ans2, [-12, 16, 8], "4col"),
+      sol: "SD(Y) = |−3| × 4 = 12 (SD is always positive)."
+    },
+    {
+      q: "The variance of X is 9. If y = 4x − 7, the variance of Y is:",
+      ...makeOpts(ans3, [36, 137, 9], "4col"),
+      sol: "Var(Y) = (4)² × 9 = 16 × 9 = 144."
+    },
+    {
+      q: "The IQR of X is 7. If y = −2x + 10, the IQR of Y is:",
+      ...makeOpts(ans4, [-14, 4, 24], "4col"),
+      sol: "IQR(Y) = |−2| × 7 = 14."
+    }
+  ];
+
+  return {
+    headerHTML: "",
+    questions: qs.slice(0, count)
+  };
+}
+
+// Chapter 7 Generator
+function genChapter7(count) {
+  let mean = 50, sd = 5;
+  let qs = [
+    {
+      q: "About what percentage of the data lies between 45 and 55?",
+      ...makeOpts("68%", ["34%", "95%", "99.7%"], "4col"),
+      sol: "45 to 55 is μ ± 1σ, which contains 68% of the data."
+    },
+    {
+      q: "About what percentage lies between 40 and 60?",
+      ...makeOpts("95%", ["47.5%", "68%", "99.7%"], "4col"),
+      sol: "40 to 60 is μ ± 2σ, which contains 95% of the data."
+    },
+    {
+      q: "About what percentage lies above 60?",
+      ...makeOpts("2.5%", ["5%", "16%", "34%"], "4col"),
+      sol: "95% lies within ±2σ, leaving 5% in both tails, so 5% ÷ 2 = 2.5% above 60."
+    },
+    {
+      q: "Which interval contains about 99.7% of the data?",
+      ...makeOpts("35 to 65", ["40 to 60", "45 to 55", "30 to 70"], "4col"),
+      sol: "99.7% lies within μ ± 3σ = 50 ± 3(5) = 35 to 65."
+    }
+  ];
+
+  return {
+    headerHTML: `<div class="context-note">For the next questions the data is bell-shaped with mean 50 and standard deviation 5.</div>`,
+    questions: qs.slice(0, count)
+  };
+}
+
+const chapterMeta = {
+  1: { title: "Chapter 1: Introduction to Statistics", css: "ch-1" },
+  2: { title: "Chapter 2: Raw Data (centre and spread)", css: "ch-2" },
+  3: { title: "Chapter 3: Percentiles, Quartiles and IQR", css: "ch-3" },
+  4: { title: "Chapter 4: Grouped Data: Mean, Variance and SD", css: "ch-4" },
+  5: { title: "Chapter 5: Grouped Data: Median and Mode", css: "ch-5" },
+  6: { title: "Chapter 6: Linear Transformation", css: "ch-6" },
+  7: { title: "Chapter 7: The Empirical Rule", css: "ch-7" }
+};
+
+function buildWorksheet() {
+  const titleText = document.getElementById("wsTitle").value.trim() || "Statistics Homework - د. إسلام الصرايرة";
+  document.getElementById("displayTitle").textContent = titleText;
+  document.getElementById("footerNote").innerHTML = `${titleText} &nbsp;|&nbsp; Student Portal`;
+
+  const qPerCh = Math.max(2, Math.min(8, parseInt(document.getElementById("qPerCh").value) || 4));
+  const selected = Array.from(document.querySelectorAll(".ch-cb:checked")).map(cb => parseInt(cb.value));
+
+  const qArea = document.getElementById("questionsArea");
+  const akArea = document.getElementById("answerKeyContainer");
+  const solArea = document.getElementById("solutionsContainer");
+  qArea.innerHTML = "";
+  akArea.innerHTML = "";
+  solArea.innerHTML = "";
+  document.getElementById("scoreBox").style.display = "none";
+  document.body.classList.remove("show-solutions");
+
+  if (selected.length === 0) {
+    qArea.innerHTML = "<p style='text-align:center; padding:20px;'>Please select at least one chapter.</p>";
+    return;
+  }
+
+  currentQuestions = [];
+  let qNum = 1;
+
+  selected.forEach(ch => {
+    const meta = chapterMeta[ch];
+    let blockHTML = `<div class="chapter-banner ${meta.css}">${meta.title}</div>`;
+    let items = [];
+
+    if (ch === 1) items = genChapter1(qPerCh);
+    if (ch === 2) items = genChapter2(qPerCh);
+    if (ch === 3) { let res = genChapter3(qPerCh); blockHTML += res.headerHTML; items = res.questions; }
+    if (ch === 4) { let res = genChapter4(qPerCh); blockHTML += res.headerHTML; items = res.questions; }
+    if (ch === 5) { let res = genChapter5(qPerCh); blockHTML += res.headerHTML; items = res.questions; }
+    if (ch === 6) { let res = genChapter6(qPerCh); blockHTML += res.headerHTML; items = res.questions; }
+    if (ch === 7) { let res = genChapter7(qPerCh); blockHTML += res.headerHTML; items = res.questions; }
+
+    const letters = ["A", "B", "C", "D"];
+    items.forEach(item => {
+      if (item.preHTML) blockHTML += item.preHTML;
+      const gridClass = item.layout === "2col" ? "opts-2col" : "opts-4col";
+      let optsHTML = item.options.map((opt, idx) => {
+        const L = letters[idx];
+        const isAns = L === item.ansLetter;
+        return `
+          <label class="opt-label" data-q="${qNum}" data-letter="${L}" data-correct="${isAns}">
+            <input type="radio" name="q_${qNum}" value="${L}">
+            <span class="opt-letter">${L})</span> ${opt}
+          </label>
+        `;
+      }).join("");
+
+      blockHTML += `
+        <div class="q-block">
+          <div class="q-title"><span class="q-num">Q${qNum}.</span> ${item.q}</div>
+          <div class="${gridClass}">${optsHTML}</div>
+        </div>
+      `;
+
+      currentQuestions.push({ num: qNum, ans: item.ansLetter, sol: item.sol });
+      qNum++;
+    });
+
+    qArea.innerHTML += blockHTML;
+  });
+
+  document.getElementById("totalQCount").textContent = currentQuestions.length;
+
+  // Build Answer Key Table
+  const cols = 6;
+  const rows = Math.ceil(currentQuestions.length / cols);
+  let akHTML = `<table class="ak-table"><thead><tr>`;
+  for (let c = 0; c < cols; c++) akHTML += `<th>Q</th><th>Ans</th>`;
+  akHTML += `</tr></thead><tbody>`;
+
+  for (let r = 0; r < rows; r++) {
+    akHTML += `<tr>`;
+    for (let c = 0; c < cols; c++) {
+      let idx = c * rows + r;
+      if (idx < currentQuestions.length) {
+        akHTML += `<td class="ak-q">${currentQuestions[idx].num}</td><td>${currentQuestions[idx].ans}</td>`;
+      } else {
+        akHTML += `<td></td><td></td>`;
+      }
+    }
+    akHTML += `</tr>`;
+  }
+  akHTML += `</tbody></table>`;
+  akArea.innerHTML = akHTML;
+
+  // Build Short Solutions Table
+  let solHTML = `<table class="sol-table"><thead><tr><th style="width:55px;">Q</th><th style="width:65px;">Ans</th><th>Solution</th></tr></thead><tbody>`;
+  currentQuestions.forEach(q => {
+    solHTML += `<tr><td class="sol-center">${q.num}</td><td class="sol-center">${q.ans}</td><td>${q.sol}</td></tr>`;
+  });
+  solHTML += `</tbody></table>`;
+  solArea.innerHTML = solHTML;
+}
+
+function gradeHomework() {
+  let score = 0;
+  let total = currentQuestions.length;
+
+  document.querySelectorAll(".opt-label").forEach(label => {
+    label.classList.remove("correct-choice", "wrong-choice");
+    const radio = label.querySelector("input[type='radio']");
+    const isCorrect = label.getAttribute("data-correct") === "true";
+
+    if (isCorrect) {
+      label.classList.add("correct-choice");
+    }
+    if (radio.checked && !isCorrect) {
+      label.classList.add("wrong-choice");
+    }
+  });
+
+  currentQuestions.forEach(q => {
+    const selected = document.querySelector(`input[name="q_${q.num}"]:checked`);
+    if (selected && selected.value === q.ans) {
+      score++;
+    }
+  });
+
+  const percentage = Math.round((score / total) * 100);
+  const scoreBox = document.getElementById("scoreBox");
+  scoreBox.style.display = "block";
+  scoreBox.innerHTML = `🎉 Your Score: ${score} / ${total} (${percentage}%) — Correct answers and solutions are now unlocked below!`;
+
+  document.body.classList.add("show-solutions");
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
