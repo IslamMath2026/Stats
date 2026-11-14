@@ -239,7 +239,7 @@
     margin-bottom: 22px;
   }
 
-  /* Chapter Banners */
+  /* Lecture Banners */
   .chapter-banner {
     color: #ffffff;
     font-size: 1.12rem;
@@ -252,8 +252,8 @@
   .ch-3 { background-color: #d9822b; }
   .ch-4 { background-color: #6b469b; }
   .ch-5 { background-color: #c5305c; }
-  .ch-6 { background-color: #2b8a57; }
-  .ch-7 { background-color: #26897e; }
+  .ch-6 { background-color: #3b5998; }
+  .ch-7 { background-color: #2b8a57; }
 
   /* Shared Context Note & Frequency Table */
   .context-note {
@@ -464,19 +464,19 @@
   <div class="control-panel no-print">
     <h1>📘 Statistics Homework Portal (Dr. Islam Alsaraireh)</h1>
     <div class="chapters-grid">
-      <label class="ch-option"><span>Chapter 1: Introduction to Statistics</span><input type="checkbox" class="ch-cb" value="1" checked></label>
-      <label class="ch-option"><span>Chapter 2: Raw Data (centre and spread)</span><input type="checkbox" class="ch-cb" value="2" checked></label>
-      <label class="ch-option"><span>Chapter 3: Percentiles, Quartiles and IQR</span><input type="checkbox" class="ch-cb" value="3" checked></label>
-      <label class="ch-option"><span>Chapter 4: Grouped Data: Mean, Variance and SD</span><input type="checkbox" class="ch-cb" value="4" checked></label>
-      <label class="ch-option"><span>Chapter 5: Grouped Data: Median and Mode</span><input type="checkbox" class="ch-cb" value="5" checked></label>
-      <label class="ch-option"><span>Chapter 6: Linear Transformation</span><input type="checkbox" class="ch-cb" value="6" checked></label>
-      <label class="ch-option"><span>Chapter 7: The Empirical Rule</span><input type="checkbox" class="ch-cb" value="7" checked></label>
+      <label class="ch-option"><span>Lecture 1: Introduction to Statistics</span><input type="checkbox" class="ch-cb" value="1" checked></label>
+      <label class="ch-option"><span>Lecture 2: Raw Data (centre and spread)</span><input type="checkbox" class="ch-cb" value="2" checked></label>
+      <label class="ch-option"><span>Lecture 3: Percentiles, Quartiles and IQR</span><input type="checkbox" class="ch-cb" value="3" checked></label>
+      <label class="ch-option"><span>Lecture 4: Grouped Data: Mean, Variance and SD</span><input type="checkbox" class="ch-cb" value="4" checked></label>
+      <label class="ch-option"><span>Lecture 5: Grouped Data: Median and Mode</span><input type="checkbox" class="ch-cb" value="5" checked></label>
+      <label class="ch-option"><span>Lecture 6: Skewness and Outliers</span><input type="checkbox" class="ch-cb" value="6" checked></label>
+      <label class="ch-option"><span>Lecture 7: Linear Transformation</span><input type="checkbox" class="ch-cb" value="7" checked></label>
     </div>
     <div class="controls-bar">
       <label>Homework Title:
         <input type="text" id="wsTitle" value="Statistics Homework - د. إسلام الصرايرة" style="padding:6px 10px; border:1px solid #cbd5e1; border-radius:6px; font-weight:600; width:220px;">
       </label>
-      <label>Questions / Chapter:
+      <label>Questions / Lecture:
         <input type="number" id="qPerCh" value="4" min="2" max="8">
       </label>
       <button class="btn btn-gen" onclick="buildWorksheet()">🎲 Generate New Homework</button>
@@ -508,7 +508,7 @@
       </div>
 
       <div class="instructions-box">
-        <strong>Instructions:</strong> There are <span id="totalQCount">28</span> multiple-choice questions covering the selected chapters. Select one answer for each question and click <strong>Submit & Grade</strong> to check your score.
+        <strong>Instructions:</strong> There are <span id="totalQCount">28</span> multiple-choice questions covering the selected lectures. Select one answer for each question and click <strong>Submit & Grade</strong> to check your score.
       </div>
 
       <div id="scoreBox"></div>
@@ -577,8 +577,8 @@ function makeOpts(correct, distractors, layout = "4col") {
   };
 }
 
-// Chapter 1 Generator
-function genChapter1(count) {
+// Lecture 1 Generator
+function genLecture1(count) {
   const pool = [
     {
       q: "Which of the following is <strong>discrete</strong> quantitative data?",
@@ -624,8 +624,8 @@ function genChapter1(count) {
   return shuffle(pool).slice(0, count).map(item => typeof item === "function" ? item() : item);
 }
 
-// Chapter 2 Generator
-function genChapter2(count) {
+// Lecture 2 Generator
+function genLecture2(count) {
   let list = [];
   let m = randInt(6, 14);
   let d1 = [m - 4, m - 2, m - 1, m + 2, m + 5];
@@ -667,8 +667,8 @@ function genChapter2(count) {
   return list.slice(0, count);
 }
 
-// Chapter 3 Generator
-function genChapter3(count) {
+// Lecture 3 Generator
+function genLecture3(count) {
   let start = randInt(2, 5);
   let d = [start, start + 2, start + 4, start + 6, start + 7, start + 9, start + 12, start + 15, start + 19, start + 22];
   let p30 = (d[2] + d[3]) / 2;
@@ -705,8 +705,8 @@ function genChapter3(count) {
   };
 }
 
-// Chapter 4 Generator
-function genChapter4(count) {
+// Lecture 4 Generator
+function genLecture4(count) {
   let f1 = randInt(3, 5);
   let f2 = 10 - f1;
   let freqs = [f1, f2, f2, f1];
@@ -759,8 +759,8 @@ function genChapter4(count) {
   };
 }
 
-// Chapter 5 Generator
-function genChapter5(count) {
+// Lecture 5 Generator
+function genLecture5(count) {
   let f1 = 2, f2 = 5, f3 = 11, f4 = 8, f5 = 4;
   let med1 = 26.67;
   let mode1 = 27.27;
@@ -809,86 +809,89 @@ function genChapter5(count) {
   };
 }
 
-// Chapter 6 Generator
-function genChapter6(count) {
-  let m1 = 10, a1 = 2, b1 = 5;
-  let ans1 = 25;
-  let sd2 = 4, a2 = -3, b2 = 4;
-  let ans2 = 12;
-  let v3 = 9, a3 = 4, b3 = 7;
-  let ans3 = 144;
-  let iqr4 = 7, a4 = -2, b4 = 10;
-  let ans4 = 14;
+// Lecture 6 Generator (Skewness and Outliers - matching the uploaded image)
+function genLecture6(count) {
+  let qs = [
+    {
+      q: "A data set has a long tail on the left side of its graph. Its shape is called:",
+      ...makeOpts("Left-skewed (negative)", ["Symmetric", "Right-skewed (positive)", "Uniform"], "4col"),
+      sol: "A long tail on the left indicates left-skewed (negative skewness)."
+    },
+    {
+      q: "A data set has mean = 45 and median = 50. The data are:",
+      ...makeOpts("Left-skewed", ["Right-skewed", "Symmetric", "It cannot be known"], "4col"),
+      sol: "When mean < median (45 < 50), the distribution is left-skewed."
+    },
+    {
+      q: "For right-skewed data, which statement is true?",
+      ...makeOpts("Mean > median", ["Mean < median", "Mean = median", "Mean = 0"], "4col"),
+      sol: "In right-skewed data, the mean is pulled toward the long right tail, so Mean > median."
+    },
+    {
+      q: "When data are skewed or have outliers, the better centre to report is:",
+      ...makeOpts("The median", ["The mean", "The range", "The variance"], "4col"),
+      sol: "The median is resistant to outliers and skewness, unlike the mean."
+    },
+    {
+      q: "In the 1.5 × IQR rule, the lower fence is calculated as:",
+      ...makeOpts("Q1 − 1.5 × IQR", ["Q3 + 1.5 × IQR", "Mean − 1.5 × SD", "Median − 1.5 × IQR"], "4col"),
+      sol: "The lower fence for outlier detection is Q1 − 1.5 × IQR."
+    },
+    {
+      q: "Data A: 10, 12, 13, 14, 16. Data B: 10, 12, 13, 14, 60. Going from A to B, which statistic changes?",
+      ...makeOpts("Only the mean", ["Only the median", "Both the mean and the median", "Neither"], "4col"),
+      sol: "The extreme value 60 strongly affects the mean, while the median remains unchanged."
+    }
+  ];
 
+  let bannerNote = `<div class="context-note">Skewness is named after the side of the <strong>tail</strong>. The mean follows the tail. Outlier rule: a value is an outlier if it is below Q1 − 1.5 × IQR or above Q3 + 1.5 × IQR.</div>`;
+
+  return {
+    headerHTML: bannerNote,
+    questions: qs.slice(0, count)
+  };
+}
+
+// Lecture 7 Generator
+function genLecture7(count) {
+  let mean = 50, sd = 5;
   let qs = [
     {
       q: "A sample X has mean 10. If y = 2x + 5, the mean of Y is:",
-      ...makeOpts(ans1, [30, 20, 15], "4col"),
+      ...makeOpts(25, [30, 20, 15], "4col"),
       sol: "ȳ = 2(10) + 5 = 25."
     },
     {
       q: "The standard deviation of X is 4. If y = −3x + 4, the standard deviation of Y is:",
-      ...makeOpts(ans2, [-12, 16, 8], "4col"),
+      ...makeOpts(12, [-12, 16, 8], "4col"),
       sol: "SD(Y) = |−3| × 4 = 12 (SD is always positive)."
     },
     {
       q: "The variance of X is 9. If y = 4x − 7, the variance of Y is:",
-      ...makeOpts(ans3, [36, 137, 9], "4col"),
+      ...makeOpts(144, [36, 137, 9], "4col"),
       sol: "Var(Y) = (4)² × 9 = 16 × 9 = 144."
     },
     {
       q: "The IQR of X is 7. If y = −2x + 10, the IQR of Y is:",
-      ...makeOpts(ans4, [-14, 4, 24], "4col"),
+      ...makeOpts(14, [-14, 4, 24], "4col"),
       sol: "IQR(Y) = |−2| × 7 = 14."
     }
   ];
 
   return {
-    headerHTML: "",
+    headerHTML: `<div class="context-note">Linear Transformation rules: ȳ = a x̄ + b, SD(y) = |a| SD(x), Var(y) = a² Var(x).</div>`,
     questions: qs.slice(0, count)
   };
 }
 
-// Chapter 7 Generator
-function genChapter7(count) {
-  let mean = 50, sd = 5;
-  let qs = [
-    {
-      q: "About what percentage of the data lies between 45 and 55?",
-      ...makeOpts("68%", ["34%", "95%", "99.7%"], "4col"),
-      sol: "45 to 55 is μ ± 1σ, which contains 68% of the data."
-    },
-    {
-      q: "About what percentage lies between 40 and 60?",
-      ...makeOpts("95%", ["47.5%", "68%", "99.7%"], "4col"),
-      sol: "40 to 60 is μ ± 2σ, which contains 95% of the data."
-    },
-    {
-      q: "About what percentage lies above 60?",
-      ...makeOpts("2.5%", ["5%", "16%", "34%"], "4col"),
-      sol: "95% lies within ±2σ, leaving 5% in both tails, so 5% ÷ 2 = 2.5% above 60."
-    },
-    {
-      q: "Which interval contains about 99.7% of the data?",
-      ...makeOpts("35 to 65", ["40 to 60", "45 to 55", "30 to 70"], "4col"),
-      sol: "99.7% lies within μ ± 3σ = 50 ± 3(5) = 35 to 65."
-    }
-  ];
-
-  return {
-    headerHTML: `<div class="context-note">For the next questions the data is bell-shaped with mean 50 and standard deviation 5.</div>`,
-    questions: qs.slice(0, count)
-  };
-}
-
-const chapterMeta = {
-  1: { title: "Chapter 1: Introduction to Statistics", css: "ch-1" },
-  2: { title: "Chapter 2: Raw Data (centre and spread)", css: "ch-2" },
-  3: { title: "Chapter 3: Percentiles, Quartiles and IQR", css: "ch-3" },
-  4: { title: "Chapter 4: Grouped Data: Mean, Variance and SD", css: "ch-4" },
-  5: { title: "Chapter 5: Grouped Data: Median and Mode", css: "ch-5" },
-  6: { title: "Chapter 6: Linear Transformation", css: "ch-6" },
-  7: { title: "Chapter 7: The Empirical Rule", css: "ch-7" }
+const lectureMeta = {
+  1: { title: "Lecture 1: Introduction to Statistics", css: "ch-1" },
+  2: { title: "Lecture 2: Raw Data (centre and spread)", css: "ch-2" },
+  3: { title: "Lecture 3: Percentiles, Quartiles and IQR", css: "ch-3" },
+  4: { title: "Lecture 4: Grouped Data: Mean, Variance and SD", css: "ch-4" },
+  5: { title: "Lecture 5: Grouped Data: Median and Mode", css: "ch-5" },
+  6: { title: "Lecture 6: Skewness and Outliers", css: "ch-6" },
+  7: { title: "Lecture 7: Linear Transformation", css: "ch-7" }
 };
 
 function buildWorksheet() {
@@ -909,7 +912,7 @@ function buildWorksheet() {
   document.body.classList.remove("show-solutions");
 
   if (selected.length === 0) {
-    qArea.innerHTML = "<p style='text-align:center; padding:20px;'>Please select at least one chapter.</p>";
+    qArea.innerHTML = "<p style='text-align:center; padding:20px;'>Please select at least one lecture.</p>";
     return;
   }
 
@@ -917,17 +920,17 @@ function buildWorksheet() {
   let qNum = 1;
 
   selected.forEach(ch => {
-    const meta = chapterMeta[ch];
+    const meta = lectureMeta[ch];
     let blockHTML = `<div class="chapter-banner ${meta.css}">${meta.title}</div>`;
     let items = [];
 
-    if (ch === 1) items = genChapter1(qPerCh);
-    if (ch === 2) items = genChapter2(qPerCh);
-    if (ch === 3) { let res = genChapter3(qPerCh); blockHTML += res.headerHTML; items = res.questions; }
-    if (ch === 4) { let res = genChapter4(qPerCh); blockHTML += res.headerHTML; items = res.questions; }
-    if (ch === 5) { let res = genChapter5(qPerCh); blockHTML += res.headerHTML; items = res.questions; }
-    if (ch === 6) { let res = genChapter6(qPerCh); blockHTML += res.headerHTML; items = res.questions; }
-    if (ch === 7) { let res = genChapter7(qPerCh); blockHTML += res.headerHTML; items = res.questions; }
+    if (ch === 1) items = genLecture1(qPerCh);
+    if (ch === 2) items = genLecture2(qPerCh);
+    if (ch === 3) { let res = genLecture3(qPerCh); blockHTML += res.headerHTML; items = res.questions; }
+    if (ch === 4) { let res = genLecture4(qPerCh); blockHTML += res.headerHTML; items = res.questions; }
+    if (ch === 5) { let res = genLecture5(qPerCh); blockHTML += res.headerHTML; items = res.questions; }
+    if (ch === 6) { let res = genLecture6(qPerCh); blockHTML += res.headerHTML; items = res.questions; }
+    if (ch === 7) { let res = genLecture7(qPerCh); blockHTML += res.headerHTML; items = res.questions; }
 
     const letters = ["A", "B", "C", "D"];
     items.forEach(item => {
@@ -984,6 +987,7 @@ function buildWorksheet() {
 
   // Build Short Solutions Table
   let solHTML = `<table class="sol-table"><thead><tr><th style="width:55px;">Q</th><th style="width:65px;">Ans</th><th>Solution</th></tr></thead><tbody>`;
+  currentQuestions.dumps = true;
   currentQuestions.forEach(q => {
     solHTML += `<tr><td class="sol-center">${q.num}</td><td class="sol-center">${q.ans}</td><td>${q.sol}</td></tr>`;
   });
