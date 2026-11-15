@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculus I - Practice Question Generator</title>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #3b82f6;
+            --accent: #f59e0b;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 850px;
+            width: 100%;
+        }
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 24px 30px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        header h1 { margin: 0 0 8px 0; font-size: 1.75rem; }
+        header p { margin: 0; opacity: 0.9; font-size: 0.95rem; }
+        .controls {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 15px;
+            align-items: end;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        @media (max-width: 650px) {
+            .controls { grid-template-columns: 1fr; }
+        }
+        .control-group { display: flex; flex-direction: column; gap: 6px; }
+        label { font-weight: 600; font-size: 0.85rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        select {
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+            color: var(--text);
+            cursor: pointer;
+        }
+        button {
+            padding: 11px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: #172554; }
+        .btn-hint { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+        .btn-hint:hover { background: #fde68a; }
+        .btn-sol { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+        .btn-sol:hover { background: #a7f3d0; }
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 28px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+        .badges { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+        .badge {
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .badge-topic { background: #e0e7ff; color: #3730a3; }
+        .badge-level-1 { background: #dcfce7; color: #166534; }
+        .badge-level-2 { background: #fef9c3; color: #854d0e; }
+        .badge-level-3 { background: #fee2e2; color: #991b1b; }
+        .question-box {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            margin-bottom: 24px;
+            padding: 16px;
+            background: #f8fafc;
+            border-left: 4px solid var(--primary-light);
+            border-radius: 0 8px 8px 0;
+        }
+        .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+        .reveal-box {
+            display: none;
+            margin-top: 16px;
+            padding: 18px;
+            border-radius: 8px;
+            line-height: 1.6;
+        }
+        .hint-box { background: #fffbeb; border: 1px solid #fde68a; color: #78350f; }
+        .solution-box { background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; }
+        .reveal-title { font-weight: 700; margin-bottom: 8px; display: block; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Calculus I — Practice Generator</h1>
+        <p>University Standard • Multi-Level Problems with Progressive Hints & Step-by-Step Solutions</p>
+    </header>
+
+    <div class="controls">
+        <div class="control-group">
+            <label for="topicSelect">Topic</label>
+            <select id="topicSelect">
+                <option value="all">All Topics (Mixed)</option>
+                <option value="limits">1. Limits & Continuity</option>
+                <option value="derivatives">2. Derivatives & Implicit Diff.</option>
+                <option value="applications">3. Applications of Derivatives</option>
+                <option value="integration">4. Integration (Calculus I)</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label for="levelSelect">Difficulty Level</label>
+            <select id="levelSelect">
+                <option value="all">All Levels</option>
+                <option value="1">Level 1: Warm-up & Conceptual</option>
+                <option value="2">Level 2: Standard University</option>
+                <option value="3">Level 3: Advanced Exam Challenge</option>
+            </select>
+        </div>
+        <button class="btn-primary" onclick="generateQuestion()">Generate Question</button>
+    </div>
+
+    <div class="card" id="questionCard">
+        <div class="badges" id="badges"></div>
+        <div class="question-box" id="questionText"></div>
+
+        <div class="actions">
+            <button class="btn-hint" id="btnHint1" onclick="toggleBox('hint1Box')">💡 Show Hint 1</button>
+            <button class="btn-hint" id="btnHint2" onclick="toggleBox('hint2Box')">🔍 Show Hint 2</button>
+            <button class="btn-sol" id="btnSol" onclick="toggleBox('solutionBox')">✅ Show Full Solution</button>
+        </div>
+
+        <div class="reveal-box hint-box" id="hint1Box">
+            <span class="reveal-title">Hint 1:</span>
+            <div id="hint1Text"></div>
+        </div>
+
+        <div class="reveal-box hint-box" id="hint2Box">
+            <span class="reveal-title">Hint 2 (Detailed Step):</span>
+            <div id="hint2Text"></div>
+        </div>
+
+        <div class="reveal-box solution-box" id="solutionBox">
+            <span class="reveal-title">Step-by-Step Solution:</span>
+            <div id="solutionText"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const questionBank = [
+        // LIMITS
+        {
+            topic: "limits",
+            topicName: "Limits & Continuity",
+            level: 1,
+            levelName: "Level 1: Warm-up",
+            question: "Evaluate the following trigonometric limit:<br>$$\lim_{x \to 0} \frac{\sin(3x)}{5x}$$",
+            hint1: "Recall the fundamental trigonometric limit: $\lim_{\theta \to 0} \frac{\sin(\theta)}{\theta} = 1$.",
+            hint2: "Factor out $\frac{1}{5}$, then multiply numerator and denominator by $3$ so the denominator matches the argument $3x$.",
+            solution: "$$\lim_{x \to 0} \frac{\sin(3x)}{5x} = \frac{1}{5} \lim_{x \to 0} \frac{\sin(3x)}{x} = \frac{3}{5} \lim_{x \to 0} \frac{\sin(3x)}{3x} = \frac{3}{5}(1) = \frac{3}{5}$$"
+        },
+        {
+            topic: "limits",
+            topicName: "Limits & Continuity",
+            level: 2,
+            levelName: "Level 2: Standard",
+            question: "Evaluate the limit at infinity:<br>$$\lim_{x \to -\infty} \frac{\sqrt{4x^2 + 3x}}{2x - 1}$$",
+            hint1: "Divide the numerator and denominator by $x$, paying careful attention to the sign of $x$ when bringing it inside the square root.",
+            hint2: "Since $x \to -\infty$, $x < 0$, which means $\sqrt{x^2} = |x| = -x$.",
+            solution: "For $x < 0$, $\sqrt{4x^2 + 3x} = \sqrt{x^2(4 + \frac{3}{x})} = -x\sqrt{4 + \frac{3}{x}}$.<br>Dividing top and bottom by $x$:<br>$$\lim_{x \to -\infty} \frac{-x\sqrt{4 + \frac{3}{x}}}{x(2 - \frac{1}{x})} = \lim_{x \to -\infty} \frac{-\sqrt{4 + \frac{3}{x}}}{2 - \frac{1}{x}} = \frac{-\sqrt{4}}{2} = -1$$"
+        },
+        {
+            topic: "limits",
+            topicName: "Limits & Continuity",
+            level: 3,
+            levelName: "Level 3: Advanced Challenge",
+            question: "Find the values of the constants $a$ and $b$ such that the function $f(x)$ is continuous everywhere on $(-\infty, \infty)$:<br>$$f(x) = \begin{cases} \frac{x^2 - 4}{x - 2}, & x < 2 \\ ax^2 - bx + 3, & 2 \le x < 3 \\ 2x - a + b, & x \ge 3 \end{cases}$$",
+            hint1: "Continuity at $x = 2$ and $x = 3$ requires the left-hand limit, right-hand limit, and function value to be equal at each boundary point.",
+            hint2: "At $x=2$: $\lim_{x \to 2^-} \frac{x^2-4}{x-2} = 4$, so $4a - 2b + 3 = 4$. At $x=3$: $9a - 3b + 3 = 6 - a + b$. Solve the resulting linear system.",
+            solution: "1. At $x = 2$: $\lim_{x \to 2^-} (x+2) = 4$. Setting this equal to $f(2)$: $4a - 2b + 3 = 4 \implies 4a - 2b = 1$ (Eq. 1).<br>2. At $x = 3$: $\lim_{x \to 3^-} f(x) = 9a - 3b + 3$, and $f(3) = 6 - a + b$. Equating them: $10a - 4b = 3$ (Eq. 2).<br>3. Multiply (Eq. 1) by 2: $8a - 4b = 2$. Subtract from (Eq. 2): $2a = 1 \implies a = \frac{1}{2}$.<br>4. Substitute back: $4(\frac{1}{2}) - 2b = 1 \implies b = \frac{1}{2}$."
+        },
+
+        // DERIVATIVES
+        {
+            topic: "derivatives",
+            topicName: "Derivatives & Implicit Diff.",
+            level: 1,
+            levelName: "Level 1: Warm-up",
+            question: "Find the derivative $f'(x)$ of the function:<br>$$f(x) = e^{3x} \cos(2x)$$",
+            hint1: "Use the Product Rule: $(uv)' = u'v + uv'$, combined with the Chain Rule.",
+            hint2: "Let $u = e^{3x}$ ($u' = 3e^{3x}$) and $v = \cos(2x)$ ($v' = -2\sin(2x)$).",
+            solution: "$$f'(x) = 3e^{3x}\cos(2x) + e^{3x}(-2\sin(2x)) = e^{3x}\big(3\cos(2x) - 2\sin(2x)\big)$$"
+        },
+        {
+            topic: "derivatives",
+            topicName: "Derivatives & Implicit Diff.",
+            level: 2,
+            levelName: "Level 2: Standard",
+            question: "Use logarithmic differentiation to find $\frac{dy}{dx}$ for:<br>$$y = x^{\sin(x)}, \quad x > 0$$",
+            hint1: "Take the natural logarithm ($\ln$) of both sides to bring the exponent $\sin(x)$ down.",
+            hint2: "$\ln(y) = \sin(x)\ln(x)$. Differentiate both sides implicitly with respect to $x$, then multiply by $y$.",
+            solution: "$$\ln(y) = \sin(x)\ln(x)$$<br>Differentiating both sides:<br>$$\frac{1}{y}\frac{dy}{dx} = \cos(x)\ln(x) + \frac{\sin(x)}{x}$$<br>$$\frac{dy}{dx} = x^{\sin(x)} \left( \cos(x)\ln(x) + \frac{\sin(x)}{x} \right)$$"
+        },
+        {
+            topic: "derivatives",
+            topicName: "Derivatives & Implicit Diff.",
+            level: 3,
+            levelName: "Level 3: Advanced Challenge",
+            question: "Consider the Folium of Descartes defined implicitly by:<br>$$x^3 + y^3 - 3xy = 0$$<br>Find the equation of the <strong>tangent line</strong> to the curve at the point $\left(\frac{3}{2}, \frac{3}{2}\right)$.",
+            hint1: "Differentiate both sides implicitly with respect to $x$, remembering the Product Rule on $-3xy$.",
+            hint2: "$3x^2 + 3y^2\frac{dy}{dx} - 3y - 3x\frac{dy}{dx} = 0$. Solve for $\frac{dy}{dx}$ and plug in $x = \frac{3}{2}, y = \frac{3}{2}$.",
+            solution: "Differentiating implicitly:<br>$$3x^2 + 3y^2 y' - 3(y + xy') = 0 \implies y'(y^2 - x) = y - x^2 \implies y' = \frac{y - x^2}{y^2 - x}$$<br>At $\left(\frac{3}{2}, \frac{3}{2}\right)$:<br>$$m = y' = \frac{\frac{3}{2} - \frac{9}{4}}{\frac{9}{4} - \frac{3}{2}} = \frac{-3/4}{3/4} = -1$$<br>Tangent line equation: $y - \frac{3}{2} = -1\left(x - \frac{3}{2}\right) \implies y = -x + 3$."
+        },
+
+        // APPLICATIONS OF DERIVATIVES
+        {
+            topic: "applications",
+            topicName: "Applications of Derivatives",
+            level: 1,
+            levelName: "Level 1: Warm-up",
+            question: "Find the critical numbers of the function:<br>$$f(x) = x^3 - 6x^2 + 9x + 1$$",
+            hint1: "Critical numbers occur where $f'(x) = 0$ or where $f'(x)$ does not exist.",
+            hint2: "Compute $f'(x) = 3x^2 - 12x + 9$, factor out $3$, and solve the quadratic equation.",
+            solution: "$$f'(x) = 3x^2 - 12x + 9 = 3(x^2 - 4x + 3) = 3(x - 1)(x - 3) = 0$$<br>The critical numbers are $x = 1$ and $x = 3$."
+        },
+        {
+            topic: "applications",
+            topicName: "Applications of Derivatives",
+            level: 2,
+            levelName: "Level 2: Standard",
+            question: "Evaluate the limit using L'Hôpital's Rule:<br>$$\lim_{x \to 0} \frac{e^x - 1 - x}{x^2}$$",
+            hint1: "Verify that the limit has the indeterminate form $\frac{0}{0}$, then differentiate numerator and denominator separately.",
+            hint2: "You will need to apply L'Hôpital's Rule twice until the denominator is no longer zero at $x = 0$.",
+            solution: "Form is $\frac{0}{0}$. Apply L'Hôpital's Rule:<br>$$\lim_{x \to 0} \frac{e^x - 1}{2x}$$<br>Still $\frac{0}{0}$. Apply L'Hôpital's Rule a second time:<br>$$\lim_{x \to 0} \frac{e^x}{2} = \frac{e^0}{2} = \frac{1}{2}$$"
+        },
+        {
+            topic: "applications",
+            topicName: "Applications of Derivatives",
+            level: 3,
+            levelName: "Level 3: Advanced Challenge",
+            question: "A cylindrical can without a top is made to contain $V = 27\pi \text{ cm}^3$ of liquid. Find the dimensions (radius $r$ and height $h$) that will minimize the cost of the metal to manufacture the can.",
+            hint1: "Write the surface area $A$ (base + lateral side, no top) in terms of $r$ and $h$, then use the volume constraint $V = \pi r^2 h = 27\pi$ to eliminate $h$.",
+            hint2: "$A(r) = \pi r^2 + 2\pi r h$. Substitute $h = \frac{27}{r^2}$ to get $A(r) = \pi r^2 + \frac{54\pi}{r}$, then find $A'(r) = 0$.",
+            solution: "Volume: $\pi r^2 h = 27\pi \implies h = \frac{27}{r^2}$.<br>Surface Area: $A(r) = \pi r^2 + 2\pi r\left(\frac{27}{r^2}\right) = \pi r^2 + \frac{54\pi}{r}$.<br>Differentiate: $A'(r) = 2\pi r - \frac{54\pi}{r^2} = 0 \implies 2r^3 = 54 \implies r^3 = 27 \implies r = 3\text{ cm}$.<br>Then $h = \frac{27}{3^2} = 3\text{ cm}$. (Since $A''(3) = 2\pi + \frac{108\pi}{27} > 0$, it is a minimum)."
+        },
+
+        // INTEGRATION
+        {
+            topic: "integration",
+            topicName: "Integration (Calculus I)",
+            level: 1,
+            levelName: "Level 1: Warm-up",
+            question: "Evaluate the indefinite integral:<br>$$\int \left( 4x^3 - \frac{2}{x} + \sec^2(x) \right) dx$$",
+            hint1: "Integrate term-by-term using the Power Rule, the logarithm rule $\int \frac{1}{x} dx = \ln|x|$, and basic trig antiderivatives.",
+            hint2: "Remember that $\frac{d}{dx}[\tan(x)] = \sec^2(x)$, and don't forget the constant of integration $+ C$.",
+            solution: "$$\int \left( 4x^3 - \frac{2}{x} + \sec^2(x) \right) dx = x^4 - 2\ln|x| + \tan(x) + C$$"
+        },
+        {
+            topic: "integration",
+            topicName: "Integration (Calculus I)",
+            level: 2,
+            levelName: "Level 2: Standard",
+            question: "Evaluate the definite integral using substitution:<br>$$\int_{0}^{1} x e^{-x^2} \, dx$$",
+            hint1: "Let $u = -x^2$ so that $du = -2x \, dx$.",
+            hint2: "Change the limits of integration: when $x = 0, u = 0$; when $x = 1, u = -1$.",
+            solution: "Let $u = -x^2 \implies -\frac{1}{2}du = x\,dx$.<br>$$\int_{0}^{-1} -\frac{1}{2} e^u \, du = \frac{1}{2} \int_{-1}^{0} e^u \, du = \frac{1}{2} \big[e^u\big]_{-1}^{0} = \frac{1}{2}(1 - e^{-1})$$"
+        },
+        {
+            topic: "integration",
+            topicName: "Integration (Calculus I)",
+            level: 3,
+            levelName: "Level 3: Advanced Challenge",
+            question: "Use the Fundamental Theorem of Calculus (Part 1) and the Chain Rule to find $g'(x)$ if:<br>$$g(x) = \int_{\cos(x)}^{x^2} \sqrt{1 + t^3} \, dt$$",
+            hint1: "Split the integral at a constant $a$ (e.g., $a = 0$): $\int_{\cos(x)}^{0} f(t)dt + \int_{0}^{x^2} f(t)dt$, and reverse the limits on the first integral.",
+            hint2: "Apply $\frac{d}{dx} \int_{a}^{u(x)} f(t)\,dt = f(u(x)) \cdot u'(x)$ to both parts.",
+            solution: "$$g(x) = \int_{0}^{x^2} \sqrt{1 + t^3} \, dt - \int_{0}^{\cos(x)} \sqrt{1 + t^3} \, dt$$<br>Differentiating with respect to $x$:<br>$$g'(x) = \sqrt{1 + (x^2)^3} \cdot (2x) - \sqrt{1 + (\cos x)^3} \cdot (-\sin x)$$<br>$$g'(x) = 2x\sqrt{1 + x^6} + \sin(x)\sqrt{1 + \cos^3(x)}$$"
+        }
+    ];
+
+    let currentIndex = -1;
+
+    function generateQuestion() {
+        const topic = document.getElementById('topicSelect').value;
+        const level = document.getElementById('levelSelect').value;
+
+        const filtered = questionBank.filter(q => {
+            const topicMatch = (topic === 'all' || q.topic === topic);
+            const levelMatch = (level === 'all' || q.level === parseInt(level));
+            return topicMatch && levelMatch;
+        });
+
+        if (filtered.length === 0) return;
+
+        let chosen;
+        if (filtered.length === 1) {
+            chosen = filtered[0];
+        } else {
+            do {
+                chosen = filtered[Math.floor(Math.random() * filtered.length)];
+            } while (questionBank.indexOf(chosen) === currentIndex);
+        }
+
+        currentIndex = questionBank.indexOf(chosen);
+
+        // Reset reveal boxes
+        ['hint1Box', 'hint2Box', 'solutionBox'].forEach(id => {
+            document.getElementById(id).style.display = 'none';
+        });
+
+        // Update UI
+        document.getElementById('badges').innerHTML = `
+            <span class="badge badge-topic">${chosen.topicName}</span>
+            <span class="badge badge-level-${chosen.level}">${chosen.levelName}</span>
+        `;
+        document.getElementById('questionText').innerHTML = chosen.question;
+        document.getElementById('hint1Text').innerHTML = chosen.hint1;
+        document.getElementById('hint2Text').innerHTML = chosen.hint2;
+        document.getElementById('solutionText').innerHTML = chosen.solution;
+
+        if (window.MathJax) {
+            MathJax.typesetPromise();
+        }
+    }
+
+    function toggleBox(boxId) {
+        const box = document.getElementById(boxId);
+        box.style.display = (box.style.display === 'block') ? 'none' : 'block';
+        if (window.MathJax) {
+            MathJax.typesetPromise();
+        }
+    }
+
+    // Load initial question
+    window.onload = generateQuestion;
+</script>
+
+</body>
+</html>
