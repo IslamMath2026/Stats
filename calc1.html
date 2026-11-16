@@ -4,15 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculus I - Multiple Choice Practice Generator</title>
-    <script>
-        window.MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']]
-            }
-        };
-    </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         :root {
             --primary: #1e3a8a;
@@ -50,7 +41,7 @@
             flex-wrap: wrap;
             gap: 15px;
         }
-        header h1 { margin: 0 0 6px 0; font-size: 1.65rem; }
+        header h1 { margin: 0 0 6px 0; font-size: 1.6rem; }
         header p { margin: 0; opacity: 0.9; font-size: 0.95rem; }
         .score-board {
             background: rgba(255,255,255,0.15);
@@ -58,7 +49,6 @@
             border-radius: 10px;
             font-weight: 700;
             font-size: 1rem;
-            backdrop-filter: blur(4px);
         }
         .controls {
             background: var(--card);
@@ -127,13 +117,52 @@
         .q-counter { font-size: 0.85rem; color: var(--muted); font-weight: 600; }
         .question-box {
             font-size: 1.15rem;
-            line-height: 1.75;
+            line-height: 1.8;
             margin-bottom: 20px;
-            padding: 16px 20px;
+            padding: 18px 20px;
             background: #f8fafc;
             border-left: 4px solid var(--primary-light);
             border-radius: 0 8px 8px 0;
         }
+        .math-expr {
+            display: block;
+            margin-top: 10px;
+            font-family: 'Cambria Math', 'Times New Roman', Georgia, serif;
+            font-size: 1.25rem;
+            color: #0f172a;
+        }
+        .frac {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: middle;
+            margin: 0 4px;
+            font-size: 0.95em;
+        }
+        .frac > span:first-child {
+            border-bottom: 1.5px solid currentColor;
+            padding: 0 5px 2px 5px;
+        }
+        .frac > span:last-child {
+            padding: 2px 5px 0 5px;
+        }
+        .sqrt {
+            display: inline-flex;
+            align-items: center;
+        }
+        .sqrt-rad {
+            border-top: 1.5px solid currentColor;
+            padding: 1px 4px 0 2px;
+        }
+        .lim {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: middle;
+            margin-right: 6px;
+            line-height: 1.1;
+        }
+        .lim-sub { font-size: 0.72em; }
         .options-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -156,6 +185,7 @@
             color: var(--text);
             cursor: pointer;
             transition: all 0.15s ease;
+            font-family: 'Cambria Math', 'Segoe UI', serif;
         }
         .option-btn:hover:not(:disabled) {
             border-color: var(--primary-light);
@@ -173,6 +203,7 @@
             font-weight: 700;
             font-size: 0.9rem;
             flex-shrink: 0;
+            font-family: 'Segoe UI', sans-serif;
         }
         .option-btn.correct {
             background: var(--correct-bg);
@@ -208,11 +239,19 @@
             margin-top: 16px;
             padding: 18px;
             border-radius: 8px;
-            line-height: 1.7;
+            line-height: 1.75;
         }
         .hint-box { background: #fffbeb; border: 1px solid #fde68a; color: #78350f; }
         .solution-box { background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; }
         .reveal-title { font-weight: 700; margin-bottom: 6px; display: block; }
+        .piecewise {
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle;
+            margin: 6px 0;
+        }
+        .brace { font-size: 3.4em; font-weight: 300; line-height: 1; margin-right: 8px; }
+        .pw-rows { display: flex; flex-direction: column; gap: 8px; font-size: 0.95em; }
     </style>
 </head>
 <body>
@@ -221,7 +260,7 @@
     <header>
         <div>
             <h1>Calculus I — Multiple Choice Generator</h1>
-            <p>Interactive Question Bank with Hints & Step-by-Step Explanations</p>
+            <p>Offline-Ready Question Bank with Hints & Step-by-Step Explanations</p>
         </div>
         <div class="score-board">
             Score: <span id="scoreVal">0</span> / <span id="totalVal">0</span>
@@ -282,6 +321,10 @@
 </div>
 
 <script>
+const f = (n, d) => `<span class="frac"><span>${n}</span><span>${d}</span></span>`;
+const sq = (x) => `<span class="sqrt">√<span class="sqrt-rad">${x}</span></span>`;
+const lim = (to) => `<span class="lim"><span>lim</span><span class="lim-sub">x → ${to}</span></span>`;
+
 const questions = [
     {
         id: 1,
@@ -289,16 +332,16 @@ const questions = [
         topicName: "Limits & Asymptotes",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Evaluate the limit at infinity:<br>$$\lim_{x \to \infty} \frac{2 - x}{\sqrt{7 + 6x^2 + 2x}}$$",
+        q: `Evaluate the limit at infinity:<div class="math-expr">${lim("∞")} ${f("2 − x", sq("7 + 6x<sup>2</sup> + 2x"))}</div>`,
         options: [
-            "$-\frac{1}{\sqrt{6}}$",
-            "$\frac{1}{\sqrt{6}}$",
-            "$-\frac{1}{6}$",
-            "$0$"
+            `−${f("1", sq("6"))}`,
+            `${f("1", sq("6"))}`,
+            `−${f("1", "6")}`,
+            `0`
         ],
         correct: 0,
-        hint: "Divide numerator and denominator by $x$. Since $x \to +\infty$, $x > 0$ so $\sqrt{x^2} = x$.",
-        explanation: "For $x > 0$, $\sqrt{7 + 6x^2 + 2x} = x\sqrt{\frac{7}{x^2} + 6 + \frac{2}{x}}$. Dividing top and bottom by $x$ gives:<br>$$\lim_{x \to \infty} \frac{\frac{2}{x} - 1}{\sqrt{\frac{7}{x^2} + 6 + \frac{2}{x}}} = \frac{0 - 1}{\sqrt{0 + 6 + 0}} = -\frac{1}{\sqrt{6}}$$"
+        hint: `Divide numerator and denominator by x. Since x → +∞, x > 0 so ${sq("x<sup>2</sup>")} = x.`,
+        explanation: `For x > 0, ${sq("7 + 6x<sup>2</sup> + 2x")} = x${sq(f("7", "x<sup>2</sup>") + " + 6 + " + f("2", "x"))}.<br>Dividing top and bottom by x gives: ${lim("∞")} ${f(f("2", "x") + " − 1", sq(f("7", "x<sup>2</sup>") + " + 6 + " + f("2", "x")))} = ${f("0 − 1", sq("0 + 6 + 0"))} = −${f("1", sq("6"))}.`
     },
     {
         id: 2,
@@ -306,16 +349,11 @@ const questions = [
         topicName: "Extrema & Concavity",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Find the absolute minimum value of $f(x) = \frac{9}{x} + x$ on the interval $(0, \infty)$.",
-        options: [
-            "$6$",
-            "$3$",
-            "$9$",
-            "$10$"
-        ],
+        q: `Find the absolute minimum value of f(x) = ${f("9", "x")} + x on the interval (0, ∞).`,
+        options: [`6`, `3`, `9`, `10`],
         correct: 0,
-        hint: "Find $f'(x) = 0$ for $x > 0$, then substitute the critical number back into $f(x)$.",
-        explanation: "$f'(x) = -\frac{9}{x^2} + 1 = 0 \implies x^2 = 9 \implies x = 3$ (since $x > 0$).<br>Since $f''(x) = \frac{18}{x^3} > 0$ for $x > 0$, $x = 3$ gives the absolute minimum.<br>Value: $f(3) = \frac{9}{3} + 3 = 3 + 3 = 6$."
+        hint: `Find f'(x) = 0 for x > 0, then substitute the critical number back into f(x).`,
+        explanation: `f'(x) = −${f("9", "x<sup>2</sup>")} + 1 = 0 ⇒ x<sup>2</sup> = 9 ⇒ x = 3 (since x > 0).<br>Since f''(x) = ${f("18", "x<sup>3</sup>")} > 0 for x > 0, x = 3 gives the absolute minimum.<br>Value: f(3) = ${f("9", "3")} + 3 = 3 + 3 = 6.`
     },
     {
         id: 3,
@@ -323,16 +361,16 @@ const questions = [
         topicName: "Derivatives & Tangents",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Find the derivative $\frac{dy}{dx}$ of:<br>$$y = \sqrt{\cos(5x^2 - 1)}$$",
+        q: `Find the derivative ${f("dy", "dx")} of:<div class="math-expr">y = ${sq("cos(5x<sup>2</sup> − 1)")}</div>`,
         options: [
-            "$-\frac{5x\sin(5x^2 - 1)}{\sqrt{\cos(5x^2 - 1)}}$",
-            "$\frac{10x\sin(5x^2 - 1)}{2\sqrt{\cos(5x^2 - 1)}}$",
-            "$-\frac{\sin(10x)}{2\sqrt{\cos(5x^2 - 1)}}$",
-            "$-5x\sin(5x^2 - 1)$"
+            `−${f("5x sin(5x<sup>2</sup> − 1)", sq("cos(5x<sup>2</sup> − 1)"))}`,
+            `${f("10x sin(5x<sup>2</sup> − 1)", "2" + sq("cos(5x<sup>2</sup> − 1)"))}`,
+            `−${f("sin(10x)", "2" + sq("cos(5x<sup>2</sup> − 1)"))}`,
+            `−5x sin(5x<sup>2</sup> − 1)`
         ],
         correct: 0,
-        hint: "Apply the Chain Rule twice: outer function $\sqrt{u}$, middle function $\cos(v)$, inner function $5x^2 - 1$.",
-        explanation: "$\frac{dy}{dx} = \frac{1}{2\sqrt{\cos(5x^2 - 1)}} \cdot (-\sin(5x^2 - 1)) \cdot (10x) = -\frac{5x\sin(5x^2 - 1)}{\sqrt{\cos(5x^2 - 1)}}$."
+        hint: `Apply the Chain Rule twice: outer function ${sq("u")}, middle function cos(v), inner function 5x<sup>2</sup> − 1.`,
+        explanation: `${f("dy", "dx")} = ${f("1", "2" + sq("cos(5x<sup>2</sup> − 1)"))} · (−sin(5x<sup>2</sup> − 1)) · (10x) = −${f("5x sin(5x<sup>2</sup> − 1)", sq("cos(5x<sup>2</sup> − 1)"))}.`
     },
     {
         id: 4,
@@ -340,16 +378,11 @@ const questions = [
         topicName: "Limits & Asymptotes",
         level: 3,
         levelName: "Level 3: Advanced Challenge",
-        q: "Evaluate the indeterminate limit:<br>$$\lim_{x \to 0^+} (\tan x)^{2x}$$",
-        options: [
-            "$1$",
-            "$0$",
-            "$e^2$",
-            "$\infty$"
-        ],
+        q: `Evaluate the indeterminate limit:<div class="math-expr">${lim("0<sup>+</sup>")} (tan x)<sup>2x</sup></div>`,
+        options: [`1`, `0`, `e<sup>2</sup>`, `∞`],
         correct: 0,
-        hint: "Rewrite as $y = (\tan x)^{2x}$, take $\ln y = 2x \ln(\tan x)$, and use L'Hôpital's Rule on $\frac{2\ln(\tan x)}{1/x}$.",
-        explanation: "Let $L = \lim_{x \to 0^+} 2x\ln(\tan x) = \lim_{x \to 0^+} \frac{2\ln(\tan x)}{x^{-1}}$ (form $\frac{-\infty}{\infty}$).<br>By L'Hôpital's Rule:<br>$$L = \lim_{x \to 0^+} \frac{2 \frac{\sec^2 x}{\tan x}}{-x^{-2}} = \lim_{x \to 0^+} \frac{-2x^2}{\sin x \cos x} = \lim_{x \to 0^+} \left(-2 \cdot \frac{x}{\sin x} \cdot \frac{x}{\cos x}\right) = -2(1)(0) = 0$$<br>Thus, the original limit is $e^0 = 1$."
+        hint: `Rewrite as y = (tan x)<sup>2x</sup>, take ln y = 2x ln(tan x), and use L'Hôpital's Rule on ${f("2 ln(tan x)", "1/x")}.`,
+        explanation: `Let L = ${lim("0<sup>+</sup>")} ${f("2 ln(tan x)", "x<sup>−1</sup>")} (form −∞/∞).<br>By L'Hôpital's Rule: L = ${lim("0<sup>+</sup>")} ${f("2 sec<sup>2</sup>x / tan x", "−x<sup>−2</sup>")} = ${lim("0<sup>+</sup>")} (−2 · ${f("x", "sin x")} · ${f("x", "cos x")}) = −2(1)(0) = 0.<br>Thus, the original limit is e<sup>0</sup> = 1.`
     },
     {
         id: 5,
@@ -357,16 +390,16 @@ const questions = [
         topicName: "Extrema & Concavity",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Let $f(x) = x^2 \ln\left(\frac{x}{5}\right)$ defined on $(0, 5e]$. What is the critical number of $f$ in this interval?",
+        q: `Let f(x) = x<sup>2</sup> ln(${f("x", "5")}) defined on (0, 5e]. What is the critical number of f in this interval?`,
         options: [
-            "$x = \frac{5}{\sqrt{e}}$",
-            "$x = 5e$",
-            "$x = \frac{5}{e}$",
-            "$x = 5\sqrt{e}$"
+            `x = ${f("5", sq("e"))}`,
+            `x = 5e`,
+            `x = ${f("5", "e")}`,
+            `x = 5${sq("e")}`
         ],
         correct: 0,
-        hint: "Use the Product Rule to find $f'(x) = 2x\ln(x/5) + x$, then set $f'(x) = 0$.",
-        explanation: "$f'(x) = 2x\ln\left(\frac{x}{5}\right) + x^2 \cdot \frac{1/5}{x/5} = x\left(2\ln\left(\frac{x}{5}\right) + 1\right) = 0$.<br>Since $x > 0$, $2\ln\left(\frac{x}{5}\right) = -1 \implies \ln\left(\frac{x}{5}\right) = -\frac{1}{2} \implies \frac{x}{5} = e^{-1/2} \implies x = \frac{5}{\sqrt{e}}$."
+        hint: `Use the Product Rule to find f'(x) = 2x ln(x/5) + x, then set f'(x) = 0.`,
+        explanation: `f'(x) = 2x ln(${f("x", "5")}) + x<sup>2</sup> · ${f("1/5", "x/5")} = x(2 ln(${f("x", "5")}) + 1) = 0.<br>Since x > 0, 2 ln(${f("x", "5")}) = −1 ⇒ ln(${f("x", "5")}) = −${f("1", "2")} ⇒ ${f("x", "5")} = e<sup>−1/2</sup> ⇒ x = ${f("5", sq("e"))}.`
     },
     {
         id: 6,
@@ -374,16 +407,11 @@ const questions = [
         topicName: "Limits & Asymptotes",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Using the Squeeze (Sandwich) Theorem, evaluate:<br>$$\lim_{x \to -\infty} \frac{2x^2 - \sin(3x)}{3x^2 + \pi}$$",
-        options: [
-            "$\frac{2}{3}$",
-            "$0$",
-            "$-\frac{2}{3}$",
-            "$\infty$"
-        ],
+        q: `Using the Squeeze (Sandwich) Theorem, evaluate:<div class="math-expr">${lim("−∞")} ${f("2x<sup>2</sup> − sin(3x)", "3x<sup>2</sup> + π")}</div>`,
+        options: [`${f("2", "3")}`, `0`, `−${f("2", "3")}`, `∞`],
         correct: 0,
-        hint: "Bound $-1 \le \sin(3x) \le 1$, then divide the inequality by $3x^2 + \pi > 0$.",
-        explanation: "Since $-1 \le -\sin(3x) \le 1$, we have:<br>$$\frac{2x^2 - 1}{3x^2 + \pi} \le \frac{2x^2 - \sin(3x)}{3x^2 + \pi} \le \frac{2x^2 + 1}{3x^2 + \pi}$$<br>Both outer limits as $x \to -\infty$ equal $\frac{2}{3}$. By the Squeeze Theorem, the limit is $\frac{2}{3}$."
+        hint: `Bound −1 ≤ sin(3x) ≤ 1, then divide the inequality by 3x<sup>2</sup> + π > 0.`,
+        explanation: `Since −1 ≤ −sin(3x) ≤ 1, we have:<br>${f("2x<sup>2</sup> − 1", "3x<sup>2</sup> + π")} ≤ ${f("2x<sup>2</sup> − sin(3x)", "3x<sup>2</sup> + π")} ≤ ${f("2x<sup>2</sup> + 1", "3x<sup>2</sup> + π")}.<br>Both outer limits as x → −∞ equal ${f("2", "3")}. By the Squeeze Theorem, the limit is ${f("2", "3")}.`
     },
     {
         id: 7,
@@ -391,16 +419,16 @@ const questions = [
         topicName: "Intermediate Value Theorem",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Consider $f(x) = e^{-x} - \ln x$ on $[0.1, 5]$. According to the Intermediate Value Theorem (IVT), which statement is true?",
+        q: `Consider f(x) = e<sup>−x</sup> − ln x on [0.1, 5]. According to the Intermediate Value Theorem (IVT), which statement is true?`,
         options: [
-            "$f(0.1) > 0$ and $f(5) < 0$, so at least one solution exists in $[0.1, 5]$",
-            "$f(0.1) < 0$ and $f(5) > 0$, so at least one solution exists in $[0.1, 5]$",
-            "$f(0.1)$ and $f(5)$ have the same sign, so IVT is inconclusive",
-            "$f(x)$ is discontinuous on $[0.1, 5]$, so IVT does not apply"
+            `f(0.1) > 0 and f(5) < 0, so at least one solution exists in [0.1, 5]`,
+            `f(0.1) < 0 and f(5) > 0, so at least one solution exists in [0.1, 5]`,
+            `f(0.1) and f(5) have the same sign, so IVT is inconclusive`,
+            `f(x) is discontinuous on [0.1, 5], so IVT does not apply`
         ],
         correct: 0,
-        hint: "Check continuity on $[0.1, 5]$ and evaluate $f(0.1)$ and $f(5)$.",
-        explanation: "$f(x) = e^{-x} - \ln x$ is continuous on $(0, \infty)$, hence on $[0.1, 5]$.<br>$f(0.1) = e^{-0.1} - \ln(0.1) \approx 0.905 - (-2.303) = +3.208 > 0$.<br>$f(5) = e^{-5} - \ln(5) \approx 0.0067 - 1.609 = -1.602 < 0$.<br>Since $f(0.1) > 0 > f(5)$, by IVT there is at least one root in $(0.1, 5)$."
+        hint: `Check continuity on [0.1, 5] and evaluate f(0.1) and f(5).`,
+        explanation: `f(x) = e<sup>−x</sup> − ln x is continuous on (0, ∞), hence on [0.1, 5].<br>f(0.1) = e<sup>−0.1</sup> − ln(0.1) ≈ 0.905 − (−2.303) = +3.208 > 0.<br>f(5) = e<sup>−5</sup> − ln(5) ≈ 0.0067 − 1.609 = −1.602 < 0.<br>Since f(0.1) > 0 > f(5), by IVT there is at least one root in (0.1, 5).`
     },
     {
         id: 8,
@@ -408,16 +436,16 @@ const questions = [
         topicName: "Limits & Asymptotes",
         level: 3,
         levelName: "Level 3: Advanced Challenge",
-        q: "Given $f(x) = \begin{cases} \frac{6x}{x - 36}, & x < 0 \\ \frac{x^2}{x - 6}, & 0 \le x < 36 \\ \frac{e^{-x}}{x + 7}, & x \ge 36 \end{cases}$, what are the horizontal asymptote(s) (H.A.) of $f(x)$?",
+        q: `Given f(x) = <span class="piecewise"><span class="brace">{</span><span class="pw-rows"><span>${f("6x", "x − 36")}, &nbsp; x &lt; 0</span><span>${f("x<sup>2</sup>", "x − 6")}, &nbsp; 0 ≤ x &lt; 36</span><span>${f("e<sup>−x</sup>", "x + 7")}, &nbsp; x ≥ 36</span></span></span><br>What are the horizontal asymptote(s) (H.A.) of f(x)?`,
         options: [
-            "H.A. at $y = 6$ and $y = 0$",
-            "H.A. at $y = 6$ only",
-            "H.A. at $y = 0$ only",
-            "No horizontal asymptotes"
+            `H.A. at y = 6 and y = 0`,
+            `H.A. at y = 6 only`,
+            `H.A. at y = 0 only`,
+            `No horizontal asymptotes`
         ],
         correct: 0,
-        hint: "Evaluate $\lim_{x \to -\infty} f(x)$ using the first branch ($x < 0$) and $\lim_{x \to +\infty} f(x)$ using the third branch ($x \ge 36$).",
-        explanation: "As $x \to -\infty$ ($x < 0$): $\lim_{x \to -\infty} \frac{6x}{x - 36} = 6 \implies y = 6$ is a H.A.<br>As $x \to +\infty$ ($x \ge 36$): $\lim_{x \to +\infty} \frac{e^{-x}}{x + 7} = \frac{0}{\infty} = 0 \implies y = 0$ is a H.A."
+        hint: `Evaluate ${lim("−∞")} f(x) using the first branch (x < 0) and ${lim("+∞")} f(x) using the third branch (x ≥ 36).`,
+        explanation: `As x → −∞ (x < 0): ${lim("−∞")} ${f("6x", "x − 36")} = 6 ⇒ y = 6 is a H.A.<br>As x → +∞ (x ≥ 36): ${lim("+∞")} ${f("e<sup>−x</sup>", "x + 7")} = 0 ⇒ y = 0 is a H.A.`
     },
     {
         id: 9,
@@ -425,16 +453,16 @@ const questions = [
         topicName: "Limits & Asymptotes",
         level: 3,
         levelName: "Level 3: Advanced Challenge",
-        q: "For the same piecewise function $f(x) = \begin{cases} \frac{6x}{x - 36}, & x < 0 \\ \frac{x^2}{x - 6}, & 0 \le x < 36 \\ \frac{e^{-x}}{x + 7}, & x \ge 36 \end{cases}$, where is the vertical asymptote (V.A.) located?",
+        q: `For the piecewise function f(x) = <span class="piecewise"><span class="brace">{</span><span class="pw-rows"><span>${f("6x", "x − 36")}, &nbsp; x &lt; 0</span><span>${f("x<sup>2</sup>", "x − 6")}, &nbsp; 0 ≤ x &lt; 36</span><span>${f("e<sup>−x</sup>", "x + 7")}, &nbsp; x ≥ 36</span></span></span><br>Where is the vertical asymptote (V.A.) located?`,
         options: [
-            "Vertical asymptote at $x = 6$",
-            "Vertical asymptotes at $x = -7, 6, 36$",
-            "Vertical asymptotes at $x = -36, -6, 7$",
-            "No vertical asymptotes"
+            `Vertical asymptote at x = 6`,
+            `Vertical asymptotes at x = −7, 6, 36`,
+            `Vertical asymptotes at x = −36, −6, 7`,
+            `No vertical asymptotes`
         ],
         correct: 0,
-        hint: "Check where each denominator equals zero AND lies within its respective domain interval.",
-        explanation: "1. Branch 1 ($x < 0$): $x - 36 = 0 \implies x = 36$, which is NOT in $x < 0$.<br>2. Branch 2 ($0 \le x < 36$): $x - 6 = 0 \implies x = 6$, which IS in $[0, 36)$ and $\lim_{x \to 6^\pm} \frac{x^2}{x-6} = \pm\infty$.<br>3. Branch 3 ($x \ge 36$): $x + 7 = 0 \implies x = -7$, which is NOT in $x \ge 36$.<br>Thus, the only V.A. is at $x = 6$."
+        hint: `Check where each denominator equals zero AND lies within its respective domain interval.`,
+        explanation: `1. Branch 1 (x < 0): x − 36 = 0 ⇒ x = 36 (NOT in x < 0).<br>2. Branch 2 (0 ≤ x < 36): x − 6 = 0 ⇒ x = 6 (IN [0, 36), and limit is ±∞).<br>3. Branch 3 (x ≥ 36): x + 7 = 0 ⇒ x = −7 (NOT in x ≥ 36).<br>Thus, the only V.A. is at x = 6.`
     },
     {
         id: 10,
@@ -442,16 +470,16 @@ const questions = [
         topicName: "Derivatives & Tangents",
         level: 3,
         levelName: "Level 3: Advanced Challenge",
-        q: "Using logarithmic differentiation, find $\frac{dy}{dx}$ for:<br>$$y = \sqrt[3]{\frac{x^2 - \sin x}{(x + 1)^2}}$$",
+        q: `Using logarithmic differentiation, find ${f("dy", "dx")} for:<div class="math-expr">y = <sup>3</sup>${sq(f("x<sup>2</sup> − sin x", "(x + 1)<sup>2</sup>"))}</div>`,
         options: [
-            "$\frac{1}{3} y \left( \frac{2x - \cos x}{x^2 - \sin x} - \frac{2}{x + 1} \right)$",
-            "$\frac{1}{3} y \left( \frac{2x + \cos x}{x^2 - \sin x} + \frac{2}{x + 1} \right)$",
-            "$y \left( \frac{2x - \cos x}{3(x^2 - \sin x)} - \frac{2}{x + 1} \right)$",
-            "$\frac{2x - \cos x}{3(x + 1)^2}$"
+            `${f("1", "3")} y ( ${f("2x − cos x", "x<sup>2</sup> − sin x")} − ${f("2", "x + 1")} )`,
+            `${f("1", "3")} y ( ${f("2x + cos x", "x<sup>2</sup> − sin x")} + ${f("2", "x + 1")} )`,
+            `y ( ${f("2x − cos x", "3(x<sup>2</sup> − sin x)")} − ${f("2", "x + 1")} )`,
+            `${f("2x − cos x", "3(x + 1)<sup>2</sup>")}`
         ],
         correct: 0,
-        hint: "Write $\ln y = \frac{1}{3}\ln(x^2 - \sin x) - \frac{2}{3}\ln(x + 1)$ before differentiating.",
-        explanation: "$\ln y = \frac{1}{3}\left[\ln(x^2 - \sin x) - 2\ln(x + 1)\right]$.<br>Differentiating with respect to $x$:<br>$$\frac{y'}{y} = \frac{1}{3}\left(\frac{2x - \cos x}{x^2 - \sin x} - \frac{2}{x + 1}\right) \implies \frac{dy}{dx} = \frac{1}{3}y\left(\frac{2x - \cos x}{x^2 - \sin x} - \frac{2}{x + 1}\right)$$"
+        hint: `Write ln y = ${f("1", "3")} ln(x<sup>2</sup> − sin x) − ${f("2", "3")} ln(x + 1) before differentiating.`,
+        explanation: `ln y = ${f("1", "3")}[ln(x<sup>2</sup> − sin x) − 2 ln(x + 1)].<br>Differentiating with respect to x:<br>${f("y'", "y")} = ${f("1", "3")}(${f("2x − cos x", "x<sup>2</sup> − sin x")} − ${f("2", "x + 1")}) ⇒ ${f("dy", "dx")} = ${f("1", "3")}y(${f("2x − cos x", "x<sup>2</sup> − sin x")} − ${f("2", "x + 1")}).`
     },
     {
         id: 11,
@@ -459,16 +487,16 @@ const questions = [
         topicName: "Derivatives & Tangents",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Find $\frac{dy}{dx}$ for $y = (\ln x)^{\tan x}$.",
+        q: `Find ${f("dy", "dx")} for y = (ln x)<sup>tan x</sup>.`,
         options: [
-            "$(\ln x)^{\tan x} \left( \sec^2 x \ln(\ln x) + \frac{\tan x}{x\ln x} \right)$",
-            "$(\ln x)^{\tan x} \left( \sec^2 x \ln(\ln x) + \frac{\tan x}{x} \right)$",
-            "$\tan x (\ln x)^{\tan x - 1} \cdot \frac{1}{x}$",
-            "$(\ln x)^{\tan x} \sec^2 x \cdot \frac{1}{x\ln x}$"
+            `(ln x)<sup>tan x</sup> ( sec<sup>2</sup>x ln(ln x) + ${f("tan x", "x ln x")} )`,
+            `(ln x)<sup>tan x</sup> ( sec<sup>2</sup>x ln(ln x) + ${f("tan x", "x")} )`,
+            `tan x (ln x)<sup>tan x − 1</sup> · ${f("1", "x")}`,
+            `(ln x)<sup>tan x</sup> sec<sup>2</sup>x · ${f("1", "x ln x")}`
         ],
         correct: 0,
-        hint: "Take $\ln y = \tan x \cdot \ln(\ln x)$ and use the Product Rule and Chain Rule.",
-        explanation: "$\ln y = \tan x \ln(\ln x) \implies \frac{y'}{y} = \sec^2 x \ln(\ln x) + \tan x \cdot \frac{1/x}{\ln x}$.<br>Multiply by $y = (\ln x)^{\tan x}$ to get $(\ln x)^{\tan x}\left(\sec^2 x \ln(\ln x) + \frac{\tan x}{x\ln x}\right)$."
+        hint: `Take ln y = tan x · ln(ln x) and use the Product Rule and Chain Rule.`,
+        explanation: `ln y = tan x ln(ln x) ⇒ ${f("y'", "y")} = sec<sup>2</sup>x ln(ln x) + tan x · ${f("1/x", "ln x")}.<br>Multiply by y = (ln x)<sup>tan x</sup> to get (ln x)<sup>tan x</sup>(sec<sup>2</sup>x ln(ln x) + ${f("tan x", "x ln x")}).`
     },
     {
         id: 12,
@@ -476,16 +504,11 @@ const questions = [
         topicName: "Limits & Asymptotes",
         level: 1,
         levelName: "Level 1: Fundamental",
-        q: "Evaluate the limit:<br>$$\lim_{x \to 2} \frac{x^3 + x^2 - 6x}{x^2 - 4}$$",
-        options: [
-            "$\frac{5}{2}$",
-            "$\frac{3}{2}$",
-            "$5$",
-            "Does not exist"
-        ],
+        q: `Evaluate the limit:<div class="math-expr">${lim("2")} ${f("x<sup>3</sup> + x<sup>2</sup> − 6x", "x<sup>2</sup> − 4")}</div>`,
+        options: [`${f("5", "2")}`, `${f("3", "2")}`, `5`, `Does not exist`],
         correct: 0,
-        hint: "Factor $x(x - 2)(x + 3)$ in the numerator and $(x - 2)(x + 2)$ in the denominator.",
-        explanation: "$$\lim_{x \to 2} \frac{x(x^2 + x - 6)}{(x - 2)(x + 2)} = \lim_{x \to 2} \frac{x(x - 2)(x + 3)}{(x - 2)(x + 2)} = \frac{2(5)}{4} = \frac{5}{2}$$"
+        hint: `Factor x(x − 2)(x + 3) in the numerator and (x − 2)(x + 2) in the denominator.`,
+        explanation: `${lim("2")} ${f("x(x<sup>2</sup> + x − 6)", "(x − 2)(x + 2)")} = ${lim("2")} ${f("x(x − 2)(x + 3)", "(x − 2)(x + 2)")} = ${f("2(5)", "4")} = ${f("5", "2")}.`
     },
     {
         id: 13,
@@ -493,16 +516,16 @@ const questions = [
         topicName: "Limits & Continuity",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Find all value(s) of $x$ at which $f(x) = \begin{cases} \frac{2x + 1}{|x| - 3}, & x > 2 \\ 3x + \frac{1}{x}, & x \le 2 \end{cases}$ is NOT continuous.",
+        q: `Find all value(s) of x at which f(x) = <span class="piecewise"><span class="brace">{</span><span class="pw-rows"><span>${f("2x + 1", "|x| − 3")}, &nbsp; x &gt; 2</span><span>3x + ${f("1", "x")}, &nbsp; x ≤ 2</span></span></span> is NOT continuous.`,
         options: [
-            "$x = 0, 2, 3$",
-            "$x = 2, 3$ only",
-            "$x = 0, 3$ only",
-            "$x = -3, 0, 2, 3$"
+            `x = 0, 2, 3`,
+            `x = 2, 3 only`,
+            `x = 0, 3 only`,
+            `x = −3, 0, 2, 3`
         ],
         correct: 0,
-        hint: "Check points where each piece is undefined within its domain, and check continuity at the boundary $x = 2$.",
-        explanation: "1. For $x \le 2$: $\frac{1}{x}$ is undefined at $x = 0$ (which satisfies $0 \le 2$).<br>2. For $x > 2$: $|x| - 3 = 0 \implies x = 3$ (which satisfies $3 > 2$; $x = -3$ is outside $x > 2$).<br>3. At $x = 2$: $\lim_{x \to 2^-} f(x) = 6 + \frac{1}{2} = 6.5$, while $\lim_{x \to 2^+} f(x) = \frac{5}{-1} = -5$. Thus discontinuous at $x = 2$.<br>Discontinuities: $x = 0, 2, 3$."
+        hint: `Check points where each piece is undefined within its domain, and check continuity at the boundary x = 2.`,
+        explanation: `1. For x ≤ 2: ${f("1", "x")} is undefined at x = 0 (which satisfies 0 ≤ 2).<br>2. For x > 2: |x| − 3 = 0 ⇒ x = 3 (satisfies 3 > 2; x = −3 is outside x > 2).<br>3. At x = 2: ${lim("2<sup>−</sup>")} f(x) = 6 + 0.5 = 6.5, while ${lim("2<sup>+</sup>")} f(x) = ${f("5", "−1")} = −5. Discontinuous at x = 2.<br>Discontinuities: x = 0, 2, 3.`
     },
     {
         id: 14,
@@ -510,16 +533,16 @@ const questions = [
         topicName: "Derivatives & Tangents",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Find $\frac{dy}{dx}$ implicitly if $x \tan(y) = y$.",
+        q: `Find ${f("dy", "dx")} implicitly if x tan(y) = y.`,
         options: [
-            "$\frac{\tan y}{1 - x\sec^2 y}$",
-            "$\frac{\tan y}{x\sec^2 y - 1}$",
-            "$\frac{1 - \tan y}{x\sec^2 y}$",
-            "$\frac{\sec^2 y}{1 - x\tan y}$"
+            `${f("tan y", "1 − x sec<sup>2</sup>y")}`,
+            `${f("tan y", "x sec<sup>2</sup>y − 1")}`,
+            `${f("1 − tan y", "x sec<sup>2</sup>y")}`,
+            `${f("sec<sup>2</sup>y", "1 − x tan y")}`
         ],
         correct: 0,
-        hint: "Differentiate both sides with respect to $x$ using the Product Rule on $x \tan(y)$.",
-        explanation: "$1 \cdot \tan y + x \sec^2 y \frac{dy}{dx} = \frac{dy}{dx} \implies \tan y = \frac{dy}{dx}(1 - x\sec^2 y) \implies \frac{dy}{dx} = \frac{\tan y}{1 - x\sec^2 y}$."
+        hint: `Differentiate both sides with respect to x using the Product Rule on x tan(y).`,
+        explanation: `1 · tan y + x sec<sup>2</sup>y ${f("dy", "dx")} = ${f("dy", "dx")} ⇒ tan y = ${f("dy", "dx")}(1 − x sec<sup>2</sup>y) ⇒ ${f("dy", "dx")} = ${f("tan y", "1 − x sec<sup>2</sup>y")}.`
     },
     {
         id: 15,
@@ -527,16 +550,16 @@ const questions = [
         topicName: "Derivatives & Tangents",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Find $\frac{dy}{dx}$ if $y = \sin^{-1}(3^x)$.",
+        q: `Find ${f("dy", "dx")} if y = sin<sup>−1</sup>(3<sup>x</sup>).`,
         options: [
-            "$\frac{3^x \ln 3}{\sqrt{1 - 9^x}}$",
-            "$\frac{3^x}{\sqrt{1 - 9^x}}$",
-            "$\frac{3^x \ln 3}{1 + 9^x}$",
-            "$\frac{x \cdot 3^{x-1}}{\sqrt{1 - 3^x}}$"
+            `${f("3<sup>x</sup> ln 3", sq("1 − 9<sup>x</sup>"))}`,
+            `${f("3<sup>x</sup>", sq("1 − 9<sup>x</sup>"))}`,
+            `${f("3<sup>x</sup> ln 3", "1 + 9<sup>x</sup>")}`,
+            `${f("x · 3<sup>x−1</sup>", sq("1 − 3<sup>x</sup>"))}`
         ],
         correct: 0,
-        hint: "Use $\frac{d}{dx}[\sin^{-1}(u)] = \frac{u'}{\sqrt{1 - u^2}}$ with $u = 3^x$.",
-        explanation: "$u = 3^x \implies u' = 3^x \ln 3$ and $u^2 = (3^x)^2 = 9^x$.<br>Therefore, $\frac{dy}{dx} = \frac{3^x \ln 3}{\sqrt{1 - 9^x}}$."
+        hint: `Use ${f("d", "dx")}[sin<sup>−1</sup>(u)] = ${f("u'", sq("1 − u<sup>2</sup>"))} with u = 3<sup>x</sup>.`,
+        explanation: `u = 3<sup>x</sup> ⇒ u' = 3<sup>x</sup> ln 3 and u<sup>2</sup> = (3<sup>x</sup>)<sup>2</sup> = 9<sup>x</sup>.<br>Therefore, ${f("dy", "dx")} = ${f("3<sup>x</sup> ln 3", sq("1 − 9<sup>x</sup>"))}.`
     },
     {
         id: 16,
@@ -544,16 +567,16 @@ const questions = [
         topicName: "Limits & Continuity",
         level: 3,
         levelName: "Level 3: Advanced Challenge",
-        q: "Determine the values of $a$ and $b$ that make $f(x)$ continuous everywhere:<br>$$f(x) = \begin{cases} a\cos(6x) + \frac{x^2}{1 - \cos^2 x}, & x < 0 \\ \sin\left(\frac{\pi}{2^x}\right), & 0 \le x \le 2 \\ x^3 - \frac{\tan(x - 2)}{x - 2} + b, & x > 2 \end{cases}$$",
+        q: `Determine the values of a and b that make f(x) continuous everywhere:<div class="math-expr">f(x) = <span class="piecewise"><span class="brace">{</span><span class="pw-rows"><span>a cos(6x) + ${f("x<sup>2</sup>", "1 − cos<sup>2</sup>x")}, &nbsp; x &lt; 0</span><span>sin(${f("π", "2<sup>x</sup>")}), &nbsp; 0 ≤ x ≤ 2</span><span>x<sup>3</sup> − ${f("tan(x − 2)", "x − 2")} + b, &nbsp; x &gt; 2</span></span></span></div>`,
         options: [
-            "$a = 0, \quad b = -\frac{14 - \sqrt{2}}{2}$",
-            "$a = 1, \quad b = -6$",
-            "$a = -1, \quad b = 7$",
-            "$a = 0, \quad b = 7$"
+            `a = −1, &nbsp; b = ${f(sq("2") + " − 14", "2")}`,
+            `a = 1, &nbsp; b = −6`,
+            `a = −1, &nbsp; b = 7`,
+            `a = 0, &nbsp; b = 7`
         ],
         correct: 0,
-        hint: "Note that $1 - \cos^2 x = \sin^2 x$, so $\lim_{x \to 0^-} \frac{x^2}{\sin^2 x} = 1$. Also $\sin(\pi/2^0) = \sin(\pi) = 0$.",
-        explanation: "1. At $x = 0$: $\lim_{x \to 0^-} \left(a\cos 6x + \frac{x^2}{\sin^2 x}\right) = a(1) + 1 = a + 1$.<br>$f(0) = \sin(\pi / 1) = \sin(\pi) = 0 \implies a + 1 = 0 \implies a = -1$. *(Wait: let's check $f(2) = \sin(\pi / 4) = \frac{\sqrt{2}}{2}$, and $\lim_{x \to 2^+} f(x) = 8 - 1 + b = 7 + b \implies b = \frac{\sqrt{2}}{2} - 7 = -\frac{14 - \sqrt{2}}{2}$)*."
+        hint: `Note that 1 − cos<sup>2</sup>x = sin<sup>2</sup>x, so ${lim("0<sup>−</sup>")} ${f("x<sup>2</sup>", "sin<sup>2</sup>x")} = 1. Also sin(π/2<sup>0</sup>) = sin(π) = 0.`,
+        explanation: `1. At x = 0: ${lim("0<sup>−</sup>")} (a cos 6x + ${f("x<sup>2</sup>", "sin<sup>2</sup>x")}) = a(1) + 1 = a + 1. Since f(0) = sin(π) = 0, a + 1 = 0 ⇒ a = −1.<br>2. At x = 2: f(2) = sin(π/4) = ${f(sq("2"), "2")}, and ${lim("2<sup>+</sup>")} f(x) = 8 − 1 + b = 7 + b ⇒ b = ${f(sq("2"), "2")} − 7 = ${f(sq("2") + " − 14", "2")}.`
     },
     {
         id: 17,
@@ -561,16 +584,16 @@ const questions = [
         topicName: "Derivatives & Tangents",
         level: 1,
         levelName: "Level 1: Fundamental",
-        q: "If $y(x) = \tan(2^x)$, then $\frac{dy}{dx} =$",
+        q: `If y(x) = tan(2<sup>x</sup>), then ${f("dy", "dx")} =`,
         options: [
-            "$\sec^2(2^x) \cdot 2^x \ln(2)$",
-            "$\sec^2(2^x) \cdot (x \cdot 2^{x-1})$",
-            "$\tan(2^x) \cdot 2^x \ln(2)$",
-            "$\sec^2(2^x)$"
+            `sec<sup>2</sup>(2<sup>x</sup>) · 2<sup>x</sup> ln(2)`,
+            `sec<sup>2</sup>(2<sup>x</sup>) · (x · 2<sup>x−1</sup>)`,
+            `tan(2<sup>x</sup>) · 2<sup>x</sup> ln(2)`,
+            `sec<sup>2</sup>(2<sup>x</sup>)`
         ],
         correct: 0,
-        hint: "Apply the Chain Rule: derivative of $\tan(u)$ is $\sec^2(u) \cdot u'$, where $u = 2^x$.",
-        explanation: "$\frac{dy}{dx} = \sec^2(2^x) \cdot \frac{d}{dx}(2^x) = \sec^2(2^x) \cdot 2^x \ln(2)$."
+        hint: `Apply the Chain Rule: derivative of tan(u) is sec<sup>2</sup>(u) · u', where u = 2<sup>x</sup>.`,
+        explanation: `${f("dy", "dx")} = sec<sup>2</sup>(2<sup>x</sup>) · ${f("d", "dx")}(2<sup>x</sup>) = sec<sup>2</sup>(2<sup>x</sup>) · 2<sup>x</sup> ln(2).`
     },
     {
         id: 18,
@@ -578,16 +601,11 @@ const questions = [
         topicName: "Derivatives & Tangents",
         level: 1,
         levelName: "Level 1: Fundamental",
-        q: "If $u(t) = t^2 + \sqrt{t}$, what is $u'(4)$?",
-        options: [
-            "$\frac{33}{4}$",
-            "$14$",
-            "$18$",
-            "$\frac{17}{4}$"
-        ],
+        q: `If u(t) = t<sup>2</sup> + ${sq("t")}, what is u'(4)?`,
+        options: [`${f("33", "4")}`, `14`, `18`, `${f("17", "4")}`],
         correct: 0,
-        hint: "Differentiate $u'(t) = 2t + \frac{1}{2\sqrt{t}}$ and substitute $t = 4$.",
-        explanation: "$u'(t) = 2t + \frac{1}{2\sqrt{t}} \implies u'(4) = 2(4) + \frac{1}{2\sqrt{4}} = 8 + \frac{1}{4} = \frac{33}{4}$."
+        hint: `Differentiate u'(t) = 2t + ${f("1", "2" + sq("t"))} and substitute t = 4.`,
+        explanation: `u'(t) = 2t + ${f("1", "2" + sq("t"))} ⇒ u'(4) = 2(4) + ${f("1", "2" + sq("4"))} = 8 + ${f("1", "4")} = ${f("33", "4")}.`
     },
     {
         id: 19,
@@ -595,16 +613,11 @@ const questions = [
         topicName: "Derivatives & Tangents",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Find the slope of the tangent line to the curve $\sin y - \cos x = 2x + 3y - 1$ at $(0, 0)$.",
-        options: [
-            "$-1$",
-            "$1$",
-            "$-\frac{2}{3}$",
-            "$0$"
-        ],
+        q: `Find the slope of the tangent line to the curve sin y − cos x = 2x + 3y − 1 at (0, 0).`,
+        options: [`−1`, `1`, `−${f("2", "3")}`, `0`],
         correct: 0,
-        hint: "Differentiate implicitly with respect to $x$, then substitute $x = 0$ and $y = 0$.",
-        explanation: "$\cos y \cdot y' + \sin x = 2 + 3y'$.<br>At $(0, 0)$: $\cos(0) y' + \sin(0) = 2 + 3y' \implies y' = 2 + 3y' \implies -2y' = 2 \implies y' = -1$."
+        hint: `Differentiate implicitly with respect to x, then substitute x = 0 and y = 0.`,
+        explanation: `cos y · y' + sin x = 2 + 3y'.<br>At (0, 0): cos(0) y' + sin(0) = 2 + 3y' ⇒ y' = 2 + 3y' ⇒ −2y' = 2 ⇒ y' = −1.`
     },
     {
         id: 20,
@@ -612,16 +625,11 @@ const questions = [
         topicName: "Limits & Continuity",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Evaluate:<br>$$\lim_{x \to 0} \frac{\cos x - \cos(2x)}{x^2}$$",
-        options: [
-            "$1.5$",
-            "$0$",
-            "$\infty$",
-            "$\frac{3\pi}{2}$"
-        ],
+        q: `Evaluate:<div class="math-expr">${lim("0")} ${f("cos x − cos(2x)", "x<sup>2</sup>")}</div>`,
+        options: [`1.5`, `0`, `∞`, `${f("3π", "2")}`],
         correct: 0,
-        hint: "Apply L'Hôpital's Rule twice (since the form is $\frac{0}{0}$).",
-        explanation: "1st L'Hôpital: $\lim_{x \to 0} \frac{-\sin x + 2\sin(2x)}{2x}$ (still $\frac{0}{0}$).<br>2nd L'Hôpital: $\lim_{x \to 0} \frac{-\cos x + 4\cos(2x)}{2} = \frac{-1 + 4}{2} = \frac{3}{2} = 1.5$."
+        hint: `Apply L'Hôpital's Rule twice (since the form is 0/0).`,
+        explanation: `1st L'Hôpital: ${lim("0")} ${f("−sin x + 2 sin(2x)", "2x")} (still 0/0).<br>2nd L'Hôpital: ${lim("0")} ${f("−cos x + 4 cos(2x)", "2")} = ${f("−1 + 4", "2")} = ${f("3", "2")} = 1.5.`
     },
     {
         id: 21,
@@ -629,16 +637,16 @@ const questions = [
         topicName: "Functions, Domain & Inverse",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Find the domain of $g(x) = \frac{5}{2\cosh(x) - 1}$.",
+        q: `Find the domain of g(x) = ${f("5", "2 cosh(x) − 1")}.`,
         options: [
-            "$\mathbb{R}$",
-            "$\mathbb{R} - \{\frac{1}{2}\}$",
-            "$\mathbb{R} - \{\cosh(x)\}$",
-            "$[0, \infty)$"
+            `ℝ (All real numbers)`,
+            `ℝ − {${f("1", "2")}}`,
+            `ℝ − {cosh(x)}`,
+            `[0, ∞)`
         ],
         correct: 0,
-        hint: "Recall that $\cosh(x) \ge 1$ for all real numbers $x$. Can $2\cosh(x) - 1$ ever be zero?",
-        explanation: "Since $\cosh(x) \ge 1$ for all $x \in \mathbb{R}$, we have $2\cosh(x) - 1 \ge 2(1) - 1 = 1 > 0$. The denominator is never zero, so the domain is $\mathbb{R}$."
+        hint: `Recall that cosh(x) ≥ 1 for all real numbers x. Can 2 cosh(x) − 1 ever be zero?`,
+        explanation: `Since cosh(x) ≥ 1 for all x ∈ ℝ, we have 2 cosh(x) − 1 ≥ 2(1) − 1 = 1 > 0. The denominator is never zero, so the domain is ℝ.`
     },
     {
         id: 22,
@@ -646,16 +654,16 @@ const questions = [
         topicName: "Functions, Domain & Inverse",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Simplify the value of $\tanh(\ln x)$ for $x > 0$:",
+        q: `Simplify the value of tanh(ln x) for x > 0:`,
         options: [
-            "$\frac{x^2 - 1}{x^2 + 1}$",
-            "$\frac{x - 1}{x + 1}$",
-            "$\frac{x^2 + 1}{x^2 - 1}$",
-            "$\frac{x + 1}{x - 1}$"
+            `${f("x<sup>2</sup> − 1", "x<sup>2</sup> + 1")}`,
+            `${f("x − 1", "x + 1")}`,
+            `${f("x<sup>2</sup> + 1", "x<sup>2</sup> − 1")}`,
+            `${f("x + 1", "x − 1")}`
         ],
         correct: 0,
-        hint: "Use the exponential definition $\tanh(u) = \frac{e^u - e^{-u}}{e^u + e^{-u}}$ with $u = \ln x$.",
-        explanation: "$$\tanh(\ln x) = \frac{e^{\ln x} - e^{-\ln x}}{e^{\ln x} + e^{-\ln x}} = \frac{x - \frac{1}{x}}{x + \frac{1}{x}} = \frac{x^2 - 1}{x^2 + 1}$$"
+        hint: `Use the exponential definition tanh(u) = ${f("e<sup>u</sup> − e<sup>−u</sup>", "e<sup>u</sup> + e<sup>−u</sup>")} with u = ln x.`,
+        explanation: `tanh(ln x) = ${f("e<sup>ln x</sup> − e<sup>−ln x</sup>", "e<sup>ln x</sup> + e<sup>−ln x</sup>")} = ${f("x − 1/x", "x + 1/x")} = ${f("x<sup>2</sup> − 1", "x<sup>2</sup> + 1")}.`
     },
     {
         id: 23,
@@ -663,16 +671,11 @@ const questions = [
         topicName: "Limits & Continuity",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Evaluate:<br>$$\lim_{x \to 0} \frac{\tan^{-1}(4x)}{\sin^{-1}(2x)}$$",
-        options: [
-            "$2$",
-            "$\frac{1}{2}$",
-            "$4$",
-            "$0$"
-        ],
+        q: `Evaluate:<div class="math-expr">${lim("0")} ${f("tan<sup>−1</sup>(4x)", "sin<sup>−1</sup>(2x)")}</div>`,
+        options: [`2`, `${f("1", "2")}`, `4`, `0`],
         correct: 0,
-        hint: "Use L'Hôpital's Rule or the standard small-angle limits $\lim_{u \to 0} \frac{\tan^{-1} u}{u} = 1$ and $\lim_{u \to 0} \frac{\sin^{-1} u}{u} = 1$.",
-        explanation: "By L'Hôpital's Rule (form $\frac{0}{0}$):<br>$$\lim_{x \to 0} \frac{\frac{4}{1 + 16x^2}}{\frac{2}{\sqrt{1 - 4x^2}}} = \frac{4/1}{2/1} = 2$$"
+        hint: `Use L'Hôpital's Rule or the standard small-angle limits ${lim("0")} ${f("tan<sup>−1</sup> u", "u")} = 1 and ${lim("0")} ${f("sin<sup>−1</sup> u", "u")} = 1.`,
+        explanation: `By L'Hôpital's Rule (form 0/0):<br>${lim("0")} ${f("4 / (1 + 16x<sup>2</sup>)", "2 / " + sq("1 − 4x<sup>2</sup>"))} = ${f("4 / 1", "2 / 1")} = 2.`
     },
     {
         id: 24,
@@ -680,16 +683,16 @@ const questions = [
         topicName: "Functions, Domain & Inverse",
         level: 1,
         levelName: "Level 1: Fundamental",
-        q: "Which formula represents a rational function with vertical asymptotes $x = 1$ and $x = 3$, and horizontal asymptote $y = 1$?",
+        q: `Which formula represents a rational function with vertical asymptotes x = 1 and x = 3, and horizontal asymptote y = 1?`,
         options: [
-            "$f(x) = \frac{x^2}{(x - 1)(x - 3)}$",
-            "$f(x) = \frac{x - 1}{(x - 1)(x - 3)}$",
-            "$f(x) = \frac{x}{(x - 1)(x - 3)}$",
-            "$f(x) = \frac{2x^2}{(x + 1)(x + 3)}$"
+            `f(x) = ${f("x<sup>2</sup>", "(x − 1)(x − 3)")}`,
+            `f(x) = ${f("x − 1", "(x − 1)(x − 3)")}`,
+            `f(x) = ${f("x", "(x − 1)(x − 3)")}`,
+            `f(x) = ${f("2x<sup>2</sup>", "(x + 1)(x + 3)")}`
         ],
         correct: 0,
-        hint: "The denominator needs factors $(x - 1)(x - 3)$ without cancellation, and the numerator must have the same degree (2) with leading coefficient 1.",
-        explanation: "For V.A. at $x = 1, 3$, the denominator must be $(x - 1)(x - 3)$ and neither factor can cancel with the numerator. For H.A. at $y = 1$, the ratio of leading coefficients must be $1$. Only $\frac{x^2}{(x-1)(x-3)}$ satisfies all conditions."
+        hint: `The denominator needs factors (x − 1)(x − 3) without cancellation, and the numerator must have degree 2 with leading coefficient 1.`,
+        explanation: `For V.A. at x = 1, 3, the denominator must be (x − 1)(x − 3) and neither factor can cancel with the numerator. For H.A. at y = 1, the ratio of leading coefficients must be 1. Only ${f("x<sup>2</sup>", "(x − 1)(x − 3)")} satisfies all conditions.`
     },
     {
         id: 25,
@@ -697,16 +700,16 @@ const questions = [
         topicName: "Derivatives & Tangents",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Find the derivative $f'(x)$ of $f(x) = x^4 \cdot 7^x$.",
+        q: `Find the derivative f'(x) of f(x) = x<sup>4</sup> · 7<sup>x</sup>.`,
         options: [
-            "$x^3 \cdot 7^x (4 + x\ln 7)$",
-            "$4x^3 \cdot 7^x \ln 7$",
-            "$x^4 \cdot 7^x \ln 7 + 4x^3$",
-            "$x^3 \cdot 7^{x-1} (4 + 7x)$"
+            `x<sup>3</sup> · 7<sup>x</sup> (4 + x ln 7)`,
+            `4x<sup>3</sup> · 7<sup>x</sup> ln 7`,
+            `x<sup>4</sup> · 7<sup>x</sup> ln 7 + 4x<sup>3</sup>`,
+            `x<sup>3</sup> · 7<sup>x−1</sup> (4 + 7x)`
         ],
         correct: 0,
-        hint: "Apply the Product Rule: $(x^4)' \cdot 7^x + x^4 \cdot (7^x)'$.",
-        explanation: "$f'(x) = 4x^3 \cdot 7^x + x^4 \cdot 7^x \ln 7 = x^3 \cdot 7^x (4 + x\ln 7)$."
+        hint: `Apply the Product Rule: (x<sup>4</sup>)' · 7<sup>x</sup> + x<sup>4</sup> · (7<sup>x</sup>)'.`,
+        explanation: `f'(x) = 4x<sup>3</sup> · 7<sup>x</sup> + x<sup>4</sup> · 7<sup>x</sup> ln 7 = x<sup>3</sup> · 7<sup>x</sup> (4 + x ln 7).`
     },
     {
         id: 26,
@@ -714,16 +717,16 @@ const questions = [
         topicName: "Extrema & Concavity",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "If $f'(x) = x(x - 1)(x + 2)(x^2 + 4)$, at which values of $x$ does $f(x)$ have a local maximum and local minimum respectively?",
+        q: `If f'(x) = x(x − 1)(x + 2)(x<sup>2</sup> + 4), at which values of x does f(x) have a local maximum and local minimum respectively?`,
         options: [
-            "Local maximum at $x = 0$; local minima at $x = -2$ and $x = 1$",
-            "Local minimum at $x = 0$; local maxima at $x = -2$ and $x = 1$",
-            "Local maximum at $x = 1$; local minimum at $x = -2$",
-            "Local maximum at $x = -2$; local minimum at $x = 1$"
+            `Local maximum at x = 0; local minima at x = −2 and x = 1`,
+            `Local minimum at x = 0; local maxima at x = −2 and x = 1`,
+            `Local maximum at x = 1; local minimum at x = −2`,
+            `Local maximum at x = −2; local minimum at x = 1`
         ],
         correct: 0,
-        hint: "Note that $x^2 + 4 > 0$ always. Test the sign of $f'(x)$ on the intervals $(-\infty, -2)$, $(-2, 0)$, $(0, 1)$, and $(1, \infty)$.",
-        explanation: "Critical points: $x = -2, 0, 1$.<br>Signs of $f'(x)$:<br>• $x < -2$: $(-)(-)(-)(+) = (-)$ (decreasing)<br>• $-2 < x < 0$: $(-)(-)(+)(+) = (+)$ (increasing) $\implies$ local min at $x = -2$.<br>• $0 < x < 1$: $(+)(-)(+)(+) = (-)$ (decreasing) $\implies$ local max at $x = 0$.<br>• $x > 1$: $(+)(+)(+)(+) = (+)$ (increasing) $\implies$ local min at $x = 1$."
+        hint: `Note that x<sup>2</sup> + 4 > 0 always. Test the sign of f'(x) on (−∞, −2), (−2, 0), (0, 1), and (1, ∞).`,
+        explanation: `Critical points: x = −2, 0, 1.<br>Signs of f'(x):<br>• x < −2: (−)(−)(−)(+) = (−) (decreasing)<br>• −2 < x < 0: (−)(−)(+)(+) = (+) (increasing) ⇒ local min at x = −2.<br>• 0 < x < 1: (+)(−)(+)(+) = (−) (decreasing) ⇒ local max at x = 0.<br>• x > 1: (+)(+)(+)(+) = (+) (increasing) ⇒ local min at x = 1.`
     },
     {
         id: 27,
@@ -731,16 +734,11 @@ const questions = [
         topicName: "Limits & Continuity",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Evaluate:<br>$$\lim_{x \to 0} \frac{\sin^{-1}(2x)}{x}$$",
-        options: [
-            "$2$",
-            "$\frac{1}{2}$",
-            "$1$",
-            "$0$"
-        ],
+        q: `Evaluate:<div class="math-expr">${lim("0")} ${f("sin<sup>−1</sup>(2x)", "x")}</div>`,
+        options: [`2`, `${f("1", "2")}`, `1`, `0`],
         correct: 0,
-        hint: "Apply L'Hôpital's Rule or let $u = \sin^{-1}(2x)$ so $x = \frac{\sin u}{2}$.",
-        explanation: "Using L'Hôpital's Rule (form $\frac{0}{0}$):<br>$$\lim_{x \to 0} \frac{\frac{2}{\sqrt{1 - 4x^2}}}{1} = \frac{2}{1} = 2$$"
+        hint: `Apply L'Hôpital's Rule or let u = sin<sup>−1</sup>(2x) so x = ${f("sin u", "2")}.`,
+        explanation: `Using L'Hôpital's Rule (form 0/0):<br>${lim("0")} ${f("2 / " + sq("1 − 4x<sup>2</sup>"), "1")} = ${f("2", "1")} = 2.`
     },
     {
         id: 28,
@@ -748,16 +746,11 @@ const questions = [
         topicName: "Limits & Continuity",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Evaluate:<br>$$\lim_{x \to \infty} x^{\frac{1}{x}}$$",
-        options: [
-            "$1$",
-            "$e$",
-            "$0$",
-            "$\infty$"
-        ],
+        q: `Evaluate:<div class="math-expr">${lim("∞")} x<sup>1/x</sup></div>`,
+        options: [`1`, `e`, `0`, `∞`],
         correct: 0,
-        hint: "Write $x^{1/x} = e^{\frac{\ln x}{x}}$ and use L'Hôpital's Rule on $\lim_{x \to \infty} \frac{\ln x}{x}$.",
-        explanation: "$\lim_{x \to \infty} \frac{\ln x}{x} = \lim_{x \to \infty} \frac{1/x}{1} = 0$.<br>Therefore, $\lim_{x \to \infty} x^{1/x} = e^0 = 1$."
+        hint: `Write x<sup>1/x</sup> = e<sup>(ln x)/x</sup> and use L'Hôpital's Rule on ${lim("∞")} ${f("ln x", "x")}.`,
+        explanation: `${lim("∞")} ${f("ln x", "x")} = ${lim("∞")} ${f("1/x", "1")} = 0.<br>Therefore, ${lim("∞")} x<sup>1/x</sup> = e<sup>0</sup> = 1.`
     },
     {
         id: 29,
@@ -765,16 +758,16 @@ const questions = [
         topicName: "Derivatives & Tangents",
         level: 3,
         levelName: "Level 3: Advanced Challenge",
-        q: "Calculate $\frac{d}{dx}\left(x^{e^x} \sin x\right)$.",
+        q: `Calculate ${f("d", "dx")}(x<sup>e<sup>x</sup></sup> sin x).`,
         options: [
-            "$x^{e^x} \left[ e^x\left(\ln x + \frac{1}{x}\right)\sin x + \cos x \right]$",
-            "$x^{e^x} \left[ e^x\ln x \sin x + \cos x \right]$",
-            "$e^x x^{e^x - 1} \sin x + x^{e^x} \cos x$",
-            "$x^{e^x} e^x \left(\ln x + \frac{1}{x}\right) \cos x$"
+            `x<sup>e<sup>x</sup></sup> [ e<sup>x</sup>(ln x + ${f("1", "x")}) sin x + cos x ]`,
+            `x<sup>e<sup>x</sup></sup> [ e<sup>x</sup> ln x sin x + cos x ]`,
+            `e<sup>x</sup> x<sup>e<sup>x</sup> − 1</sup> sin x + x<sup>e<sup>x</sup></sup> cos x`,
+            `x<sup>e<sup>x</sup></sup> e<sup>x</sup> (ln x + ${f("1", "x")}) cos x`
         ],
         correct: 0,
-        hint: "First find $\frac{d}{dx}(x^{e^x}) = x^{e^x} e^x(\ln x + \frac{1}{x})$ via logarithmic differentiation, then apply the Product Rule.",
-        explanation: "Let $u = x^{e^x} \implies \ln u = e^x \ln x \implies u' = x^{e^x}\left(e^x\ln x + \frac{e^x}{x}\right)$.<br>By Product Rule: $(u\sin x)' = u'\sin x + u\cos x = x^{e^x}\left[e^x\left(\ln x + \frac{1}{x}\right)\sin x + \cos x\right]$."
+        hint: `First find ${f("d", "dx")}(x<sup>e<sup>x</sup></sup>) = x<sup>e<sup>x</sup></sup> e<sup>x</sup>(ln x + ${f("1", "x")}) via logarithmic differentiation, then apply the Product Rule.`,
+        explanation: `Let u = x<sup>e<sup>x</sup></sup> ⇒ ln u = e<sup>x</sup> ln x ⇒ u' = x<sup>e<sup>x</sup></sup>(e<sup>x</sup> ln x + ${f("e<sup>x</sup>", "x")}).<br>By Product Rule: (u sin x)' = u' sin x + u cos x = x<sup>e<sup>x</sup></sup>[e<sup>x</sup>(ln x + ${f("1", "x")}) sin x + cos x].`
     },
     {
         id: 30,
@@ -782,16 +775,16 @@ const questions = [
         topicName: "Limits & Continuity",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Evaluate:<br>$$\lim_{x \to 0} \frac{\sqrt{2} - \sqrt{1 + \cos x}}{\sin^2 x}$$",
+        q: `Evaluate:<div class="math-expr">${lim("0")} ${f(sq("2") + " − " + sq("1 + cos x"), "sin<sup>2</sup>x")}</div>`,
         options: [
-            "$\frac{\sqrt{2}}{8}$",
-            "$\frac{\sqrt{2}}{4}$",
-            "$\frac{1}{2\sqrt{2}}$",
-            "$0$"
+            `${f(sq("2"), "8")}`,
+            `${f(sq("2"), "4")}`,
+            `${f("1", "2" + sq("2"))}`,
+            `0`
         ],
         correct: 0,
-        hint: "Multiply numerator and denominator by the conjugate $\sqrt{2} + \sqrt{1 + \cos x}$, and use $\sin^2 x = 1 - \cos^2 x = (1 - \cos x)(1 + \cos x)$.",
-        explanation: "$$\lim_{x \to 0} \frac{2 - (1 + \cos x)}{\sin^2 x (\sqrt{2} + \sqrt{1 + \cos x})} = \lim_{x \to 0} \frac{1 - \cos x}{(1 - \cos x)(1 + \cos x)(\sqrt{2} + \sqrt{1 + \cos x})} = \frac{1}{(2)(2\sqrt{2})} = \frac{\sqrt{2}}{8}$$"
+        hint: `Multiply numerator and denominator by the conjugate ${sq("2")} + ${sq("1 + cos x")}, and use sin<sup>2</sup>x = (1 − cos x)(1 + cos x).`,
+        explanation: `${lim("0")} ${f("2 − (1 + cos x)", "sin<sup>2</sup>x (" + sq("2") + " + " + sq("1 + cos x") + ")")} = ${lim("0")} ${f("1 − cos x", "(1 − cos x)(1 + cos x)(" + sq("2") + " + " + sq("1 + cos x") + ")")} = ${f("1", "(2)(2" + sq("2") + ")")} = ${f(sq("2"), "8")}.`
     },
     {
         id: 31,
@@ -799,16 +792,16 @@ const questions = [
         topicName: "Derivatives & Tangents",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Find the equation of the tangent line to the curve $y = x\cos x$ at the point $(\pi, -\pi)$.",
+        q: `Find the equation of the tangent line to the curve y = x cos x at the point (π, −π).`,
         options: [
-            "$y = -x$",
-            "$y = x - 2\pi$",
-            "$y = -x - 2\pi$",
-            "$y = -\pi$"
+            `y = −x`,
+            `y = x − 2π`,
+            `y = −x − 2π`,
+            `y = −π`
         ],
         correct: 0,
-        hint: "Find $y' = \cos x - x\sin x$, evaluate the slope at $x = \pi$, then use point-slope form.",
-        explanation: "$y' = \cos x - x\sin x \implies m = y'(\pi) = \cos\pi - \pi\sin\pi = -1 - 0 = -1$.<br>Tangent line: $y - (-\pi) = -1(x - \pi) \implies y + \pi = -x + \pi \implies y = -x$."
+        hint: `Find y' = cos x − x sin x, evaluate the slope at x = π, then use point-slope form.`,
+        explanation: `y' = cos x − x sin x ⇒ m = y'(π) = cos π − π sin π = −1 − 0 = −1.<br>Tangent line: y − (−π) = −1(x − π) ⇒ y + π = −x + π ⇒ y = −x.`
     },
     {
         id: 32,
@@ -816,16 +809,16 @@ const questions = [
         topicName: "Derivatives & Tangents",
         level: 3,
         levelName: "Level 3: Advanced Challenge",
-        q: "Suppose $f(x)$ is a differentiable function such that $f(y)x + f(x)y = 20$. What is $\frac{dy}{dx}$?",
+        q: `Suppose f(x) is a differentiable function such that f(y)x + f(x)y = 20. What is ${f("dy", "dx")}?`,
         options: [
-            "$-\frac{f(y) + y f'(x)}{x f'(y) + f(x)}$",
-            "$-\frac{f(x) + x f'(y)}{y f'(x) + f(y)}$",
-            "$\frac{f(y) + y f'(x)}{x f'(y) + f(x)}$",
-            "$-\frac{f(y) + f'(x)}{f'(y) + f(x)}$"
+            `−${f("f(y) + y f'(x)", "x f'(y) + f(x)")}`,
+            `−${f("f(x) + x f'(y)", "y f'(x) + f(y)")}`,
+            `${f("f(y) + y f'(x)", "x f'(y) + f(x)")}`,
+            `−${f("f(y) + f'(x)", "f'(y) + f(x)")}`
         ],
         correct: 0,
-        hint: "Differentiate implicitly with respect to $x$: remember $\frac{d}{dx}[f(y)] = f'(y)\frac{dy}{dx}$.",
-        explanation: "$f'(y)\frac{dy}{dx} \cdot x + f(y) \cdot 1 + f'(x) \cdot y + f(x)\frac{dy}{dx} = 0$.<br>Grouping $\frac{dy}{dx}$: $\frac{dy}{dx}(x f'(y) + f(x)) = -(f(y) + y f'(x)) \implies \frac{dy}{dx} = -\frac{f(y) + y f'(x)}{x f'(y) + f(x)}$."
+        hint: `Differentiate implicitly with respect to x: remember ${f("d", "dx")}[f(y)] = f'(y)${f("dy", "dx")}.`,
+        explanation: `f'(y)${f("dy", "dx")} · x + f(y) · 1 + f'(x) · y + f(x)${f("dy", "dx")} = 0.<br>Grouping ${f("dy", "dx")}: ${f("dy", "dx")}(x f'(y) + f(x)) = −(f(y) + y f'(x)) ⇒ ${f("dy", "dx")} = −${f("f(y) + y f'(x)", "x f'(y) + f(x)")}.`
     },
     {
         id: 33,
@@ -833,16 +826,16 @@ const questions = [
         topicName: "Derivatives & Tangents",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Find the equation of the tangent line to the curve $x^2 y^2 = 2x + xy + y + 3$ at the point $\left(2, \frac{7}{4}\right)$.",
+        q: `Find the equation of the tangent line to the curve x<sup>2</sup> y<sup>2</sup> = 2x + xy + y + 3 at the point (2, ${f("7", "4")}).`,
         options: [
-            "$y - \frac{7}{4} = -\frac{7}{11}(x - 2)$",
-            "$y - \frac{7}{4} = \frac{7}{11}(x - 2)$",
-            "$y - \frac{7}{4} = -\frac{11}{7}(x - 2)$",
-            "$y - \frac{7}{4} = -\frac{5}{11}(x - 2)$"
+            `y − ${f("7", "4")} = −${f("17", "22")}(x − 2)`,
+            `y − ${f("7", "4")} = ${f("17", "22")}(x − 2)`,
+            `y − ${f("7", "4")} = −${f("22", "17")}(x − 2)`,
+            `y − ${f("7", "4")} = −${f("7", "11")}(x − 2)`
         ],
         correct: 0,
-        hint: "Differentiate implicitly: $2xy^2 + 2x^2yy' = 2 + y + xy' + y'$, then plug in $x = 2, y = \frac{7}{4}$.",
-        explanation: "$2xy^2 + 2x^2 y y' = 2 + y + xy' + y'$.<br>At $(2, \frac{7}{4})$: $2(2)\left(\frac{49}{16}\right) + 2(4)\left(\frac{7}{4}\right)y' = 2 + \frac{7}{4} + 2y' + y'$.<br>$\frac{49}{4} + 14y' = \frac{15}{4} + 3y' \implies 11y' = -\frac{34}{4} = -\frac{17}{2}$ *(Note: using exact simplified slope $m = -\frac{17}{22}$ or rounded/equivalent form; checking choices, $-\frac{7}{11}$ corresponds to standard variant — wait: $\frac{15}{4} - \frac{49}{4} = -\frac{34}{4} = -8.5$, divided by $11$ is $-\frac{17}{22}$)*."
+        hint: `Differentiate implicitly: 2xy<sup>2</sup> + 2x<sup>2</sup>yy' = 2 + y + xy' + y', then plug in x = 2, y = ${f("7", "4")}.`,
+        explanation: `2xy<sup>2</sup> + 2x<sup>2</sup>yy' = 2 + y + xy' + y'.<br>At (2, ${f("7", "4")}): 2(2)(${f("49", "16")}) + 2(4)(${f("7", "4")})y' = 2 + ${f("7", "4")} + 2y' + y'.<br>${f("49", "4")} + 14y' = ${f("15", "4")} + 3y' ⇒ 11y' = −${f("34", "4")} = −${f("17", "2")} ⇒ y' = −${f("17", "22")}.`
     },
     {
         id: 34,
@@ -850,16 +843,16 @@ const questions = [
         topicName: "Extrema & Concavity",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Find the absolute maximum and absolute minimum values of $f(x) = x^4 - 8x^2 + 1$ on $[-3, 1]$.",
+        q: `Find the absolute maximum and absolute minimum values of f(x) = x<sup>4</sup> − 8x<sup>2</sup> + 1 on [−3, 1].`,
         options: [
-            "Absolute max $= 10$; Absolute min $= -15$",
-            "Absolute max $= 1$; Absolute min $= -15$",
-            "Absolute max $= 10$; Absolute min $= -6$",
-            "Absolute max $= 17$; Absolute min $= -15$"
+            `Absolute max = 10; Absolute min = −15`,
+            `Absolute max = 1; Absolute min = −15`,
+            `Absolute max = 10; Absolute min = −6`,
+            `Absolute max = 17; Absolute min = −15`
         ],
         correct: 0,
-        hint: "Evaluate $f(x)$ at the critical points in $[-3, 1]$ ($x = 0, -2$) and at the endpoints ($x = -3, 1$).",
-        explanation: "$f'(x) = 4x^3 - 16x = 4x(x - 2)(x + 2) = 0 \implies x = -2, 0$ in $[-3, 1]$.<br>• $f(-3) = 81 - 72 + 1 = 10$ (Abs Max)<br>• $f(-2) = 16 - 32 + 1 = -15$ (Abs Min)<br>• $f(0) = 1$<br>• $f(1) = 1 - 8 + 1 = -6$."
+        hint: `Evaluate f(x) at the critical points in [−3, 1] (x = 0, −2) and at the endpoints (x = −3, 1).`,
+        explanation: `f'(x) = 4x<sup>3</sup> − 16x = 4x(x − 2)(x + 2) = 0 ⇒ x = −2, 0 in [−3, 1].<br>• f(−3) = 81 − 72 + 1 = 10 (Abs Max)<br>• f(−2) = 16 − 32 + 1 = −15 (Abs Min)<br>• f(0) = 1<br>• f(1) = 1 − 8 + 1 = −6.`
     },
     {
         id: 35,
@@ -867,16 +860,16 @@ const questions = [
         topicName: "Extrema & Concavity",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "For $f(x) = \frac{x}{x^2 + 2}$, on which interval is $f$ increasing?",
+        q: `For f(x) = ${f("x", "x<sup>2</sup> + 2")}, on which interval is f increasing?`,
         options: [
-            "$(-\sqrt{2}, \sqrt{2})$",
-            "$(-\infty, -\sqrt{2}) \cup (\sqrt{2}, \infty)$",
-            "$(0, \infty)$",
-            "$(-2, 2)$"
+            `(−${sq("2")}, ${sq("2")})`,
+            `(−∞, −${sq("2")}) ∪ (${sq("2")}, ∞)`,
+            `(0, ∞)`,
+            `(−2, 2)`
         ],
         correct: 0,
-        hint: "Compute $f'(x) = \frac{2 - x^2}{(x^2 + 2)^2}$ and solve $f'(x) > 0$.",
-        explanation: "$f'(x) = \frac{(x^2 + 2)(1) - x(2x)}{(x^2 + 2)^2} = \frac{2 - x^2}{(x^2 + 2)^2} > 0 \iff 2 - x^2 > 0 \iff -\sqrt{2} < x < \sqrt{2}$."
+        hint: `Compute f'(x) = ${f("2 − x<sup>2</sup>", "(x<sup>2</sup> + 2)<sup>2</sup>")} and solve f'(x) > 0.`,
+        explanation: `f'(x) = ${f("(x<sup>2</sup> + 2)(1) − x(2x)", "(x<sup>2</sup> + 2)<sup>2</sup>")} = ${f("2 − x<sup>2</sup>", "(x<sup>2</sup> + 2)<sup>2</sup>")} > 0 ⇔ 2 − x<sup>2</sup> > 0 ⇔ −${sq("2")} < x < ${sq("2")}.`
     },
     {
         id: 36,
@@ -884,16 +877,11 @@ const questions = [
         topicName: "Limits & Continuity",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Evaluate:<br>$$\lim_{x \to 0} \frac{\sin(3x)\cot(5x)}{x\cot(4x)}$$",
-        options: [
-            "$\frac{12}{5}$",
-            "$\frac{15}{4}$",
-            "$\frac{3}{5}$",
-            "$\frac{4}{5}$"
-        ],
+        q: `Evaluate:<div class="math-expr">${lim("0")} ${f("sin(3x) cot(5x)", "x cot(4x)")}</div>`,
+        options: [`${f("12", "5")}`, `${f("15", "4")}`, `${f("3", "5")}`, `${f("4", "5")}`],
         correct: 0,
-        hint: "Rewrite $\cot(\theta) = \frac{1}{\tan(\theta)}$ so the expression becomes $\frac{\sin(3x)\tan(4x)}{x\tan(5x)}$.",
-        explanation: "$$\lim_{x \to 0} \frac{\sin(3x)}{x} \cdot \frac{\tan(4x)}{\tan(5x)} = 3 \cdot \frac{4}{5} = \frac{12}{5}$$"
+        hint: `Rewrite cot(θ) = ${f("1", "tan(θ)")} so the expression becomes ${f("sin(3x) tan(4x)", "x tan(5x)")}.`,
+        explanation: `${lim("0")} ${f("sin(3x)", "x")} · ${f("tan(4x)", "tan(5x)")} = 3 · ${f("4", "5")} = ${f("12", "5")}.`
     },
     {
         id: 37,
@@ -901,16 +889,11 @@ const questions = [
         topicName: "Limits & Continuity",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Evaluate:<br>$$\lim_{x \to 0} \frac{\sin(|x|)}{x}$$",
-        options: [
-            "Does not exist (DNE)",
-            "$1$",
-            "$-1$",
-            "$0$"
-        ],
+        q: `Evaluate:<div class="math-expr">${lim("0")} ${f("sin(|x|)", "x")}</div>`,
+        options: [`Does not exist (DNE)`, `1`, `−1`, `0`],
         correct: 0,
-        hint: "Compare the right-hand limit ($x \to 0^+$, $|x| = x$) and the left-hand limit ($x \to 0^-$, $|x| = -x$).",
-        explanation: "• $\lim_{x \to 0^+} \frac{\sin x}{x} = 1$.<br>• $\lim_{x \to 0^-} \frac{\sin(-x)}{x} = \lim_{x \to 0^-} \frac{-\sin x}{x} = -1$.<br>Since $1 \ne -1$, the limit does not exist."
+        hint: `Compare the right-hand limit (x → 0<sup>+</sup>, |x| = x) and the left-hand limit (x → 0<sup>−</sup>, |x| = −x).`,
+        explanation: `• ${lim("0<sup>+</sup>")} ${f("sin x", "x")} = 1.<br>• ${lim("0<sup>−</sup>")} ${f("sin(−x)", "x")} = ${lim("0<sup>−</sup>")} ${f("−sin x", "x")} = −1.<br>Since 1 ≠ −1, the limit does not exist.`
     },
     {
         id: 38,
@@ -918,16 +901,11 @@ const questions = [
         topicName: "Limits & Asymptotes",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Evaluate:<br>$$\lim_{x \to -\infty} \frac{x}{\sqrt{4 + x^2}}$$",
-        options: [
-            "$-1$",
-            "$1$",
-            "$0$",
-            "$-\frac{1}{2}$"
-        ],
+        q: `Evaluate:<div class="math-expr">${lim("−∞")} ${f("x", sq("4 + x<sup>2</sup>"))}</div>`,
+        options: [`−1`, `1`, `0`, `−${f("1", "2")}`],
         correct: 0,
-        hint: "Since $x \to -\infty$, $\sqrt{x^2} = |x| = -x$.",
-        explanation: "$$\lim_{x \to -\infty} \frac{x}{|x|\sqrt{\frac{4}{x^2} + 1}} = \lim_{x \to -\infty} \frac{x}{-x\sqrt{\frac{4}{x^2} + 1}} = -1$$"
+        hint: `Since x → −∞, ${sq("x<sup>2</sup>")} = |x| = −x.`,
+        explanation: `${lim("−∞")} ${f("x", "|x|" + sq(f("4", "x<sup>2</sup>") + " + 1"))} = ${lim("−∞")} ${f("x", "−x" + sq(f("4", "x<sup>2</sup>") + " + 1"))} = −1.`
     },
     {
         id: 39,
@@ -935,16 +913,11 @@ const questions = [
         topicName: "Limits & Continuity",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Evaluate:<br>$$\lim_{x \to 2} \frac{\cos\left(\frac{\pi}{4}x\right)}{x - 2}$$",
-        options: [
-            "$-\frac{\pi}{4}$",
-            "$\frac{\pi}{4}$",
-            "$0$",
-            "Does not exist"
-        ],
+        q: `Evaluate:<div class="math-expr">${lim("2")} ${f("cos(" + f("π", "4") + "x)", "x − 2")}</div>`,
+        options: [`−${f("π", "4")}`, `${f("π", "4")}`, `0`, `Does not exist`],
         correct: 0,
-        hint: "At $x = 2$, $\cos(\pi/2) = 0$, so this is a $\frac{0}{0}$ indeterminate form. Use L'Hôpital's Rule.",
-        explanation: "By L'Hôpital's Rule:<br>$$\lim_{x \to 2} \frac{-\frac{\pi}{4}\sin\left(\frac{\pi}{4}x\right)}{1} = -\frac{\pi}{4}\sin\left(\frac{\pi}{2}\right) = -\frac{\pi}{4}$$"
+        hint: `At x = 2, cos(π/2) = 0, so this is a 0/0 indeterminate form. Use L'Hôpital's Rule.`,
+        explanation: `By L'Hôpital's Rule:<br>${lim("2")} ${f("−(π/4) sin((π/4)x)", "1")} = −${f("π", "4")} sin(${f("π", "2")}) = −${f("π", "4")}.`
     },
     {
         id: 40,
@@ -952,16 +925,16 @@ const questions = [
         topicName: "Derivatives & Tangents",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Find $\frac{dy}{dx}$ if $y = \sin^3\left(\frac{x}{x^2 + 1}\right)$.",
+        q: `Find ${f("dy", "dx")} if y = sin<sup>3</sup>(${f("x", "x<sup>2</sup> + 1")}).`,
         options: [
-            "$3\sin^2\left(\frac{x}{x^2 + 1}\right)\cos\left(\frac{x}{x^2 + 1}\right) \cdot \frac{1 - x^2}{(x^2 + 1)^2}$",
-            "$3\sin^2\left(\frac{x}{x^2 + 1}\right)\cos\left(\frac{x}{x^2 + 1}\right) \cdot \frac{1 + x^2}{(x^2 + 1)^2}$",
-            "$3\cos^2\left(\frac{x}{x^2 + 1}\right) \cdot \frac{1 - x^2}{(x^2 + 1)^2}$",
-            "$3\sin^2\left(\frac{x}{x^2 + 1}\right) \cdot \frac{1}{(x^2 + 1)^2}$"
+            `3 sin<sup>2</sup>(${f("x", "x<sup>2</sup> + 1")}) cos(${f("x", "x<sup>2</sup> + 1")}) · ${f("1 − x<sup>2</sup>", "(x<sup>2</sup> + 1)<sup>2</sup>")}`,
+            `3 sin<sup>2</sup>(${f("x", "x<sup>2</sup> + 1")}) cos(${f("x", "x<sup>2</sup> + 1")}) · ${f("1 + x<sup>2</sup>", "(x<sup>2</sup> + 1)<sup>2</sup>")}`,
+            `3 cos<sup>2</sup>(${f("x", "x<sup>2</sup> + 1")}) · ${f("1 − x<sup>2</sup>", "(x<sup>2</sup> + 1)<sup>2</sup>")}`,
+            `3 sin<sup>2</sup>(${f("x", "x<sup>2</sup> + 1")}) · ${f("1", "(x<sup>2</sup> + 1)<sup>2</sup>")}`
         ],
         correct: 0,
-        hint: "Apply the Chain Rule with $u^3$, $\sin(v)$, and the Quotient Rule on $\frac{x}{x^2 + 1}$.",
-        explanation: "$\frac{d}{dx}\left(\frac{x}{x^2 + 1}\right) = \frac{(x^2 + 1)(1) - x(2x)}{(x^2 + 1)^2} = \frac{1 - x^2}{(x^2 + 1)^2}$.<br>Multiplying by $3\sin^2(\dots)\cos(\dots)$ gives the result."
+        hint: `Apply the Chain Rule with u<sup>3</sup>, sin(v), and the Quotient Rule on ${f("x", "x<sup>2</sup> + 1")}.`,
+        explanation: `${f("d", "dx")}(${f("x", "x<sup>2</sup> + 1")}) = ${f("(x<sup>2</sup> + 1)(1) − x(2x)", "(x<sup>2</sup> + 1)<sup>2</sup>")} = ${f("1 − x<sup>2</sup>", "(x<sup>2</sup> + 1)<sup>2</sup>")}.<br>Multiplying by 3 sin<sup>2</sup>(...) cos(...) gives the result.`
     },
     {
         id: 41,
@@ -969,16 +942,16 @@ const questions = [
         topicName: "Extrema & Concavity",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Find the absolute maximum and absolute minimum values of $f(x) = x - \sin x$ on $\left[-\frac{\pi}{2}, \frac{\pi}{2}\right]$.",
+        q: `Find the absolute maximum and absolute minimum values of f(x) = x − sin x on [−${f("π", "2")}, ${f("π", "2")}].`,
         options: [
-            "Absolute max $= \frac{\pi}{2} - 1$; Absolute min $= -\frac{\pi}{2} + 1$",
-            "Absolute max $= \frac{\pi}{2} + 1$; Absolute min $= -\frac{\pi}{2} - 1$",
-            "Absolute max $= 0$; Absolute min $= -\frac{\pi}{2} + 1$",
-            "Absolute max $= \frac{\pi}{2} - 1$; Absolute min $= 0$"
+            `Absolute max = ${f("π", "2")} − 1; Absolute min = −${f("π", "2")} + 1`,
+            `Absolute max = ${f("π", "2")} + 1; Absolute min = −${f("π", "2")} − 1`,
+            `Absolute max = 0; Absolute min = −${f("π", "2")} + 1`,
+            `Absolute max = ${f("π", "2")} − 1; Absolute min = 0`
         ],
         correct: 0,
-        hint: "Note that $f'(x) = 1 - \cos x \ge 0$ everywhere, so $f(x)$ is strictly non-decreasing on the interval.",
-        explanation: "Since $f'(x) = 1 - \cos x \ge 0$, $f$ increases across $\left[-\frac{\pi}{2}, \frac{\pi}{2}\right]$.<br>• Absolute min at $x = -\frac{\pi}{2}$: $f(-\pi/2) = -\frac{\pi}{2} - (-1) = -\frac{\pi}{2} + 1$.<br>• Absolute max at $x = \frac{\pi}{2}$: $f(\pi/2) = \frac{\pi}{2} - 1$."
+        hint: `Note that f'(x) = 1 − cos x ≥ 0 everywhere, so f(x) is strictly non-decreasing on the interval.`,
+        explanation: `Since f'(x) = 1 − cos x ≥ 0, f increases across [−${f("π", "2")}, ${f("π", "2")}].<br>• Absolute min at x = −${f("π", "2")}: f(−π/2) = −${f("π", "2")} − (−1) = −${f("π", "2")} + 1.<br>• Absolute max at x = ${f("π", "2")}: f(π/2) = ${f("π", "2")} − 1.`
     },
     {
         id: 42,
@@ -986,16 +959,16 @@ const questions = [
         topicName: "Derivatives & Tangents",
         level: 3,
         levelName: "Level 3: Advanced Challenge",
-        q: "Is $f(x) = \begin{cases} \sqrt{8x}, & x \ge 2 \\ x^2, & x < 2 \end{cases}$ differentiable at $x = 2$?",
+        q: `Is f(x) = <span class="piecewise"><span class="brace">{</span><span class="pw-rows"><span>${sq("8x")}, &nbsp; x ≥ 2</span><span>x<sup>2</sup>, &nbsp; x &lt; 2</span></span></span> differentiable at x = 2?`,
         options: [
-            "No, because $f'_-(2) = 4$ while $f'_+(2) = 1$",
-            "Yes, and $f'(2) = 4$",
-            "Yes, and $f'(2) = 1$",
-            "No, because $f(x)$ is not continuous at $x = 2$"
+            `No, because f'<sub>−</sub>(2) = 4 while f'<sub>+</sub>(2) = 1`,
+            `Yes, and f'(2) = 4`,
+            `Yes, and f'(2) = 1`,
+            `No, because f(x) is not continuous at x = 2`
         ],
         correct: 0,
-        hint: "Check continuity at $x = 2$ first, then compare the left-hand derivative and right-hand derivative.",
-        explanation: "• Continuity: $\lim_{x \to 2^-} x^2 = 4$ and $\sqrt{8(2)} = 4$, so $f$ is continuous.<br>• Left derivative: $\frac{d}{dx}(x^2)\big|_{x=2} = 2(2) = 4$.<br>• Right derivative: $\frac{d}{dx}(\sqrt{8x})\big|_{x=2} = \frac{4}{\sqrt{8(2)}} = \frac{4}{4} = 1$.<br>Since $4 \ne 1$, $f$ is not differentiable at $x = 2$."
+        hint: `Check continuity at x = 2 first, then compare the left-hand derivative and right-hand derivative.`,
+        explanation: `• Continuity: ${lim("2<sup>−</sup>")} x<sup>2</sup> = 4 and ${sq("8(2)")} = 4, so f is continuous.<br>• Left derivative: ${f("d", "dx")}(x<sup>2</sup>) at x=2 is 2(2) = 4.<br>• Right derivative: ${f("d", "dx")}(${sq("8x")}) at x=2 is ${f("4", sq("16"))} = 1.<br>Since 4 ≠ 1, f is not differentiable at x = 2.`
     },
     {
         id: 43,
@@ -1003,16 +976,11 @@ const questions = [
         topicName: "Limits & Continuity",
         level: 3,
         levelName: "Level 3: Advanced Challenge",
-        q: "Evaluate:<br>$$\lim_{x \to 6^+} (x - 6)\tan\left(\frac{\pi x}{12}\right)$$",
-        options: [
-            "$-\frac{12}{\pi}$",
-            "$\frac{12}{\pi}$",
-            "$0$",
-            "$-\infty$"
-        ],
+        q: `Evaluate:<div class="math-expr">${lim("6<sup>+</sup>")} (x − 6) tan(${f("πx", "12")})</div>`,
+        options: [`−${f("12", "π")}`, `${f("12", "π")}`, `0`, `−∞`],
         correct: 0,
-        hint: "Rewrite as $\frac{x - 6}{\cot(\pi x / 12)}$ (form $\frac{0}{0}$) and apply L'Hôpital's Rule.",
-        explanation: "$$\lim_{x \to 6^+} \frac{x - 6}{\cot\left(\frac{\pi x}{12}\right)} = \lim_{x \to 6^+} \frac{1}{-\frac{\pi}{12}\csc^2\left(\frac{\pi x}{12}\right)} = \frac{1}{-\frac{\pi}{12}(1)^2} = -\frac{12}{\pi}$$"
+        hint: `Rewrite as ${f("x − 6", "cot(πx / 12)")} (form 0/0) and apply L'Hôpital's Rule.`,
+        explanation: `${lim("6<sup>+</sup>")} ${f("x − 6", "cot(πx / 12)")} = ${lim("6<sup>+</sup>")} ${f("1", "−(π/12) csc<sup>2</sup>(πx / 12)")} = ${f("1", "−(π/12)(1)<sup>2</sup>")} = −${f("12", "π")}.`
     },
     {
         id: 44,
@@ -1020,16 +988,11 @@ const questions = [
         topicName: "Functions, Domain & Inverse",
         level: 1,
         levelName: "Level 1: Fundamental",
-        q: "Find the range of the function $f(x) = -7 + 3\cos(4x)$.",
-        options: [
-            "$[-10, -4]$",
-            "$[-4, 10]$",
-            "$[-7, 3]$",
-            "$[-3, 3]$"
-        ],
+        q: `Find the range of the function f(x) = −7 + 3 cos(4x).`,
+        options: [`[−10, −4]`, `[−4, 10]`, `[−7, 3]`, `[−3, 3]`],
         correct: 0,
-        hint: "Use the fact that $-1 \le \cos(4x) \le 1$.",
-        explanation: "$-1 \le \cos(4x) \le 1 \implies -3 \le 3\cos(4x) \le 3 \implies -10 \le -7 + 3\cos(4x) \le -4$."
+        hint: `Use the fact that −1 ≤ cos(4x) ≤ 1.`,
+        explanation: `−1 ≤ cos(4x) ≤ 1 ⇒ −3 ≤ 3 cos(4x) ≤ 3 ⇒ −10 ≤ −7 + 3 cos(4x) ≤ −4.`
     },
     {
         id: 45,
@@ -1037,16 +1000,11 @@ const questions = [
         topicName: "Functions, Domain & Inverse",
         level: 1,
         levelName: "Level 1: Fundamental",
-        q: "Simplify the expression $\cos\left(\sin^{-1}\left(\frac{5}{13}\right)\right)$.",
-        options: [
-            "$\frac{12}{13}$",
-            "$\frac{5}{12}$",
-            "$\frac{8}{13}$",
-            "$\frac{13}{12}$"
-        ],
+        q: `Simplify the expression cos(sin<sup>−1</sup>(${f("5", "13")})).`,
+        options: [`${f("12", "13")}`, `${f("5", "12")}`, `${f("8", "13")}`, `${f("13", "12")}`],
         correct: 0,
-        hint: "Draw a right triangle with opposite side $5$ and hypotenuse $13$.",
-        explanation: "By the Pythagorean theorem, the adjacent side is $\sqrt{13^2 - 5^2} = \sqrt{144} = 12$. Thus, $\cos\theta = \frac{12}{13}$."
+        hint: `Draw a right triangle with opposite side 5 and hypotenuse 13.`,
+        explanation: `By the Pythagorean theorem, the adjacent side is ${sq("13<sup>2</sup> − 5<sup>2</sup>")} = ${sq("144")} = 12. Thus, cos θ = ${f("12", "13")}.`
     },
     {
         id: 46,
@@ -1054,16 +1012,11 @@ const questions = [
         topicName: "Limits & Continuity",
         level: 1,
         levelName: "Level 1: Fundamental",
-        q: "Let $\lim_{x \to 10} f(x) = -9$ and $\lim_{x \to 10} g(x) = 5$. Find $\lim_{x \to 10} \left(\frac{5f(x) - 3g(x)}{10 + g(x)}\right)$.",
-        options: [
-            "$-4$",
-            "$-2$",
-            "$4$",
-            "$-\frac{30}{15}$"
-        ],
+        q: `Let ${lim("10")} f(x) = −9 and ${lim("10")} g(x) = 5. Find ${lim("10")} (${f("5f(x) − 3g(x)", "10 + g(x)")}).`,
+        options: [`−4`, `−2`, `4`, `−${f("30", "15")}`],
         correct: 0,
-        hint: "Apply the Limit Laws directly by substituting the limit values.",
-        explanation: "$$\frac{5(-9) - 3(5)}{10 + 5} = \frac{-45 - 15}{15} = \frac{-60}{15} = -4$$"
+        hint: `Apply the Limit Laws directly by substituting the limit values.`,
+        explanation: `${f("5(−9) − 3(5)", "10 + 5")} = ${f("−45 − 15", "15")} = ${f("−60", "15")} = −4.`
     },
     {
         id: 47,
@@ -1071,16 +1024,16 @@ const questions = [
         topicName: "Functions, Domain & Inverse",
         level: 1,
         levelName: "Level 1: Fundamental",
-        q: "Find the inverse function $f^{-1}(x)$ for $f(x) = 5 + 3^x$.",
+        q: `Find the inverse function f<sup>−1</sup>(x) for f(x) = 5 + 3<sup>x</sup>.`,
         options: [
-            "$f^{-1}(x) = \log_3(x - 5)$",
-            "$f^{-1}(x) = \log_3(x) - 5$",
-            "$f^{-1}(x) = \log_3(5 - x)$",
-            "$f^{-1}(x) = \frac{\ln(x - 5)}{3}$"
+            `f<sup>−1</sup>(x) = log<sub>3</sub>(x − 5)`,
+            `f<sup>−1</sup>(x) = log<sub>3</sub>(x) − 5`,
+            `f<sup>−1</sup>(x) = log<sub>3</sub>(5 − x)`,
+            `f<sup>−1</sup>(x) = ${f("ln(x − 5)", "3")}`
         ],
         correct: 0,
-        hint: "Set $y = 5 + 3^x$, swap $x$ and $y$, and solve for $y$ using $\log_3$.",
-        explanation: "$x = 5 + 3^y \implies 3^y = x - 5 \implies y = \log_3(x - 5)$."
+        hint: `Set y = 5 + 3<sup>x</sup>, swap x and y, and solve for y using log<sub>3</sub>.`,
+        explanation: `x = 5 + 3<sup>y</sup> ⇒ 3<sup>y</sup> = x − 5 ⇒ y = log<sub>3</sub>(x − 5).`
     },
     {
         id: 48,
@@ -1088,16 +1041,16 @@ const questions = [
         topicName: "Limits & Continuity",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Determine the values of $a$ and $b$ that make $f(x) = \begin{cases} \frac{21 - 21\cos^2 x}{3x^2}, & x < 0 \\ a, & x = 0 \\ \frac{b}{2}\cos(6x), & x > 0 \end{cases}$ continuous at $x = 0$.",
+        q: `Determine the values of a and b that make f(x) = <span class="piecewise"><span class="brace">{</span><span class="pw-rows"><span>${f("21 − 21 cos<sup>2</sup>x", "3x<sup>2</sup>")}, &nbsp; x &lt; 0</span><span>a, &nbsp; x = 0</span><span>${f("b", "2")} cos(6x), &nbsp; x &gt; 0</span></span></span> continuous at x = 0.`,
         options: [
-            "$a = 7, \quad b = 14$",
-            "$a = 7, \quad b = 7$",
-            "$a = 21, \quad b = 42$",
-            "$a = 0, \quad b = 0$"
+            `a = 7, &nbsp; b = 14`,
+            `a = 7, &nbsp; b = 7`,
+            `a = 21, &nbsp; b = 42`,
+            `a = 0, &nbsp; b = 0`
         ],
         correct: 0,
-        hint: "Use $21 - 21\cos^2 x = 21\sin^2 x$ to evaluate the left-hand limit at $x = 0$.",
-        explanation: "• $\lim_{x \to 0^-} \frac{21\sin^2 x}{3x^2} = 7 \lim_{x \to 0^-} \left(\frac{\sin x}{x}\right)^2 = 7$.<br>• $f(0) = a \implies a = 7$.<br>• $\lim_{x \to 0^+} \frac{b}{2}\cos(6x) = \frac{b}{2} = 7 \implies b = 14$."
+        hint: `Use 21 − 21 cos<sup>2</sup>x = 21 sin<sup>2</sup>x to evaluate the left-hand limit at x = 0.`,
+        explanation: `• ${lim("0<sup>−</sup>")} ${f("21 sin<sup>2</sup>x", "3x<sup>2</sup>")} = 7 ${lim("0<sup>−</sup>")} (${f("sin x", "x")})<sup>2</sup> = 7.<br>• f(0) = a ⇒ a = 7.<br>• ${lim("0<sup>+</sup>")} ${f("b", "2")} cos(6x) = ${f("b", "2")} = 7 ⇒ b = 14.`
     },
     {
         id: 49,
@@ -1105,16 +1058,11 @@ const questions = [
         topicName: "Limits & Continuity",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Evaluate:<br>$$\lim_{x \to 0} \frac{\sin^3(2x)}{x \tan^2(x)}$$",
-        options: [
-            "$8$",
-            "$2$",
-            "$4$",
-            "$6$"
-        ],
+        q: `Evaluate:<div class="math-expr">${lim("0")} ${f("sin<sup>3</sup>(2x)", "x tan<sup>2</sup>(x)")}</div>`,
+        options: [`8`, `2`, `4`, `6`],
         correct: 0,
-        hint: "Divide numerator and denominator by $x^3$: $\frac{(\sin(2x)/x)^3}{(\tan(x)/x)^2}$.",
-        explanation: "$$\lim_{x \to 0} \frac{\left(\frac{\sin(2x)}{x}\right)^3}{\left(\frac{\tan x}{x}\right)^2} = \frac{2^3}{1^2} = 8$$"
+        hint: `Divide numerator and denominator by x<sup>3</sup>: ${f("(sin(2x)/x)<sup>3</sup>", "(tan(x)/x)<sup>2</sup>")}.`,
+        explanation: `${lim("0")} ${f("(sin(2x)/x)<sup>3</sup>", "(tan x / x)<sup>2</sup>")} = ${f("2<sup>3</sup>", "1<sup>2</sup>")} = 8.`
     },
     {
         id: 50,
@@ -1122,16 +1070,11 @@ const questions = [
         topicName: "Limits & Continuity",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Evaluate:<br>$$\lim_{x \to 0} \frac{\sin^3(x) + 6x^2}{2x^2 + x\tan(x)}$$",
-        options: [
-            "$2$",
-            "$3$",
-            "$0$",
-            "$6$"
-        ],
+        q: `Evaluate:<div class="math-expr">${lim("0")} ${f("sin<sup>3</sup>(x) + 6x<sup>2</sup>", "2x<sup>2</sup> + x tan(x)")}</div>`,
+        options: [`2`, `3`, `0`, `6`],
         correct: 0,
-        hint: "Divide numerator and denominator by $x^2$.",
-        explanation: "$$\lim_{x \to 0} \frac{x\left(\frac{\sin x}{x}\right)^3 + 6}{2 + \frac{\tan x}{x}} = \frac{0(1) + 6}{2 + 1} = \frac{6}{3} = 2$$"
+        hint: `Divide numerator and denominator by x<sup>2</sup>.`,
+        explanation: `${lim("0")} ${f("x(sin x / x)<sup>3</sup> + 6", "2 + (tan x / x)")} = ${f("0(1) + 6", "2 + 1")} = ${f("6", "3")} = 2.`
     },
     {
         id: 51,
@@ -1139,16 +1082,11 @@ const questions = [
         topicName: "Limits & Asymptotes",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "The vertical asymptote of the curve $f(x) = \frac{5x - 1}{4\sinh(x) - 3}$ is $x = \ln(a)$. What is the value of $a$?",
-        options: [
-            "$2$",
-            "$3$",
-            "$\frac{3}{2}$",
-            "$4$"
-        ],
+        q: `The vertical asymptote of the curve f(x) = ${f("5x − 1", "4 sinh(x) − 3")} is x = ln(a). What is the value of a?`,
+        options: [`2`, `3`, `${f("3", "2")}`, `4`],
         correct: 0,
-        hint: "Set $4\sinh(x) - 3 = 0$, rewrite $\sinh(x) = \frac{e^x - e^{-x}}{2}$, and solve the quadratic in $e^x$.",
-        explanation: "$4\left(\frac{e^x - e^{-x}}{2}\right) - 3 = 0 \implies 2e^x - 2e^{-x} - 3 = 0$.<br>Multiply by $e^x$: $2e^{2x} - 3e^x - 2 = 0 \implies (2e^x + 1)(e^x - 2) = 0$.<br>Since $e^x > 0$, $e^x = 2 \implies x = \ln(2)$, so $a = 2$."
+        hint: `Set 4 sinh(x) − 3 = 0, rewrite sinh(x) = ${f("e<sup>x</sup> − e<sup>−x</sup>", "2")}, and solve the quadratic in e<sup>x</sup>.`,
+        explanation: `4(${f("e<sup>x</sup> − e<sup>−x</sup>", "2")}) − 3 = 0 ⇒ 2e<sup>x</sup> − 2e<sup>−x</sup> − 3 = 0.<br>Multiply by e<sup>x</sup>: 2e<sup>2x</sup> − 3e<sup>x</sup> − 2 = 0 ⇒ (2e<sup>x</sup> + 1)(e<sup>x</sup> − 2) = 0.<br>Since e<sup>x</sup> > 0, e<sup>x</sup> = 2 ⇒ x = ln(2), so a = 2.`
     },
     {
         id: 52,
@@ -1156,16 +1094,16 @@ const questions = [
         topicName: "Intermediate Value Theorem",
         level: 2,
         levelName: "Level 2: Standard",
-        q: "Let $f(x) = x^3 - 4x + 2$ on $[-3, 3]$. Locate the three distinct roots between consecutive integers:",
+        q: `Let f(x) = x<sup>3</sup> − 4x + 2 on [−3, 3]. Locate the three distinct roots between consecutive integers:`,
         options: [
-            "$(-3, -2), \; (0, 1), \; (1, 2)$",
-            "$(-3, -2), \; (0, 1), \; (2, 3)$",
-            "$(-2, -1), \; (0, 1), \; (1, 2)$",
-            "$(-3, -2), \; (-1, 0), \; (1, 2)$"
+            `(−3, −2), &nbsp; (0, 1), &nbsp; (1, 2)`,
+            `(−3, −2), &nbsp; (0, 1), &nbsp; (2, 3)`,
+            `(−2, −1), &nbsp; (0, 1), &nbsp; (1, 2)`,
+            `(−3, −2), &nbsp; (−1, 0), &nbsp; (1, 2)`
         ],
         correct: 0,
-        hint: "Evaluate $f(x)$ at integers $-3, -2, -1, 0, 1, 2, 3$ and look for sign changes.",
-        explanation: "• $f(-3) = -27 + 12 + 2 = -13 < 0$<br>• $f(-2) = -8 + 8 + 2 = +2 > 0$ $\implies$ root in $(-3, -2)$<br>• $f(-1) = -1 + 4 + 2 = +5 > 0$<br>• $f(0) = +2 > 0$<br>• $f(1) = 1 - 4 + 2 = -1 < 0$ $\implies$ root in $(0, 1)$<br>• $f(2) = 8 - 8 + 2 = +2 > 0$ $\implies$ root in $(1, 2)$."
+        hint: `Evaluate f(x) at integers −3, −2, −1, 0, 1, 2, 3 and look for sign changes.`,
+        explanation: `• f(−3) = −27 + 12 + 2 = −13 < 0<br>• f(−2) = −8 + 8 + 2 = +2 > 0 ⇒ root in (−3, −2)<br>• f(−1) = −1 + 4 + 2 = +5 > 0<br>• f(0) = +2 > 0<br>• f(1) = 1 − 4 + 2 = −1 < 0 ⇒ root in (0, 1)<br>• f(2) = 8 − 8 + 2 = +2 > 0 ⇒ root in (1, 2).`
     }
 ];
 
@@ -1218,10 +1156,6 @@ function renderQuestion() {
         btn.onclick = () => selectOption(idx);
         grid.appendChild(btn);
     });
-
-    if (window.MathJax) {
-        MathJax.typesetPromise();
-    }
 }
 
 function selectOption(selectedIdx) {
@@ -1255,7 +1189,6 @@ function selectOption(selectedIdx) {
         banner.classList.add('feedback-wrong');
         banner.textContent = '❌ Incorrect. Check the explanation below to review the steps.';
         document.getElementById('solutionBox').style.display = 'block';
-        if (window.MathJax) MathJax.typesetPromise();
     }
 }
 
@@ -1274,7 +1207,6 @@ function prevQuestion() {
 function toggleBox(id) {
     const box = document.getElementById(id);
     box.style.display = (box.style.display === 'block') ? 'none' : 'block';
-    if (window.MathJax) MathJax.typesetPromise();
 }
 
 window.onload = resetAndGenerate;
