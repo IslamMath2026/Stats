@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>مغامرة المنحنى والنتائج — ربط نتائج الاستبانة</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #1e293b;
+      --panel-2: #162033;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --blue: #3b82f6;
+      --purple: #a855f7;
+      --teal: #14b8a6;
+      --amber: #f59e0b;
+      --green: #22c55e;
+      --red: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Cairo', Tahoma, sans-serif;
+      background: radial-gradient(circle at top, #172554 0%, var(--bg) 55%);
+      color: var(--text);
+      line-height: 1.65;
+      padding: 20px 14px 60px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    .top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .game-title {
+      font-size: 1.45rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .hud-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .hud-pill {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hud-pill .val {
+      color: #38bdf8;
+    }
+
+    .hud-pill.score .val {
+      color: #fbbf24;
+    }
+
+    .hud-pill.rank .val {
+      color: #4ade80;
+    }
+
+    .nav-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      border-radius: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .nav-chip {
+      text-decoration: none;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: #cbd5e1;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      padding: 5px 12px;
+      border-radius: 8px;
+      transition: 0.15s;
+    }
+
+    .nav-chip:hover, .nav-chip.active {
+      border-color: var(--blue);
+      color: #fff;
+      background: #172554;
+    }
+
+    .mode-switch {
+      display: flex;
+      gap: 6px;
+      background: #0f172a;
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+
+    .mode-btn {
+      padding: 6px 12px;
+      font-size: 0.84rem;
+      border-radius: 8px;
+      background: transparent;
+      color: #cbd5e1;
+    }
+
+    .mode-btn.active {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .card {
+      background: rgba(30, 41, 59, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+    }
+
+    .card-heading {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .import-box {
+      background: #111b2e;
+      border: 1px dashed #14b8a6;
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+
+    .import-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .import-status {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: #5eead4;
+      background: rgba(20, 184, 166, 0.14);
+      border: 1px solid rgba(20, 184, 166, 0.35);
+      padding: 4px 12px;
+      border-radius: 999px;
+    }
+
+    .import-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      align-items: center;
+    }
+
+    .file-pill {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 0.86rem;
+    }
+
+    .file-pill input[type="file"] {
+      width: 100%;
+      color: #cbd5e1;
+      font-family: inherit;
+      font-size: 0.84rem;
+      margin-top: 4px;
+    }
+
+    .params-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .field-box {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 11px 13px;
+    }
+
+    .field-box label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .field-box input,
+    .field-box select {
+      width: 100%;
+      background: #0f172a;
+      color: #fff;
+      border: 1px solid #475569;
+      border-radius: 8px;
+      padding: 7px 10px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .compare-panel {
+      display: none;
+      background: #111b2e;
+      border: 1px dashed #38bdf8;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .compare-panel.show {
+      display: block;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    button {
+      font-family: inherit;
+      font-weight: 700;
+      border: none;
+      border-radius: 11px;
+      padding: 10px 16px;
+      cursor: pointer;
+      transition: transform 0.12s, opacity 0.2s, background 0.2s;
+      font-size: 0.92rem;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .btn-blue {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .btn-blue:hover {
+      background: #2563eb;
+    }
+
+    .btn-teal {
+      background: var(--teal);
+      color: #06202a;
+    }
+
+    .btn-teal:hover {
+      opacity: 0.92;
+    }
+
+    .btn-story {
+      background: linear-gradient(90deg, var(--purple), #ec4899);
+      color: #fff;
+    }
+
+    .btn-story:hover {
+      opacity: 0.94;
+    }
+
+    .btn-ghost {
+      background: #0f172a;
+      color: #e2e8f0;
+      border: 1px solid #475569;
+    }
+
+    .btn-ghost:hover {
+      background: #1e293b;
+    }
+
+    .curve-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .curve-badge {
+      background: #0f172a;
+      border: 1px solid #334155;
+      padding: 7px 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #93c5fd;
+    }
+
+    .toggles-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.86rem;
+      color: #cbd5e1;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .toggle-row input {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--blue);
+      cursor: pointer;
+    }
+
+    .canvas-wrap {
+      background: #0b1220;
+      border: 1px solid #26354f;
+      border-radius: 14px;
+      padding: 10px;
+    }
+
+    canvas {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .range-guess-box {
+      background: #111b2e;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-top: 12px;
+      font-size: 0.9rem;
+    }
+
+    .sliders-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .sliders-grid input[type="range"] {
+      width: 100%;
+      accent-color: var(--teal);
+      cursor: pointer;
+    }
+
+    .team-banner {
+      display: none;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .team-banner.show {
+      display: grid;
+    }
+
+    .team-card {
+      background: #0f172a;
+      border: 2px solid #334155;
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .team-card.active-turn {
+      border-color: var(--amber);
+      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25);
+    }
+
+    .rule-tag {
+      display: inline-block;
+      background: rgba(168, 85, 247, 0.2);
+      border: 1px solid rgba(168, 85, 247, 0.5);
+      color: #e9d5ff;
+      padding: 4px 12px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .question-text {
+      font-size: 1.12rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+      color: #fff;
+    }
+
+    .choices-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .choice-btn {
+      background: #0f172a;
+      color: #f1f5f9;
+      border: 1px solid #475569;
+      padding: 12px 14px;
+      border-radius: 12px;
+      text-align: center;
+      font-size: 0.94rem;
+    }
+
+    .choice-btn:hover:not(:disabled) {
+      border-color: var(--blue);
+      background: #172554;
+    }
+
+    .choice-btn.correct {
+      background: rgba(34, 197, 94, 0.2);
+      border-color: var(--green);
+      color: #86efac;
+    }
+
+    .choice-btn.wrong {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: var(--red);
+      color: #fca5a5;
+    }
+
+    .feedback-box {
+      display: none;
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-size: 0.93rem;
+      margin-top: 10px;
+    }
+
+    .feedback-box.ok {
+      display: block;
+      background: rgba(34, 197, 94, 0.14);
+      border: 1px solid rgba(34, 197, 94, 0.45);
+      color: #dcfce7;
+    }
+
+    .feedback-box.bad {
+      display: block;
+      background: rgba(239, 68, 68, 0.14);
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      color: #fee2e2;
+    }
+
+    .footer-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .summary-box {
+      display: none;
+      background: #111b2e;
+      border: 1px solid var(--teal);
+      border-radius: 14px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+
+    .summary-box.show {
+      display: block;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .mini-stat {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .mini-stat strong {
+      display: block;
+      font-size: 1.15rem;
+      color: #38bdf8;
+    }
+
+    .mini-stat span {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="top-bar">
+    <div class="game-title">🔔 مغامرة المنحنى والنتائج — ربط نتائج الاستبانة</div>
+    <div class="hud-group">
+      <div class="hud-pill">🔥 السلسلة: <span class="val" id="streakVal">0</span></div>
+      <div class="hud-pill score">⭐ النقاط: <span class="val" id="scoreVal">0</span></div>
+      <div class="hud-pill rank">🏆 المرتبة: <span class="val" id="rankVal">مبتدئ</span></div>
+    </div>
+  </div>
+
+  <div class="nav-strip">
+    <div class="nav-links">
+      <a href="survey.html" class="nav-chip">الاستبانة</a>
+      <a href="datalab.html" class="nav-chip">مختبر البيانات</a>
+      <a href="quest.html" class="nav-chip active">اللعبة المطورة</a>
+    </div>
+    <div class="mode-switch">
+      <button type="button" class="mode-btn active" id="soloModeBtn">لعب فردي</button>
+      <button type="button" class="mode-btn" id="workshopModeBtn">تحدي فرق الورشة</button>
+    </div>
+  </div>
+
+  <!-- استيراد مباشر من ملف نتائج الاستبانة CSV -->
+  <div class="card">
+    <div class="card-heading">
+      <span>تحميل نتائج الاستبانة وتوليد المنحنى والأسئلة تلقائياً</span>
+      <span class="import-status" id="surveyStatus">المصدر الحالي: بيانات استبانة مسبقة (24 طالباً)</span>
+    </div>
+
+    <div class="import-box">
+      <div class="import-grid">
+        <div class="file-pill">
+          <label style="font-weight:700; color:#e2e8f0; display:block;">ارفعي ملف نتائج الاستبانة (CSV):</label>
+          <input type="file" id="surveyCsvInput" accept=".csv,text/csv" />
+        </div>
+        <div class="field-box" style="margin-bottom:0;">
+          <label for="surveyAxisSelect">المحور المحسوب من نتائج الاستبانة:</label>
+          <select id="surveyAxisSelect">
+            <option value="time_avg">محور توفير الوقت (الأسئلة 8–11)</option>
+            <option value="mindmap_avg">محور الخرائط الذهنية (الأسئلة 12–15)</option>
+            <option value="training_avg">محور الألعاب ومولدات الأسئلة (الأسئلة 16–19)</option>
+            <option value="achievement_avg">محور التحصيل والفهم (الأسئلة 20–22)</option>
+            <option value="over_reliance">الاعتماد المباشر دون تحقق (سؤال 23)</option>
+          </select>
+        </div>
+        <div class="field-box" style="margin-bottom:0;">
+          <label for="facultyCompareSelect">مقارنة حسب الكلية (اختياري):</label>
+          <select id="facultyCompareSelect">
+            <option value="ALL">جميع الكليات (منحنى واحد)</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:12px;">
+        <button type="button" class="btn btn-teal" id="applySurveyBtn">تحديث المنحنى من نتائج الاستبانة</button>
+        <button type="button" class="btn btn-ghost" id="resetPresetSurveyBtn">العودة للبيانات المسبقة</button>
+      </div>
+    </div>
+
+    <div class="params-grid">
+      <div class="field-box">
+        <label for="meanInput">الوسط الحسابي (MEAN 1)</label>
+        <input type="number" id="meanInput" step="0.01" value="4.05" />
+      </div>
+      <div class="field-box">
+        <label for="sdInput">الانحراف المعياري (SD 1)</label>
+        <input type="number" id="sdInput" step="0.01" min="0.05" value="0.65" />
+      </div>
+      <div class="field-box">
+        <label for="axisSelect">أو اختاري محور جاهز</label>
+        <select id="axisSelect">
+          <option value="time">توفير الوقت (4.05 ، SD 0.65)</option>
+          <option value="mindmap">الخرائط الذهنية (3.98 ، SD 0.70)</option>
+          <option value="training">الألعاب ومولدات الأسئلة (4.02 ، SD 0.75)</option>
+          <option value="achievement">التحصيل والفهم (3.92 ، SD 0.60)</option>
+          <option value="custom">مخصص (إدخال يدوي)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="compare-panel" id="comparePanel">
+      <div style="font-weight:700; color:#38bdf8; margin-bottom:8px; font-size:0.92rem;">
+        مقارنة منحنى ثانٍ (يُملأ تلقائياً عند اختيار كلية للمقارنة أو يضبط يدوياً)
+      </div>
+      <div class="params-grid" style="margin-bottom:0;">
+        <div class="field-box">
+          <label for="mean2Input">الوسط الحسابي للمقارنة (MEAN 2)</label>
+          <input type="number" id="mean2Input" step="0.01" value="3.45" />
+        </div>
+        <div class="field-box">
+          <label for="sd2Input">الانحراف المعياري للمقارنة (SD 2)</label>
+          <input type="number" id="sd2Input" step="0.01" min="0.05" value="0.90" />
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button type="button" class="btn btn-blue" id="applyBtn">تطبيق القيم</button>
+      <button type="button" class="btn btn-ghost" id="toggleCompareBtn">مقارنة منحنيين</button>
+      <button type="button" class="btn btn-story" id="storyBtn">✨ حالة من نتائج الاستبانة</button>
+    </div>
+  </div>
+
+  <!-- المنحنى التفاعلي -->
+  <div class="card">
+    <div class="curve-header">
+      <div class="curve-badge" id="curveSummary">منحنى التطبيق (المتوسط = 4.05، الانحراف المعياري = 0.65)</div>
+      <div class="toggles-wrap">
+        <label class="toggle-row">
+          <input type="checkbox" id="highlightToggle" checked />
+          <span>تظليل المنطقة المستهدفة</span>
+        </label>
+        <label class="toggle-row">
+          <input type="checkbox" id="percentagesToggle" checked />
+          <span>إظهار نسب القاعدة التجريبية</span>
+        </label>
+        <label class="toggle-row">
+          <input type="checkbox" id="interactiveSliderToggle" />
+          <span>تحديد نطاق تخميني يدوياً</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="canvas-wrap">
+      <canvas id="bellCanvas" width="920" height="340"></canvas>
+    </div>
+
+    <div class="range-guess-box" id="rangeGuessBox" style="display:none;">
+      <div style="font-weight:700; color:#5eead4;">
+        تحديد النطاق التخميني على المنحنى:
+        <span id="guessRangeLabel"></span>
+      </div>
+      <div class="sliders-grid">
+        <div>
+          <label style="font-size:0.82rem; color:#cbd5e1;">الحد الأدنى: <strong id="lowGuessVal">-</strong></label>
+          <input type="range" id="lowSlider" min="0" max="100" value="35" />
+        </div>
+        <div>
+          <label style="font-size:0.82rem; color:#cbd5e1;">الحد الأعلى: <strong id="highGuessVal">-</strong></label>
+          <input type="range" id="highSlider" min="0" max="100" value="65" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- بطاقة التحدي والأسئلة -->
+  <div class="card">
+    <div class="team-banner" id="teamBanner">
+      <div class="team-card active-turn" id="teamACard">
+        <div style="font-weight:800; color:#38bdf8;">الفريق الأول (أ)</div>
+        <div style="font-size:1.25rem; font-weight:800;" id="teamAScore">0 نقطة</div>
+      </div>
+      <div class="team-card" id="teamBCard">
+        <div style="font-weight:800; color:#f472b6;">الفريق الثاني (ب)</div>
+        <div style="font-size:1.25rem; font-weight:800;" id="teamBScore">0 نقطة</div>
+      </div>
+    </div>
+
+    <div class="rule-tag" id="ruleTag">القاعدة التجريبية • ±1 / ±2 / ±3 SD</div>
+    <div class="question-text" id="questionText">جاري تحميل التحدي...</div>
+    <div class="choices-grid" id="choicesGrid"></div>
+    <div class="feedback-box" id="feedbackBox"></div>
+
+    <div class="footer-actions">
+      <span style="font-size:0.85rem; color:var(--muted);" id="questionMeta">تحدي رقم 1</span>
+      <div class="btn-row">
+        <button type="button" class="btn btn-ghost" id="summaryBtn">ملخص الأداء</button>
+        <button type="button" class="btn btn-ghost" id="nextBtn">السؤال التالي ←</button>
+      </div>
+    </div>
+
+    <div class="summary-box" id="summaryBox">
+      <div style="font-weight:800; color:#5eead4; font-size:1rem;">ملخص أداء الجولة الحالية</div>
+      <div class="summary-grid">
+        <div class="mini-stat">
+          <strong id="sumAnswered">0</strong>
+          <span>الأسئلة المجابة</span>
+        </div>
+        <div class="mini-stat">
+          <strong id="sumCorrect">0</strong>
+          <span>الإجابات الصحيحة</span>
+        </div>
+        <div class="mini-stat">
+          <strong id="sumAccuracy">0%</strong>
+          <span>نسبة الدقة</span>
+        </div>
+        <div class="mini-stat">
+          <strong id="sumFocus">-</strong>
+          <span>أكثر قاعدة تكررت</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const PRESET_SURVEY_ROWS = [
+    { faculty: "الكليات العلمية / الهندسة / IT", q8: 5, q9: 5, q10: 4, q11: 4, q12: 4, q13: 4, q14: 4, q15: 4, q16: 5, q17: 5, q18: 4, q19: 5, q20: 4, q21: 4, q22: 4, q23: 2 },
+    { faculty: "الكليات العلمية / الهندسة / IT", q8: 4, q9: 5, q10: 4, q11: 4, q12: 4, q13: 4, q14: 3, q15: 4, q16: 5, q17: 4, q18: 4, q19: 4, q20: 4, q21: 4, q22: 4, q23: 2 },
+    { faculty: "الكليات العلمية / الهندسة / IT", q8: 4, q9: 4, q10: 4, q11: 4, q12: 4, q13: 4, q14: 4, q15: 4, q16: 4, q17: 4, q18: 5, q19: 4, q20: 4, q21: 4, q22: 3, q23: 3 },
+    { faculty: "الكليات العلمية / الهندسة / IT", q8: 5, q9: 4, q10: 5, q11: 5, q12: 4, q13: 3, q14: 4, q15: 4, q16: 5, q17: 5, q18: 3, q19: 4, q20: 5, q21: 4, q22: 5, q23: 1 },
+    { faculty: "الكليات العلمية / الهندسة / IT", q8: 4, q9: 4, q10: 3, q11: 3, q12: 3, q13: 4, q14: 4, q15: 3, q16: 4, q17: 3, q18: 4, q19: 4, q20: 3, q21: 3, q22: 3, q23: 3 },
+    { faculty: "الكليات العلمية / الهندسة / IT", q8: 4, q9: 5, q10: 4, q11: 4, q12: 4, q13: 5, q14: 4, q15: 4, q16: 4, q17: 4, q18: 4, q19: 4, q20: 4, q21: 4, q22: 4, q23: 2 },
+    { faculty: "الكليات العلمية / الهندسة / IT", q8: 3, q9: 3, q10: 3, q11: 2, q12: 2, q13: 3, q14: 2, q15: 2, q16: 2, q17: 2, q18: 2, q19: 2, q20: 2, q21: 2, q22: 3, q23: 4 },
+    { faculty: "الكليات العلمية / الهندسة / IT", q8: 4, q9: 4, q10: 4, q11: 4, q12: 4, q13: 4, q14: 4, q15: 4, q16: 4, q17: 4, q18: 4, q19: 4, q20: 4, q21: 4, q22: 4, q23: 2 },
+
+    { faculty: "الكليات الإنسانية والتربوية", q8: 4, q9: 4, q10: 4, q11: 4, q12: 5, q13: 4, q14: 5, q15: 5, q16: 3, q17: 3, q18: 4, q19: 4, q20: 4, q21: 4, q22: 4, q23: 2 },
+    { faculty: "الكليات الإنسانية والتربوية", q8: 4, q9: 5, q10: 4, q11: 3, q12: 5, q13: 5, q14: 4, q15: 4, q16: 4, q17: 4, q18: 4, q19: 4, q20: 4, q21: 4, q22: 4, q23: 2 },
+    { faculty: "الكليات الإنسانية والتربوية", q8: 4, q9: 4, q10: 4, q11: 4, q12: 4, q13: 4, q14: 5, q15: 4, q16: 3, q17: 3, q18: 4, q19: 3, q20: 4, q21: 3, q22: 3, q23: 3 },
+    { faculty: "الكليات الإنسانية والتربوية", q8: 4, q9: 4, q10: 4, q11: 4, q12: 5, q13: 4, q14: 4, q15: 5, q16: 4, q17: 4, q18: 3, q19: 4, q20: 4, q21: 4, q22: 4, q23: 2 },
+    { faculty: "الكليات الإنسانية والتربوية", q8: 3, q9: 3, q10: 3, q11: 3, q12: 4, q13: 3, q14: 3, q15: 3, q16: 2, q17: 2, q18: 3, q19: 2, q20: 3, q21: 3, q22: 3, q23: 3 },
+    { faculty: "الكليات الإنسانية والتربوية", q8: 4, q9: 4, q10: 4, q11: 4, q12: 5, q13: 4, q14: 5, q15: 4, q16: 4, q17: 3, q18: 4, q19: 4, q20: 4, q21: 4, q22: 4, q23: 2 },
+    { faculty: "الكليات الإنسانية والتربوية", q8: 4, q9: 4, q10: 3, q11: 3, q12: 4, q13: 3, q14: 4, q15: 4, q16: 4, q17: 4, q18: 5, q19: 4, q20: 4, q21: 3, q22: 3, q23: 2 },
+    { faculty: "الكليات الإنسانية والتربوية", q8: 3, q9: 3, q10: 3, q11: 3, q12: 3, q13: 3, q14: 3, q15: 3, q16: 2, q17: 3, q18: 2, q19: 2, q20: 3, q21: 2, q22: 3, q23: 4 },
+
+    { faculty: "كلية الاقتصاد والعلوم الإدارية", q8: 4, q9: 4, q10: 4, q11: 3, q12: 4, q13: 4, q14: 3, q15: 4, q16: 4, q17: 4, q18: 3, q19: 4, q20: 4, q21: 4, q22: 3, q23: 2 },
+    { faculty: "كلية الاقتصاد والعلوم الإدارية", q8: 4, q9: 5, q10: 4, q11: 4, q12: 4, q13: 4, q14: 4, q15: 4, q16: 5, q17: 4, q18: 4, q19: 4, q20: 4, q21: 4, q22: 4, q23: 2 },
+    { faculty: "كلية الاقتصاد والعلوم الإدارية", q8: 3, q9: 4, q10: 3, q11: 3, q12: 3, q13: 3, q14: 3, q15: 3, q16: 3, q17: 3, q18: 4, q19: 3, q20: 3, q21: 3, q22: 3, q23: 3 },
+    { faculty: "كلية الاقتصاد والعلوم الإدارية", q8: 4, q9: 4, q10: 4, q11: 4, q12: 4, q13: 3, q14: 4, q15: 3, q16: 4, q17: 4, q18: 3, q19: 4, q20: 4, q21: 3, q22: 4, q23: 2 },
+    { faculty: "كلية الاقتصاد والعلوم الإدارية", q8: 4, q9: 4, q10: 4, q11: 4, q12: 4, q13: 4, q14: 4, q15: 4, q16: 4, q17: 4, q18: 4, q19: 4, q20: 4, q21: 4, q22: 4, q23: 2 },
+    { faculty: "كلية الاقتصاد والعلوم الإدارية", q8: 2, q9: 2, q10: 2, q11: 2, q12: 3, q13: 2, q14: 2, q15: 2, q16: 2, q17: 2, q18: 2, q19: 2, q20: 2, q21: 2, q22: 3, q23: 4 },
+    { faculty: "كلية الاقتصاد والعلوم الإدارية", q8: 4, q9: 4, q10: 3, q11: 3, q12: 4, q13: 4, q14: 3, q15: 4, q16: 4, q17: 3, q18: 4, q19: 4, q20: 3, q21: 3, q22: 3, q23: 3 },
+    { faculty: "كلية الاقتصاد والعلوم الإدارية", q8: 5, q9: 4, q10: 4, q11: 4, q12: 4, q13: 4, q14: 4, q15: 4, q16: 4, q17: 4, q18: 4, q19: 4, q20: 4, q21: 4, q22: 4, q23: 2 }
+  ];
+
+  const AXIS_PRESETS = {
+    time: { mean: 4.05, sd: 0.65 },
+    mindmap: { mean: 3.98, sd: 0.70 },
+    training: { mean: 4.02, sd: 0.75 },
+    achievement: { mean: 3.92, sd: 0.60 },
+    custom: { mean: 50, sd: 5 }
+  };
+
+  let surveyRows = [];
+  let state = {
+    mean: 4.05,
+    sd: 0.65,
+    mean2: 3.45,
+    sd2: 0.90,
+    compareEnabled: false,
+    workshopMode: false,
+    activeTeam: "A",
+    teamAScore: 0,
+    teamBScore: 0,
+    streak: 0,
+    score: 0,
+    qNum: 1,
+    answeredCount: 0,
+    correctCount: 0,
+    ruleCounts: { 1: 0, 2: 0, 3: 0 },
+    currentQ: null,
+    answered: false,
+    highlightK: null
+  };
+
+  function enrichSurveyRows(rawRows) {
+    return rawRows.map(r => {
+      const n = (v) => {
+        const num = parseFloat(v);
+        return isNaN(num) ? 3 : num;
+      };
+      const q8 = n(r.q8), q9 = n(r.q9), q10 = n(r.q10), q11 = n(r.q11);
+      const q12 = n(r.q12), q13 = n(r.q13), q14 = n(r.q14), q15 = n(r.q15);
+      const q16 = n(r.q16), q17 = n(r.q17), q18 = n(r.q18), q19 = n(r.q19);
+      const q20 = n(r.q20), q21 = n(r.q21), q22 = n(r.q22), q23 = n(r.q23);
+      return {
+        faculty: (r.faculty || "غير محدد").trim(),
+        time_avg: (q8 + q9 + q10 + q11) / 4,
+        mindmap_avg: (q12 + q13 + q14 + q15) / 4,
+        training_avg: (q16 + q17 + q18 + q19) / 4,
+        achievement_avg: (q20 + q21 + q22) / 3,
+        over_reliance: q23
+      };
+    });
+  }
+
+  function avg(arr) {
+    if (!arr.length) return 0;
+    return arr.reduce((a, b) => a + b, 0) / arr.length;
+  }
+
+  function stdDev(arr) {
+    if (arr.length < 2) return 0.1;
+    const m = avg(arr);
+    const variance = arr.reduce((sum, val) => sum + Math.pow(val - m, 2), 0) / (arr.length - 1);
+    return Math.max(0.05, Math.sqrt(variance));
+  }
+
+  function populateFacultyDropdown() {
+    const sel = document.getElementById("facultyCompareSelect");
+    const faculties = [...new Set(surveyRows.map(r => r.faculty))];
+    sel.innerHTML = `<option value="ALL">جميع الكليات (منحنى واحد)</option>` +
+      faculties.map(f => `<option value="${f}">مقارنة مع: ${f}</option>`).join("");
+  }
+
+  function applySurveyAxisToGame() {
+    const axisKey = document.getElementById("surveyAxisSelect").value;
+    const axisLabel = document.getElementById("surveyAxisSelect").selectedOptions[0].text;
+    const facCompare = document.getElementById("facultyCompareSelect").value;
+
+    const allVals = surveyRows.map(r => r[axisKey]);
+    const m1 = avg(allVals);
+    const sd1 = stdDev(allVals);
+
+    state.mean = Number(m1.toFixed(2));
+    state.sd = Number(sd1.toFixed(2));
+    document.getElementById("meanInput").value = state.mean;
+    document.getElementById("sdInput").value = state.sd;
+
+    if (facCompare !== "ALL") {
+      const subVals = surveyRows.filter(r => r.faculty === facCompare).map(r => r[axisKey]);
+      if (subVals.length) {
+        state.mean2 = Number(avg(subVals).toFixed(2));
+        state.sd2 = Number(stdDev(subVals).toFixed(2));
+        document.getElementById("mean2Input").value = state.mean2;
+        document.getElementById("sd2Input").value = state.sd2;
+        state.compareEnabled = true;
+        document.getElementById("comparePanel").classList.add("show");
+        document.getElementById("toggleCompareBtn").textContent = "إخفاء المقارنة";
+      }
+    }
+
+    document.getElementById("curveSummary").dataset.axisTitle = axisLabel;
+    buildQuestionForCurrentParams();
+  }
+
+  function parseCSV(text) {
+    const lines = text.trim().split(/
+?
+/).filter(l => l.trim().length > 0);
+    if (lines.length < 2) return [];
+    const headers = lines[0].split(",").map(h => h.trim().replace(/^"|"$/g, ""));
+    return lines.slice(1).map(line => {
+      const cols = line.split(",").map(c => c.trim().replace(/^"|"$/g, ""));
+      const obj = {};
+      headers.forEach((h, i) => {
+        obj[h] = cols[i] !== undefined ? cols[i] : "";
+      });
+      return obj;
+    });
+  }
+
+  function updateRank() {
+    let rank = "مبتدئ";
+    if (state.score >= 60) rank = "خبير بيانات";
+    else if (state.score >= 30) rank = "محلل نشط";
+    else if (state.score >= 15) rank = "مستكشف";
+    document.getElementById("rankVal").textContent = rank;
+  }
+
+  function updateHud() {
+    document.getElementById("streakVal").textContent = state.streak;
+    document.getElementById("scoreVal").textContent = state.score;
+    document.getElementById("teamAScore").textContent = `${state.teamAScore} نقطة`;
+    document.getElementById("teamBScore").textContent = `${state.teamBScore} نقطة`;
+    document.getElementById("teamACard").classList.toggle("active-turn", state.activeTeam === "A");
+    document.getElementById("teamBCard").classList.toggle("active-turn", state.activeTeam === "B");
+    updateRank();
+  }
+
+  function normalPdf(x, mean, sd) {
+    const z = (x - mean) / sd;
+    return (1 / (sd * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * z * z);
+  }
+
+  function formatNum(n) {
+    return Number(n.toFixed(2)).toString();
+  }
+
+  function getPlotBounds() {
+    const min1 = state.mean - 3.6 * state.sd;
+    const max1 = state.mean + 3.6 * state.sd;
+    if (!state.compareEnabled) return { minX: min1, maxX: max1 };
+    const min2 = state.mean2 - 3.6 * state.sd2;
+    const max2 = state.mean2 + 3.6 * state.sd2;
+    return { minX: Math.min(min1, min2), maxX: Math.max(max1, max2) };
+  }
+
+  function syncSliderLabels() {
+    const { minX, maxX } = getPlotBounds();
+    const lowPct = parseInt(document.getElementById("lowSlider").value, 10) / 100;
+    const highPct = parseInt(document.getElementById("highSlider").value, 10) / 100;
+    const v1 = minX + lowPct * (maxX - minX);
+    const v2 = minX + highPct * (maxX - minX);
+    const lowVal = Math.min(v1, v2);
+    const highVal = Math.max(v1, v2);
+    document.getElementById("lowGuessVal").textContent = formatNum(lowVal);
+    document.getElementById("highGuessVal").textContent = formatNum(highVal);
+    document.getElementById("guessRangeLabel").textContent = `[ ${formatNum(lowVal)} — ${formatNum(highVal)} ]`;
+  }
+
+  function drawBellCurve() {
+    const canvas = document.getElementById("bellCanvas");
+    const ctx = canvas.getContext("2d");
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const mean = state.mean;
+    const sd = state.sd;
+    const { minX, maxX } = getPlotBounds();
+
+    const padLeft = 52, padRight = 52, padTop = 38, padBottom = 58;
+    const plotW = w - padLeft - padRight;
+    const plotH = h - padTop - padBottom;
+    const baseY = padTop + plotH;
+
+    const maxPdf1 = normalPdf(mean, mean, sd);
+    const maxPdf2 = state.compareEnabled ? normalPdf(state.mean2, state.mean2, state.sd2) : 0;
+    const maxPdf = Math.max(maxPdf1, maxPdf2);
+
+    const toX = (val) => padLeft + ((val - minX) / (maxX - minX)) * plotW;
+    const toY = (pdfVal) => baseY - (pdfVal / maxPdf) * (plotH - 22);
+
+    const showZone = document.getElementById("highlightToggle").checked && state.highlightK;
+    if (showZone) {
+      const k = state.highlightK;
+      const xStart = Math.max(padLeft, toX(mean - k * sd));
+      const xEnd = Math.min(padLeft + plotW, toX(mean + k * sd));
+
+      ctx.save();
+      ctx.beginPath();
+      const steps = 180;
+      for (let i = 0; i <= steps; i++) {
+        const vx = (mean - k * sd) + (i / steps) * (2 * k * sd);
+        const px = toX(vx);
+        const py = toY(normalPdf(vx, mean, sd));
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.lineTo(xEnd, baseY);
+      ctx.lineTo(xStart, baseY);
+      ctx.closePath();
+      ctx.fillStyle = "rgba(20, 184, 166, 0.26)";
+      ctx.fill();
+      ctx.restore();
+    }
+
+    if (document.getElementById("interactiveSliderToggle").checked) {
+      const lowPct = parseInt(document.getElementById("lowSlider").value, 10) / 100;
+      const highPct = parseInt(document.getElementById("highSlider").value, 10) / 100;
+      const gx1 = toX(minX + Math.min(lowPct, highPct) * (maxX - minX));
+      const gx2 = toX(minX + Math.max(lowPct, highPct) * (maxX - minX));
+      ctx.save();
+      ctx.fillStyle = "rgba(251, 191, 36, 0.16)";
+      ctx.fillRect(gx1, padTop, Math.max(2, gx2 - gx1), plotH);
+      ctx.strokeStyle = "#fbbf24";
+      ctx.setLineDash([5, 4]);
+      ctx.beginPath();
+      ctx.moveTo(gx1, padTop); ctx.lineTo(gx1, baseY);
+      ctx.moveTo(gx2, padTop); ctx.lineTo(gx2, baseY);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    ctx.strokeStyle = "#475569";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(padLeft, baseY);
+    ctx.lineTo(w - padRight, baseY);
+    ctx.stroke();
+
+    if (document.getElementById("percentagesToggle").checked) {
+      const segs = [
+        { a: -3, b: -2, pct: "2.35%" },
+        { a: -2, b: -1, pct: "13.5%" },
+        { a: -1, b: 0, pct: "34%" },
+        { a: 0, b: 1, pct: "34%" },
+        { a: 1, b: 2, pct: "13.5%" },
+        { a: 2, b: 3, pct: "2.35%" }
+      ];
+      ctx.font = "bold 11px Cairo, sans-serif";
+      ctx.fillStyle = "#5eead4";
+      segs.forEach(s => {
+        const midVal = mean + ((s.a + s.b) / 2) * sd;
+        const px = toX(midVal);
+        const py = toY(normalPdf(midVal, mean, sd)) + 16;
+        if (py < baseY - 8) {
+          ctx.fillText(s.pct, px - 14, py);
+        }
+      });
+    }
+
+    const ticks = [-3, -2, -1, 0, 1, 2, 3];
+    ctx.font = "bold 12px Cairo, sans-serif";
+    ticks.forEach(t => {
+      const val = mean + t * sd;
+      const px = toX(val);
+      const topPy = toY(normalPdf(val, mean, sd));
+
+      ctx.strokeStyle = t === 0 ? "#38bdf8" : "rgba(148, 163, 184, 0.32)";
+      ctx.setLineDash(t === 0 ? [] : [4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(px, baseY);
+      ctx.lineTo(px, topPy);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = t === 0 ? "#38bdf8" : "#cbd5e1";
+      ctx.fillText(formatNum(val), px - 14, baseY + 18);
+
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = "11px Cairo, sans-serif";
+      const sdLabel = t === 0 ? "Mean" : (t > 0 ? `+${t}SD` : `${t}SD`);
+      ctx.fillText(sdLabel, px - 14, baseY + 34);
+      ctx.font = "bold 12px Cairo, sans-serif";
+    });
+
+    ctx.strokeStyle = "#3b82f6";
+    ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    const samples = 240;
+    for (let i = 0; i <= samples; i++) {
+      const vx = minX + (i / samples) * (maxX - minX);
+      const px = toX(vx);
+      const py = toY(normalPdf(vx, mean, sd));
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+
+    if (state.compareEnabled) {
+      ctx.strokeStyle = "#f472b6";
+      ctx.lineWidth = 3;
+      ctx.setLineDash([7, 4]);
+      ctx.beginPath();
+      for (let i = 0; i <= samples; i++) {
+        const vx = minX + (i / samples) * (maxX - minX);
+        const px = toX(vx);
+        const py = toY(normalPdf(vx, state.mean2, state.sd2));
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    const axisTitle = document.getElementById("curveSummary").dataset.axisTitle || "نتائج الاستبانة";
+    const summaryText = state.compareEnabled
+      ? `${axisTitle} — منحنى 1 (أزرق): Mean=${formatNum(mean)}, SD=${formatNum(sd)} | منحنى 2 (وردي): Mean=${formatNum(state.mean2)}, SD=${formatNum(state.sd2)}`
+      : `${axisTitle} — المتوسط = ${formatNum(mean)}، الانحراف المعياري = ${formatNum(sd)}`;
+    document.getElementById("curveSummary").textContent = summaryText;
+    syncSliderLabels();
+  }
+
+  function buildQuestionForCurrentParams() {
+    const m = state.mean;
+    const sd = state.sd;
+    const ruleType = ((state.qNum - 1) % 3) + 1;
+    const axisTitle = document.getElementById("curveSummary").dataset.axisTitle || "محور الاستبانة";
+    const feedback = document.getElementById("feedbackBox");
+    feedback.className = "feedback-box";
+    feedback.style.display = "none";
+    state.answered = false;
+    state.highlightK = null;
+
+    let qObj;
+    if (ruleType === 1) {
+      const low = formatNum(m - sd);
+      const high = formatNum(m + sd);
+      qObj = {
+        ruleType: 1,
+        k: 1,
+        tag: "القاعدة التجريبية • ±1 SD (نحو 68%)",
+        text: `بناءً على (${axisTitle}) بمتوسط (${formatNum(m)}) وانحراف معياري (${formatNum(sd)})، ما النطاق الذي يضم حوالي 68% من الطلاب؟`,
+        choices: [
+          `من ${low} إلى ${high}`,
+          `من ${formatNum(m - 2 * sd)} إلى ${formatNum(m + 2 * sd)}`,
+          `من ${formatNum(m - 3 * sd)} إلى ${formatNum(m + 3 * sd)}`,
+          `أعلى من ${high}`
+        ],
+        answerIdx: 0,
+        explain: `نطاق ±1 SD: ${formatNum(m)} ± ${formatNum(sd)} = [${low} ، ${high}] ويغطي نحو 68%.`
+      };
+    } else if (ruleType === 2) {
+      const low = formatNum(m - 2 * sd);
+      const high = formatNum(m + 2 * sd);
+      qObj = {
+        ruleType: 2,
+        k: 2,
+        tag: "القاعدة التجريبية • ±2 SD (نحو 95%)",
+        text: `بناءً على (${axisTitle}) بمتوسط (${formatNum(m)}) وانحراف معياري (${formatNum(sd)})، ما النطاق الذي يضم حوالي 95% من الطلاب؟`,
+        choices: [
+          `من ${formatNum(m - sd)} إلى ${formatNum(m + sd)}`,
+          `من ${low} إلى ${high}`,
+          `من ${formatNum(m - 3 * sd)} إلى ${formatNum(m + 3 * sd)}`,
+          `أقل من ${low}`
+        ],
+        answerIdx: 1,
+        explain: `نطاق ±2 SD: ${formatNum(m)} ± ${formatNum(2 * sd)} = [${low} ، ${high}] ويغطي نحو 95%.`
+      };
+    } else {
+      const low = formatNum(m - 3 * sd);
+      const high = formatNum(m + 3 * sd);
+      qObj = {
+        ruleType: 3,
+        k: 3,
+        tag: "القاعدة التجريبية • ±3 SD (نحو 99.7%)",
+        text: `بناءً على (${axisTitle}) بمتوسط (${formatNum(m)}) وانحراف معياري (${formatNum(sd)})، ما النطاق الذي يضم حوالي 99.7% من الطلاب؟`,
+        choices: [
+          `من ${formatNum(m - sd)} إلى ${formatNum(m + sd)}`,
+          `من ${formatNum(m - 2 * sd)} إلى ${formatNum(m + 2 * sd)}`,
+          `من ${low} إلى ${high}`,
+          `من ${formatNum(m)} إلى ${high}`
+        ],
+        answerIdx: 2,
+        explain: `نطاق ±3 SD: ${formatNum(m)} ± ${formatNum(3 * sd)} = [${low} ، ${high}] ويغطي نحو 99.7%.`
+      };
+    }
+
+    renderQuestion(qObj);
+  }
+
+  function renderQuestion(qObj) {
+    state.currentQ = qObj;
+    state.answered = false;
+    state.highlightK = null;
+    drawBellCurve();
+
+    document.getElementById("ruleTag").textContent = qObj.tag;
+    document.getElementById("questionText").textContent = qObj.text;
+    const turnNote = state.workshopMode ? ` • دور ${state.activeTeam === "A" ? "الفريق (أ)" : "الفريق (ب)"}` : "";
+    document.getElementById("questionMeta").textContent = `تحدي رقم ${state.qNum}${turnNote}`;
+
+    const feedback = document.getElementById("feedbackBox");
+    feedback.className = "feedback-box";
+    feedback.style.display = "none";
+
+    const grid = document.getElementById("choicesGrid");
+    grid.innerHTML = "";
+    qObj.choices.forEach((choice, idx) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "choice-btn";
+      btn.textContent = choice;
+      btn.addEventListener("click", () => handleAnswer(idx, btn));
+      grid.appendChild(btn);
+    });
+  }
+
+  function handleAnswer(idx, clickedBtn) {
+    if (state.answered) return;
+    state.answered = true;
+    state.answeredCount += 1;
+    const rType = state.currentQ.ruleType || 1;
+    state.ruleCounts[rType] = (state.ruleCounts[rType] || 0) + 1;
+    state.highlightK = state.currentQ.k || 1;
+    drawBellCurve();
+
+    const buttons = document.querySelectorAll(".choice-btn");
+    buttons.forEach((b, i) => {
+      b.disabled = true;
+      if (i === state.currentQ.answerIdx) {
+        b.classList.add("correct");
+      }
+    });
+
+    const feedback = document.getElementById("feedbackBox");
+    if (idx === state.currentQ.answerIdx) {
+      clickedBtn.classList.add("correct");
+      state.correctCount += 1;
+      state.streak += 1;
+      const gained = 10 + Math.min(state.streak * 2, 10);
+      state.score += gained;
+      if (state.workshopMode) {
+        if (state.activeTeam === "A") state.teamAScore += gained;
+        else state.teamBScore += gained;
+      }
+      feedback.className = "feedback-box ok";
+      feedback.innerHTML = `✅ <strong>إجابة صحيحة (+${gained} نقطة)!</strong> ${state.currentQ.explain}`;
+    } else {
+      clickedBtn.classList.add("wrong");
+      state.streak = 0;
+      feedback.className = "feedback-box bad";
+      feedback.innerHTML = `❌ <strong>ليست الدقيقة:</strong> ${state.currentQ.explain}`;
+    }
+
+    if (state.workshopMode) {
+      state.activeTeam = state.activeTeam === "A" ? "B" : "A";
+    }
+
+    feedback.style.display = "block";
+    updateHud();
+  }
+
+  function refreshSummaryBox() {
+    const box = document.getElementById("summaryBox");
+    box.classList.toggle("show");
+    document.getElementById("sumAnswered").textContent = state.answeredCount;
+    document.getElementById("sumCorrect").textContent = state.correctCount;
+    const acc = state.answeredCount ? Math.round((state.correctCount / state.answeredCount) * 100) : 0;
+    document.getElementById("sumAccuracy").textContent = `${acc}%`;
+
+    const c1 = state.ruleCounts[1] || 0;
+    const c2 = state.ruleCounts[2] || 0;
+    const c3 = state.ruleCounts[3] || 0;
+    let topRule = "-";
+    if (c1 + c2 + c3 > 0) {
+      if (c1 >= c2 && c1 >= c3) topRule = "±1 SD (68%)";
+      else if (c2 >= c1 && c2 >= c3) topRule = "±2 SD (95%)";
+      else topRule = "±3 SD (99.7%)";
+    }
+    document.getElementById("sumFocus").textContent = topRule;
+  }
+
+  document.getElementById("surveyCsvInput").addEventListener("change", function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      const parsed = parseCSV(evt.target.result);
+      if (parsed.length) {
+        surveyRows = enrichSurveyRows(parsed);
+        document.getElementById("surveyStatus").textContent = `ملف الاستبانة: ${file.name} (${surveyRows.length} رد)`;
+        populateFacultyDropdown();
+        applySurveyAxisToGame();
+      }
+    };
+    reader.readAsText(file, "UTF-8");
+  });
+
+  document.getElementById("applySurveyBtn").addEventListener("click", applySurveyAxisToGame);
+  document.getElementById("surveyAxisSelect").addEventListener("change", applySurveyAxisToGame);
+  document.getElementById("facultyCompareSelect").addEventListener("change", applySurveyAxisToGame);
+
+  document.getElementById("resetPresetSurveyBtn").addEventListener("click", function() {
+    surveyRows = enrichSurveyRows(PRESET_SURVEY_ROWS);
+    document.getElementById("surveyStatus").textContent = `المصدر الحالي: بيانات استبانة مسبقة (${surveyRows.length} طالباً)`;
+    populateFacultyDropdown();
+    applySurveyAxisToGame();
+  });
+
+  document.getElementById("axisSelect").addEventListener("change", function() {
+    const preset = AXIS_PRESETS[this.value];
+    if (preset && this.value !== "custom") {
+      document.getElementById("meanInput").value = preset.mean;
+      document.getElementById("sdInput").value = preset.sd;
+      state.mean = preset.mean;
+      state.sd = preset.sd;
+      buildQuestionForCurrentParams();
+    }
+  });
+
+  document.getElementById("applyBtn").addEventListener("click", function() {
+    const m = parseFloat(document.getElementById("meanInput").value);
+    const sd = parseFloat(document.getElementById("sdInput").value);
+    const m2 = parseFloat(document.getElementById("mean2Input").value);
+    const sd2 = parseFloat(document.getElementById("sd2Input").value);
+    if (isNaN(m) || isNaN(sd) || sd <= 0) return;
+    state.mean = m;
+    state.sd = sd;
+    if (!isNaN(m2)) state.mean2 = m2;
+    if (!isNaN(sd2) && sd2 > 0) state.sd2 = sd2;
+    buildQuestionForCurrentParams();
+  });
+
+  document.getElementById("toggleCompareBtn").addEventListener("click", function() {
+    state.compareEnabled = !state.compareEnabled;
+    document.getElementById("comparePanel").classList.toggle("show", state.compareEnabled);
+    this.textContent = state.compareEnabled ? "إخفاء المقارنة" : "مقارنة منحنيين";
+    drawBellCurve();
+  });
+
+  document.getElementById("storyBtn").addEventListener("click", function() {
+    const axes = ["time_avg", "mindmap_avg", "training_avg", "achievement_avg"];
+    const chosenAxis = axes[Math.floor(Math.random() * axes.length)];
+    document.getElementById("surveyAxisSelect").value = chosenAxis;
+    applySurveyAxisToGame();
+  });
+
+  document.getElementById("highlightToggle").addEventListener("change", drawBellCurve);
+  document.getElementById("percentagesToggle").addEventListener("change", drawBellCurve);
+
+  document.getElementById("interactiveSliderToggle").addEventListener("change", function() {
+    document.getElementById("rangeGuessBox").style.display = this.checked ? "block" : "none";
+    drawBellCurve();
+  });
+
+  document.getElementById("lowSlider").addEventListener("input", drawBellCurve);
+  document.getElementById("highSlider").addEventListener("input", drawBellCurve);
+
+  document.getElementById("soloModeBtn").addEventListener("click", function() {
+    state.workshopMode = false;
+    this.classList.add("active");
+    document.getElementById("workshopModeBtn").classList.remove("active");
+    document.getElementById("teamBanner").classList.remove("show");
+    document.getElementById("questionMeta").textContent = `تحدي رقم ${state.qNum}`;
+  });
+
+  document.getElementById("workshopModeBtn").addEventListener("click", function() {
+    state.workshopMode = true;
+    this.classList.add("active");
+    document.getElementById("soloModeBtn").classList.remove("active");
+    document.getElementById("teamBanner").classList.add("show");
+    updateHud();
+    const turnNote = ` • دور ${state.activeTeam === "A" ? "الفريق (أ)" : "الفريق (ب)"}`;
+    document.getElementById("questionMeta").textContent = `تحدي رقم ${state.qNum}${turnNote}`;
+  });
+
+  document.getElementById("teamACard").addEventListener("click", function() {
+    if (!state.workshopMode) return;
+    state.activeTeam = "A";
+    updateHud();
+  });
+
+  document.getElementById("teamBCard").addEventListener("click", function() {
+    if (!state.workshopMode) return;
+    state.activeTeam = "B";
+    updateHud();
+  });
+
+  document.getElementById("summaryBtn").addEventListener("click", refreshSummaryBox);
+
+  document.getElementById("nextBtn").addEventListener("click", function() {
+    state.qNum += 1;
+    buildQuestionForCurrentParams();
+  });
+
+  // Init with preset survey data
+  surveyRows = enrichSurveyRows(PRESET_SURVEY_ROWS);
+  populateFacultyDropdown();
+  updateHud();
+  applySurveyAxisToGame();
+</script>
+</body>
+</html>
