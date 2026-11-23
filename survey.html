@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>استبانة أثر الذكاء الاصطناعي والخرائط الذهنية والتعلم التفاعلي في الدراسة الجامعية</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-light: #eff6ff;
+      --accent: #0d9488;
+      --accent-light: #f0fdfa;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --danger: #dc2626;
+      --success: #16a34a;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Cairo', Tahoma, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 24px 14px 60px;
+    }
+
+    .container {
+      max-width: 850px;
+      margin: 0 auto;
+    }
+
+    .header-card {
+      background: linear-gradient(135deg, var(--primary), #1d4ed8);
+      color: #fff;
+      border-radius: 16px;
+      padding: 32px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 25px rgba(30, 58, 138, 0.15);
+    }
+
+    .header-card h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      line-height: 1.45;
+    }
+
+    .header-card p {
+      font-size: 0.96rem;
+      opacity: 0.95;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.18);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      margin-bottom: 12px;
+    }
+
+    .section-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+    }
+
+    .section-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--primary);
+      border-bottom: 2px solid var(--primary-light);
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .question-group {
+      margin-bottom: 22px;
+    }
+
+    .question-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .question-label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 10px;
+      font-size: 1rem;
+    }
+
+    .required {
+      color: var(--danger);
+      margin-right: 4px;
+    }
+
+    .options-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .option-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      background: #fff;
+    }
+
+    .option-item:hover {
+      border-color: #93c5fd;
+      background: var(--primary-light);
+    }
+
+    .option-item input[type="radio"],
+    .option-item input[type="checkbox"] {
+      accent-color: var(--primary);
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .text-input,
+    textarea {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      transition: border-color 0.2s;
+    }
+
+    .text-input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .likert-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      background: var(--primary-light);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      color: var(--primary);
+      margin-bottom: 16px;
+    }
+
+    .likert-legend span {
+      background: #fff;
+      padding: 2px 10px;
+      border-radius: 6px;
+      border: 1px solid #dbeafe;
+    }
+
+    .likert-item {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      background: #fcfdff;
+    }
+
+    .likert-statement {
+      font-weight: 600;
+      margin-bottom: 12px;
+      font-size: 0.98rem;
+    }
+
+    .likert-scale {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
+    .scale-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 4px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 0.82rem;
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+
+    .scale-btn input {
+      margin-bottom: 4px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .scale-btn:hover {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .sub-axis {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 8px 14px;
+      border-right: 4px solid var(--accent);
+      border-radius: 6px;
+      margin: 22px 0 12px;
+    }
+
+    .submit-area {
+      text-align: center;
+      margin-top: 24px;
+    }
+
+    .btn-submit {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 14px 36px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      font-family: inherit;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      width: 100%;
+      max-width: 340px;
+    }
+
+    .btn-submit:hover {
+      background: #1e40af;
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .status-box {
+      display: none;
+      margin-top: 20px;
+      padding: 18px;
+      border-radius: 12px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .status-success {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #86efac;
+    }
+
+    .status-error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+
+    @media (max-width: 600px) {
+      .header-card {
+        padding: 24px 18px;
+      }
+      .header-card h1 {
+        font-size: 1.25rem;
+      }
+      .likert-scale {
+        grid-template-columns: 1fr;
+      }
+      .scale-btn {
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 10px;
+        padding: 9px 12px;
+      }
+      .scale-btn input {
+        margin-bottom: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header-card">
+    <span class="badge">دراسة أكاديمية استطلاعية موسّعة</span>
+    <h1>أثر استخدام أدوات الذكاء الاصطناعي، الخرائط الذهنية، والألعاب ومولدات الأسئلة التفاعلية على التحصيل الدراسي وتوفير الوقت</h1>
+    <p>
+      عزيزي الطالب / عزيزتي الطالبة، تهدف هذه الاستبانة إلى دراسة أثر توظيف أدوات الذكاء الاصطناعي، والخرائط الذهنية، وأدوات التدريب التفاعلي (الألعاب التعليمية ومولدات الأسئلة) في الدراسة الجامعية عبر مختلف الكليات. تستغرق التعبئة نحو 5–6 دقائق فقط، وجميع الإجابات سرية ومجهولة الهوية وتُستخدم لأغراض البحث والتحليل الأكاديمي فقط.
+    </p>
+  </div>
+
+  <form id="surveyForm">
+    <!-- القسم الأول: البيانات العامة -->
+    <div class="section-card">
+      <div class="section-title">القسم الأول: البيانات العامة</div>
+
+      <div class="question-group">
+        <label class="question-label">1. الكلية <span class="required">*</span></label>
+        <div class="options-list">
+          <label class="option-item"><input type="radio" name="faculty" value="الكليات العلمية / الهندسة / تكنولوجيا المعلومات" required> الكليات العلمية / الهندسة / تكنولوجيا المعلومات</label>
+          <label class="option-item"><input type="radio" name="faculty" value="الكليات الطبية والصحية"> الكليات الطبية والصحية</label>
+          <label class="option-item"><input type="radio" name="faculty" value="الكليات الإنسانية والتربوية"> الكليات الإنسانية والتربوية</label>
+          <label class="option-item"><input type="radio" name="faculty" value="كلية الاقتصاد والعلوم الإدارية"> كلية الاقتصاد والعلوم الإدارية</label>
+          <label class="option-item"><input type="radio" name="faculty" value="أخرى"> أخرى</label>
+        </div>
+        <input type="text" id="facultyOther" name="faculty_other" class="text-input" placeholder="في حال اختيار (أخرى)، يرجى كتابة اسم الكلية هنا..." style="margin-top: 10px; display: none;">
+      </div>
+
+      <div class="question-group">
+        <label class="question-label">2. السنة الدراسية <span class="required">*</span></label>
+        <div class="options-list">
+          <label class="option-item"><input type="radio" name="academic_year" value="السنة الأولى" required> السنة الأولى</label>
+          <label class="option-item"><input type="radio" name="academic_year" value="السنة الثانية"> السنة الثانية</label>
+          <label class="option-item"><input type="radio" name="academic_year" value="السنة الثالثة"> السنة الثالثة</label>
+          <label class="option-item"><input type="radio" name="academic_year" value="السنة الرابعة فأكثر"> السنة الرابعة فأكثر</label>
+        </div>
+      </div>
+
+      <div class="question-group">
+        <label class="question-label">3. المعدل التراكمي التقديري <span class="required">*</span></label>
+        <div class="options-list">
+          <label class="option-item"><input type="radio" name="gpa" value="ممتاز (84% فأكثر / 3.5 فأعلى)" required> ممتاز (84% فأكثر / 3.5 فأعلى)</label>
+          <label class="option-item"><input type="radio" name="gpa" value="جيد جداً (76% – 83.9% / 3.0 – 3.49)"> جيد جداً (76% – 83.9% / 3.0 – 3.49)</label>
+          <label class="option-item"><input type="radio" name="gpa" value="جيد (68% – 75.9% / 2.5 – 2.99)"> جيد (68% – 75.9% / 2.5 – 2.99)</label>
+          <label class="option-item"><input type="radio" name="gpa" value="مقبول فأقل (أقل من 68% / أقل من 2.5)"> مقبول فأقل (أقل من 68% / أقل من 2.5)</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- القسم الثاني: أنماط استخدام الذكاء الاصطناعي وأدوات الدراسة -->
+    <div class="section-card">
+      <div class="section-title">القسم الثاني: أنماط استخدام الذكاء الاصطناعي وأساليب المذاكرة</div>
+
+      <div class="question-group">
+        <label class="question-label">4. ما مدى استخدامك لأدوات الذكاء الاصطناعي في دراستك؟ <span class="required">*</span></label>
+        <div class="options-list">
+          <label class="option-item"><input type="radio" name="usage_frequency" value="يومياً" required> يومياً</label>
+          <label class="option-item"><input type="radio" name="usage_frequency" value="عدة مرات في الأسبوع"> عدة مرات في الأسبوع</label>
+          <label class="option-item"><input type="radio" name="usage_frequency" value="أحياناً (عند الحاجة فقط)"> أحياناً (عند الحاجة فقط)</label>
+          <label class="option-item"><input type="radio" name="usage_frequency" value="نادراً أو لا أستخدمها إطلاقاً"> نادراً أو لا أستخدمها إطلاقاً</label>
+        </div>
+      </div>
+
+      <div class="question-group">
+        <label class="question-label">5. ما أبرز الأغراض التي تستخدم الذكاء الاصطناعي من أجلها؟ (يمكن اختيار أكثر من إجابة) <span class="required">*</span></label>
+        <div class="options-list" id="purposesGroup">
+          <label class="option-item"><input type="checkbox" name="purposes" value="شرح وفهم المفاهيم والمواد الصعبة"> شرح وفهم المفاهيم والمواد الصعبة</label>
+          <label class="option-item"><input type="checkbox" name="purposes" value="تلخيص المحاضرات وتحويلها إلى خرائط ذهنية أو مخططات"> تلخيص المحاضرات وتحويلها إلى خرائط ذهنية أو مخططات</label>
+          <label class="option-item"><input type="checkbox" name="purposes" value="توليد أسئلة تدريبية واختبارات قصيرة للمراجعة"> توليد أسئلة تدريبية واختبارات قصيرة للمراجعة</label>
+          <label class="option-item"><input type="checkbox" name="purposes" value="التدريب التفاعلي عبر الألعاب التعليمية والمحاكاة"> التدريب التفاعلي عبر الألعاب التعليمية والمحاكاة</label>
+          <label class="option-item"><input type="checkbox" name="purposes" value="المساعدة في حل الواجبات والمسائل أو كتابة الأكواد"> المساعدة في حل الواجبات والمسائل أو كتابة الأكواد البرمجية</label>
+          <label class="option-item"><input type="checkbox" name="purposes" value="صياغة التقارير والأبحاث وترتيب الأفكار"> صياغة التقارير والأبحاث وترتيب الأفكار</label>
+        </div>
+      </div>
+
+      <div class="question-group">
+        <label class="question-label">6. هل تستخدم الخرائط الذهنية (Mind Maps) في تنظيم ومراجعة موادك الدراسية؟ <span class="required">*</span></label>
+        <div class="options-list">
+          <label class="option-item"><input type="radio" name="mindmap_usage" value="نعم، أُنشئها أو ألخصها بمساعدة أدوات الذكاء الاصطناعي" required> نعم، أُنشئها أو ألخصها بمساعدة أدوات الذكاء الاصطناعي</label>
+          <label class="option-item"><input type="radio" name="mindmap_usage" value="نعم، أرسمها يدوياً أو ببرامج تقليدية دون ذكاء اصطناعي"> نعم، أرسمها يدوياً أو ببرامج تقليدية دون ذكاء اصطناعي</label>
+          <label class="option-item"><input type="radio" name="mindmap_usage" value="أحياناً في المواد الدسمة أو قبل الامتحانات فقط"> أحياناً في المواد الدسمة أو قبل الامتحانات فقط</label>
+          <label class="option-item"><input type="radio" name="mindmap_usage" value="لا أستخدم الخرائط الذهنية في دراستي"> لا أستخدم الخرائط الذهنية في دراستي</label>
+        </div>
+      </div>
+
+      <div class="question-group">
+        <label class="question-label">7. ما مدى استخدامك لمولدات الأسئلة والألعاب التعليمية التفاعلية للتدريب على المواد؟ <span class="required">*</span></label>
+        <div class="options-list">
+          <label class="option-item"><input type="radio" name="gamification_usage" value="أستخدم كليهما (مولدات الأسئلة والألعاب التعليمية) بانتظام" required> أستخدم كليهما (مولدات الأسئلة والألعاب التعليمية) بانتظام</label>
+          <label class="option-item"><input type="radio" name="gamification_usage" value="أعتمد بشكل أساسي على مولدات الأسئلة والكويزات التفاعلية"> أعتمد بشكل أساسي على مولدات الأسئلة والكويزات التفاعلية</label>
+          <label class="option-item"><input type="radio" name="gamification_usage" value="أستخدم الألعاب التعليمية والتحديات التفاعلية أحياناً"> أستخدم الألعاب التعليمية والتحديات التفاعلية أحياناً</label>
+          <label class="option-item"><input type="radio" name="gamification_usage" value="نادراً أو لا أستخدم هذه الأساليب في التدريب"> نادراً أو لا أستخدم هذه الأساليب في التدريب</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- القسم الثالث: قياس الأثر (مقياس ليكرت الخماسي) -->
+    <div class="section-card">
+      <div class="section-title">القسم الثالث: قياس الأثر التفصيلي (مقياس ليكرت الخماسي)</div>
+
+      <div class="likert-legend">
+        <span><strong>1</strong> = أعارض بشدة</span>
+        <span><strong>2</strong> = أعارض</span>
+        <span><strong>3</strong> = محايد</span>
+        <span><strong>4</strong> = أوافق</span>
+        <span><strong>5</strong> = أوافق بشدة</span>
+      </div>
+
+      <div class="sub-axis">أولاً: محور توفير الوقت</div>
+      <div id="timeAxisContainer"></div>
+
+      <div class="sub-axis">ثانياً: محور أثر الخرائط الذهنية في الفهم والاسترجاع</div>
+      <div id="mindmapAxisContainer"></div>
+
+      <div class="sub-axis">ثالثاً: محور الاستفادة من الذكاء الاصطناعي في التدريب (الألعاب ومولدات الأسئلة)</div>
+      <div id="trainingAxisContainer"></div>
+
+      <div class="sub-axis">رابعاً: محور التحصيل الدراسي والاستقلالية المعرفية</div>
+      <div id="achievementAxisContainer"></div>
+    </div>
+
+    <!-- القسم الرابع: سؤال مفتوح -->
+    <div class="section-card">
+      <div class="section-title">القسم الرابع: آراء وتجارب الطلاب (اختياري)</div>
+      <div class="question-group">
+        <label class="question-label" for="openFeedback">24. من واقع تجربتك، أي أسلوب ساعدك أكثر في الفهم وتوفير الوقت (الخرائط الذهنية، مولدات الأسئلة، أم الألعاب التعليمية)؟ ولماذا؟</label>
+        <textarea id="openFeedback" name="open_feedback" rows="4" placeholder="شاركنا تجربتك أو أي ملاحظة تود إضافتها..."></textarea>
+      </div>
+    </div>
+
+    <div class="submit-area">
+      <button type="submit" class="btn-submit" id="submitBtn">إرسال الإجابات</button>
+      <div id="statusBox" class="status-box"></div>
+    </div>
+  </form>
+</div>
+
+<script>
+  // =========================================================================
+  // ضعي رابط Google Apps Script Web App هنا بعد نشره لتجميع الردود في Sheets
+  // =========================================================================
+  const SCRIPT_URL = "PUT_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE";
+
+  const timeQuestions = [
+    { id: "q8_time_understand", text: "8. تساعدني أدوات الذكاء الاصطناعي في تقليل الوقت اللازم لفهم المواضيع الدراسية المعقدة." },
+    { id: "q9_time_tasks", text: "9. توفر عليّ هذه الأدوات وقتاً كبيراً عند إعداد الملخصات أو الواجبات والتقارير." },
+    { id: "q10_time_revision", text: "10. اختصرت أدوات التلخيص والتنظيم الذكية وقت المراجعة النهائية قبل الامتحانات بشكل ملحوظ." },
+    { id: "q11_time_invest", text: "11. أستثمر الوقت الذي أوفره بفضل الذكاء الاصطناعي في حل تدريبات إضافية أو دراسة مواد أخرى." }
+  ];
+
+  const mindmapQuestions = [
+    { id: "q12_mm_structure", text: "12. تساعدني الخرائط الذهنية في ربط المفاهيم الفرعية بالصورة الكلية للمادة الدراسية بوضوح." },
+    { id: "q13_mm_ai_speed", text: "13. استخدام الذكاء الاصطناعي في توليد أو تنظيم الخرائط الذهنية يوفّر عليّ جهد التلخيص اليدوي الطويل." },
+    { id: "q14_mm_recall", text: "14. التنظيم البصري والألوان والتفرعات في الخرائط الذهنية يسهّل عليّ تذكّر المعلومات أثناء الامتحان." },
+    { id: "q15_mm_comprehension", text: "15. أجد أن تحويل المحاضرات النصية الطويلة إلى خرائط ذهنية يرفع من سرعة استيعابي للمادة." }
+  ];
+
+  const trainingQuestions = [
+    { id: "q16_gen_practice", text: "16. تساعدني مولدات الأسئلة المدعومة بالذكاء الاصطناعي في التدرب على أنماط متنوعة من الأسئلة المشابهة للامتحان." },
+    { id: "q17_gen_weakness", text: "17. تكشف لي الاختبارات القصيرة المولّدة آلياً نقاط ضعفي في المادة قبل موعد الامتحان الفعلي." },
+    { id: "q18_games_motivation", text: "18. استخدام الألعاب التعليمية والتحديات التفاعلية يزيد من دافعيتي وحماسي للاستمرار في المذاكرة دون ملل." },
+    { id: "q19_interactive_feedback", text: "19. التغذية الراجعة الفورية في الألعاب ومولدات الأسئلة تساعدني على تصحيح أخطائي وفهم سبب الخطأ بسرعة." }
+  ];
+
+  const achievementQuestions = [
+    { id: "q20_deep_understanding", text: "20. ساهم دمج أدوات الذكاء الاصطناعي والتدريب التفاعلي في تحسين فهمي العميق للمواد الدراسية." },
+    { id: "q21_grades_improved", text: "21. لاحظت تحسناً إيجابياً في درجاتي أو أدائي في الاختبارات والمهام الدراسية بعد استخدام هذه الأدوات." },
+    { id: "q22_exam_independence", text: "22. أستطيع حل الأسئلة وفهم المادة داخل قاعة الامتحان بمفردي بنفس الكفاءة دون الحاجة للأداة." },
+    { id: "q23_over_reliance", text: "23. أحياناً أعتمد على إجابات الذكاء الاصطناعي بشكل مباشر دون التحقق من دقتها أو فهم خطوات الحل." }
+  ];
+
+  const scaleLabels = [
+    { val: 1, label: "1 - أعارض بشدة" },
+    { val: 2, label: "2 - أعارض" },
+    { val: 3, label: "3 - محايد" },
+    { val: 4, label: "4 - أوافق" },
+    { val: 5, label: "5 - أوافق بشدة" }
+  ];
+
+  function renderLikertQuestions(questions, containerId) {
+    const container = document.getElementById(containerId);
+    questions.forEach(q => {
+      const item = document.createElement("div");
+      item.className = "likert-item";
+      let optionsHTML = scaleLabels.map(s => `
+        <label class="scale-btn">
+          <input type="radio" name="${q.id}" value="${s.val}" required>
+          <span>${s.label}</span>
+        </label>
+      `).join("");
+      item.innerHTML = `
+        <div class="likert-statement">${q.text} <span class="required">*</span></div>
+        <div class="likert-scale">${optionsHTML}</div>
+      `;
+      container.appendChild(item);
+    });
+  }
+
+  renderLikertQuestions(timeQuestions, "timeAxisContainer");
+  renderLikertQuestions(mindmapQuestions, "mindmapAxisContainer");
+  renderLikertQuestions(trainingQuestions, "trainingAxisContainer");
+  renderLikertQuestions(achievementQuestions, "achievementAxisContainer");
+
+  document.querySelectorAll('input[name="faculty"]').forEach(radio => {
+    radio.addEventListener("change", function() {
+      const otherInput = document.getElementById("facultyOther");
+      if (this.value === "أخرى") {
+        otherInput.style.display = "block";
+        otherInput.required = true;
+      } else {
+        otherInput.style.display = "none";
+        otherInput.required = false;
+        otherInput.value = "";
+      }
+    });
+  });
+
+  document.getElementById("surveyForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const checkedPurposes = Array.from(document.querySelectorAll('input[name="purposes"]:checked')).map(cb => cb.value);
+    const statusBox = document.getElementById("statusBox");
+    const submitBtn = document.getElementById("submitBtn");
+
+    if (checkedPurposes.length === 0) {
+      statusBox.className = "status-box status-error";
+      statusBox.textContent = "يرجى اختيار غرض واحد على الأقل في السؤال رقم (5).";
+      statusBox.style.display = "block";
+      return;
+    }
+
+    const formData = new FormData(this);
+    const facultyVal = formData.get("faculty") === "أخرى" && formData.get("faculty_other").trim()
+      ? "أخرى: " + formData.get("faculty_other").trim()
+      : formData.get("faculty");
+
+    const payload = {
+      timestamp: new Date().toISOString(),
+      faculty: facultyVal,
+      academic_year: formData.get("academic_year"),
+      gpa: formData.get("gpa"),
+      usage_frequency: formData.get("usage_frequency"),
+      purposes: checkedPurposes.join(" | "),
+      mindmap_usage: formData.get("mindmap_usage"),
+      gamification_usage: formData.get("gamification_usage"),
+      q8_time_understand: formData.get("q8_time_understand"),
+      q9_time_tasks: formData.get("q9_time_tasks"),
+      q10_time_revision: formData.get("q10_time_revision"),
+      q11_time_invest: formData.get("q11_time_invest"),
+      q12_mm_structure: formData.get("q12_mm_structure"),
+      q13_mm_ai_speed: formData.get("q13_mm_ai_speed"),
+      q14_mm_recall: formData.get("q14_mm_recall"),
+      q15_mm_comprehension: formData.get("q15_mm_comprehension"),
+      q16_gen_practice: formData.get("q16_gen_practice"),
+      q17_gen_weakness: formData.get("q17_gen_weakness"),
+      q18_games_motivation: formData.get("q18_games_motivation"),
+      q19_interactive_feedback: formData.get("q19_interactive_feedback"),
+      q20_deep_understanding: formData.get("q20_deep_understanding"),
+      q21_grades_improved: formData.get("q21_grades_improved"),
+      q22_exam_independence: formData.get("q22_exam_independence"),
+      q23_over_reliance: formData.get("q23_over_reliance"),
+      open_feedback: formData.get("open_feedback") || ""
+    };
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "جاري الإرسال...";
+    statusBox.style.display = "none";
+
+    if (!SCRIPT_URL || SCRIPT_URL === "PUT_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE") {
+      setTimeout(() => {
+        statusBox.className = "status-box status-success";
+        statusBox.textContent = "تمت معاينة الإرسال بنجاح! (اربطي رابط Google Apps Script في الكود لحفظ الردود تلقائياً في Google Sheets).";
+        statusBox.style.display = "block";
+        submitBtn.disabled = false;
+        submitBtn.textContent = "إرسال الإجابات";
+        this.reset();
+        document.getElementById("facultyOther").style.display = "none";
+      }, 400);
+      return;
+    }
+
+    try {
+      await fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      statusBox.className = "status-box status-success";
+      statusBox.textContent = "شكراً لمشاركتك! تم تسجيل إجاباتك بنجاح.";
+      statusBox.style.display = "block";
+      this.reset();
+      document.getElementById("facultyOther").style.display = "none";
+    } catch (error) {
+      statusBox.className = "status-box status-error";
+      statusBox.textContent = "حدث خطأ أثناء الإرسال، يرجى المحاولة مرة أخرى.";
+      statusBox.style.display = "block";
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "إرسال الإجابات";
+    }
+  });
+</script>
+</body>
+</html>
