@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>مختبر تحليل نتائج الاستبانة والتطبيق الإحصائي</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-light: #eff6ff;
+      --accent: #0d9488;
+      --accent-light: #f0fdfa;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --success: #16a34a;
+      --warning: #d97706;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Cairo', Tahoma, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      padding: 24px 16px 60px;
+    }
+
+    .container {
+      max-width: 1050px;
+      margin: 0 auto;
+    }
+
+    .header-box {
+      background: linear-gradient(135deg, var(--primary), #0f766e);
+      color: #fff;
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 22px;
+      box-shadow: 0 10px 25px rgba(30, 58, 138, 0.12);
+    }
+
+    .header-box h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .header-box p {
+      font-size: 0.96rem;
+      opacity: 0.95;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+    }
+
+    .card-title {
+      font-size: 1.12rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--primary-light);
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      align-items: end;
+    }
+
+    .control-group label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    select, input[type="file"], button {
+      font-family: inherit;
+      font-size: 0.92rem;
+      border-radius: 10px;
+    }
+
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+    }
+
+    .file-drop {
+      border: 2px dashed #93c5fd;
+      background: var(--primary-light);
+      padding: 16px;
+      border-radius: 12px;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    .btn {
+      padding: 10px 18px;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.18s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #1e40af;
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-accent:hover {
+      background: #0f766e;
+    }
+
+    .btn-outline {
+      background: #fff;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+
+    .btn-outline:hover {
+      background: var(--primary-light);
+    }
+
+    .actions-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .kpi-card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-top: 4px solid var(--primary);
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .kpi-card.accent {
+      border-top-color: var(--accent);
+    }
+
+    .kpi-val {
+      font-size: 1.55rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 4px 0;
+    }
+
+    .kpi-card.accent .kpi-val {
+      color: var(--accent);
+    }
+
+    .kpi-label {
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      text-align: right;
+    }
+
+    th {
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    tr:nth-child(even) td {
+      background: #fcfdff;
+    }
+
+    .stats-box {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .stat-pill {
+      background: var(--accent-light);
+      border: 1px solid #99f6e4;
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .stat-pill strong {
+      display: block;
+      font-size: 1.25rem;
+      color: var(--accent);
+    }
+
+    .stat-pill span {
+      font-size: 0.82rem;
+      color: var(--text);
+    }
+
+    .canvas-wrap {
+      background: #fcfdff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 14px;
+    }
+
+    canvas {
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .note {
+      font-size: 0.86rem;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .badge-status {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      background: #dcfce7;
+      color: #166534;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header-box">
+    <h1>مختبر تحليل نتائج الاستبانة والتطبيق الإحصائي</h1>
+    <p>
+      أداة تفاعلية لرفع ملف نتائج الاستبانة (CSV) أو تجربة بيانات مسبقة جاهزة، وحساب المتوسطات والفروق بين الكليات وعرض التوزيع والانحراف المعياري مباشرة خلال الورشة.
+    </p>
+  </div>
+
+  <!-- 1. تحميل البيانات -->
+  <div class="card">
+    <div class="card-title">1. تحميل نتائج الاستبانة أو تشغيل البيانات المسبقة</div>
+    <span class="badge-status" id="datasetBadge">البيانات الحالية: عينة مسبقة جاهزة للورشة (24 طالباً)</span>
+
+    <div class="file-drop">
+      <p style="margin-bottom: 8px; font-weight: 600;">ارفعي ملف الردود بصيغة CSV (المُنزّل من Google Sheets أو Excel):</p>
+      <input type="file" id="csvFileInput" accept=".csv,text/csv" />
+    </div>
+
+    <div class="actions-row">
+      <button type="button" class="btn btn-accent" id="loadPresetBtn">تحميل نتائج مسبقة للورشة</button>
+      <button type="button" class="btn btn-outline" id="downloadSampleCsvBtn">تحميل ملف CSV تجريبي</button>
+    </div>
+    <p class="note">
+      ملاحظة: يقرأ المختبر ملفات <strong>CSV</strong> مباشرة دون إنترنت. إذا كان لديكِ ملف Excel (.xlsx)، احفظيه في Google Sheets أو Excel كـ CSV ثم ارفعيه هنا.
+    </p>
+  </div>
+
+  <!-- 2. الفلاتر والمؤشرات العامة -->
+  <div class="card">
+    <div class="card-title">2. المؤشرات العامة والمقارنة حسب الكلية أو أسلوب التدريب</div>
+
+    <div class="controls-grid" style="margin-bottom: 16px;">
+      <div class="control-group">
+        <label for="facultyFilter">تصفية حسب الكلية:</label>
+        <select id="facultyFilter">
+          <option value="ALL">جميع الكليات</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="trainingFilter">تصفية حسب استخدام الألعاب ومولدات الأسئلة:</label>
+        <select id="trainingFilter">
+          <option value="ALL">جميع الطلاب</option>
+          <option value="ACTIVE">يستخدم الألعاب أو مولدات الأسئلة</option>
+          <option value="LOW">نادراً أو لا يستخدمها</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">عدد المشاركين</div>
+        <div class="kpi-val" id="kpiCount">0</div>
+      </div>
+      <div class="kpi-card accent">
+        <div class="kpi-label">متوسط توفير الوقت (من 5)</div>
+        <div class="kpi-val" id="kpiTime">0.00</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">متوسط الخرائط الذهنية (من 5)</div>
+        <div class="kpi-val" id="kpiMindmap">0.00</div>
+      </div>
+      <div class="kpi-card accent">
+        <div class="kpi-label">متوسط التدريب التفاعلي (من 5)</div>
+        <div class="kpi-val" id="kpiTraining">0.00</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">متوسط التحصيل والفهم (من 5)</div>
+        <div class="kpi-val" id="kpiAchievement">0.00</div>
+      </div>
+    </div>
+
+    <div class="canvas-wrap">
+      <div style="font-weight: 700; color: var(--primary); margin-bottom: 6px;">مقارنة متوسطات المحاور حسب الكلية (من 5)</div>
+      <canvas id="facultyChart" width="920" height="320"></canvas>
+    </div>
+
+    <div class="table-wrap">
+      <table id="facultyTable">
+        <thead>
+          <tr>
+            <th>الكلية</th>
+            <th>العدد</th>
+            <th>توفير الوقت</th>
+            <th>الخرائط الذهنية</th>
+            <th>الألعاب ومولدات الأسئلة</th>
+            <th>التحصيل والفهم</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 3. تطبيق مقاييس النزعة المركزية والتشتت والالتواء على متغير مختار -->
+  <div class="card">
+    <div class="card-title">3. تطبيق الإحصاء على عمود محدد في الورشة (الوسط، الوسيط، الانحراف المعياري، والالتواء)</div>
+
+    <div class="controls-grid">
+      <div class="control-group">
+        <label for="metricSelect">اختاري المحور أو السؤال الرقمي لتحليله:</label>
+        <select id="metricSelect">
+          <option value="time_avg">متوسط توفير الوقت (المحور الأول)</option>
+          <option value="mindmap_avg">متوسط الخرائط الذهنية (المحور الثاني)</option>
+          <option value="training_avg">متوسط الألعاب ومولدات الأسئلة (المحور الثالث)</option>
+          <option value="achievement_avg">متوسط التحصيل والفهم (المحور الرابع)</option>
+          <option value="over_reliance">الاعتماد المباشر دون تحقق (سؤال 23)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="stats-box">
+      <div class="stat-pill">
+        <strong id="statMean">0.00</strong>
+        <span>الوسط الحسابي (Mean)</span>
+      </div>
+      <div class="stat-pill">
+        <strong id="statMedian">0.00</strong>
+        <span>الوسيط (Median)</span>
+      </div>
+      <div class="stat-pill">
+        <strong id="statSD">0.00</strong>
+        <span>الانحراف المعياري (SD)</span>
+      </div>
+      <div class="stat-pill">
+        <strong id="statRange">0.00</strong>
+        <span>المدى (Range)</span>
+      </div>
+      <div class="stat-pill">
+        <strong id="statSkew">-</strong>
+        <span>شكل التوزيع / الالتواء</span>
+      </div>
+    </div>
+
+    <div class="canvas-wrap">
+      <div style="font-weight: 700; color: var(--accent); margin-bottom: 6px;">توزيع القيم (Histogram / Dot Distribution)</div>
+      <canvas id="distChart" width="920" height="280"></canvas>
+    </div>
+  </div>
+</div>
+
+<script>
+  const PRESET_ROWS = [
+    // الكليات العلمية / الهندسة / IT
+    { faculty: "الكليات العلمية / الهندسة / IT", year: "السنة الثانية", gpa: "ممتاز", freq: "يومياً", mindmap: "نعم، بالذكاء الاصطناعي", gamification: "أستخدم كليهما بانتظام", q8: 5, q9: 5, q10: 4, q11: 4, q12: 4, q13: 4, q14: 4, q15: 4, q16: 5, q17: 5, q18: 4, q19: 5, q20: 4, q21: 4, q22: 4, q23: 2 },
+    { faculty: "الكليات العلمية / الهندسة / IT", year: "السنة الثالثة", gpa: "جيد جداً", freq: "يومياً", mindmap: "نعم، بالذكاء الاصطناعي", gamification: "أعتمد على مولدات الأسئلة", q8: 4, q9: 5, q10: 4, q11: 4, q12: 4, q13: 4, q14: 3, q15: 4, q16: 5, q17: 4, q18: 4, q19: 4, q20: 4, q21: 4, q22: 4, q23: 2 },
+    { faculty: "الكليات العلمية / الهندسة / IT", year: "السنة الأولى", gpa: "جيد جداً", freq: "عدة مرات أسبوعياً", mindmap: "أحياناً قبل الامتحانات", gamification: "أستخدم كليهما بانتظام", q8: 4, q9: 4, q10: 4, q11: 4, q12: 4, q13: 4, q14: 4, q15: 4, q16: 4, q17: 4, q18: 5, q19: 4, q20: 4, q21: 4, q22: 3, q23: 3 },
+    { faculty: "الكليات العلمية / الهندسة / IT", year: "السنة الرابعة", gpa: "ممتاز", freq: "يومياً", mindmap: "نعم، يدوياً أو رقمياً", gamification: "أعتمد على مولدات الأسئلة", q8: 5, q9: 4, q10: 5, q11: 5, q12: 4, q13: 3, q14: 4, q15: 4, q16: 5, q17: 5, q18: 3, q19: 4, q20: 5, q21: 4, q22: 5, q23: 1 },
+    { faculty: "الكليات العلمية / الهندسة / IT", year: "السنة الثانية", gpa: "جيد", freq: "عدة مرات أسبوعياً", mindmap: "أحياناً قبل الامتحانات", gamification: "أستخدم الألعاب أحياناً", q8: 4, q9: 4, q10: 3, q11: 3, q12: 3, q13: 4, q14: 4, q15: 3, q16: 4, q17: 3, q18: 4, q19: 4, q20: 3, q21: 3, q22: 3, q23: 3 },
+    { faculty: "الكليات العلمية / الهندسة / IT", year: "السنة الثالثة", gpa: "جيد جداً", freq: "يومياً", mindmap: "نعم، بالذكاء الاصطناعي", gamification: "أستخدم كليهما بانتظام", q8: 4, q9: 5, q10: 4, q11: 4, q12: 4, q13: 5, q14: 4, q15: 4, q16: 4, q17: 4, q18: 4, q19: 4, q20: 4, q21: 4, q22: 4, q23: 2 },
+    { faculty: "الكليات العلمية / الهندسة / IT", year: "السنة الأولى", gpa: "جيد", freq: "أحياناً", mindmap: "لا أستخدم الخرائط الذهنية", gamification: "نادراً أو لا أستخدم", q8: 3, q9: 3, q10: 3, q11: 2, q12: 2, q13: 3, q14: 2, q15: 2, q16: 2, q17: 2, q18: 2, q19: 2, q20: 2, q21: 2, q22: 3, q23: 4 },
+    { faculty: "الكليات العلمية / الهندسة / IT", year: "السنة الرابعة", gpa: "ممتاز", freq: "عدة مرات أسبوعياً", mindmap: "نعم، بالذكاء الاصطناعي", gamification: "أستخدم كليهما بانتظام", q8: 4, q9: 4, q10: 4, q11: 4, q12: 4, q13: 4, q14: 4, q15: 4, q16: 4, q17: 4, q18: 4, q19: 4, q20: 4, q21: 4, q22: 4, q23: 2 },
+
+    // الكليات الإنسانية والتربوية
+    { faculty: "الكليات الإنسانية والتربوية", year: "السنة الثانية", gpa: "ممتاز", freq: "عدة مرات أسبوعياً", mindmap: "نعم، بالذكاء الاصطناعي", gamification: "أستخدم الألعاب أحياناً", q8: 4, q9: 4, q10: 4, q11: 4, q12: 5, q13: 4, q14: 5, q15: 5, q16: 3, q17: 3, q18: 4, q19: 4, q20: 4, q21: 4, q22: 4, q23: 2 },
+    { faculty: "الكليات الإنسانية والتربوية", year: "السنة الثالثة", gpa: "جيد جداً", freq: "يومياً", mindmap: "نعم، بالذكاء الاصطناعي", gamification: "أستخدم كليهما بانتظام", q8: 4, q9: 5, q10: 4, q11: 3, q12: 5, q13: 5, q14: 4, q15: 4, q16: 4, q17: 4, q18: 4, q19: 4, q20: 4, q21: 4, q22: 4, q23: 2 },
+    { faculty: "الكليات الإنسانية والتربوية", year: "السنة الأولى", gpa: "جيد جداً", freq: "عدة مرات أسبوعياً", mindmap: "نعم، يدوياً أو رقمياً", gamification: "أستخدم الألعاب أحياناً", q8: 4, q9: 4, q10: 4, q11: 4, q12: 4, q13: 4, q14: 5, q15: 4, q16: 3, q17: 3, q18: 4, q19: 3, q20: 4, q21: 3, q22: 3, q23: 3 },
+    { faculty: "الكليات الإنسانية والتربوية", year: "السنة الرابعة", gpa: "ممتاز", freq: "عدة مرات أسبوعياً", mindmap: "نعم، بالذكاء الاصطناعي", gamification: "أعتمد على مولدات الأسئلة", q8: 4, q9: 4, q10: 4, q11: 4, q12: 5, q13: 4, q14: 4, q15: 5, q16: 4, q17: 4, q18: 3, q19: 4, q20: 4, q21: 4, q22: 4, q23: 2 },
+    { faculty: "الكليات الإنسانية والتربوية", year: "السنة الثانية", gpa: "جيد", freq: "أحياناً", mindmap: "أحياناً قبل الامتحانات", gamification: "نادراً أو لا أستخدم", q8: 3, q9: 3, q10: 3, q11: 3, q12: 4, q13: 3, q14: 3, q15: 3, q16: 2, q17: 2, q18: 3, q19: 2, q20: 3, q21: 3, q22: 3, q23: 3 },
+    { faculty: "الكليات الإنسانية والتربوية", year: "السنة الثالثة", gpa: "جيد جداً", freq: "يومياً", mindmap: "نعم، بالذكاء الاصطناعي", gamification: "أستخدم الألعاب أحياناً", q8: 4, q9: 4, q10: 4, q11: 4, q12: 5, q13: 4, q14: 5, q15: 4, q16: 4, q17: 3, q18: 4, q19: 4, q20: 4, q21: 4, q22: 4, q23: 2 },
+    { faculty: "الكليات الإنسانية والتربوية", year: "السنة الأولى", gpa: "جيد جداً", freq: "عدة مرات أسبوعياً", mindmap: "نعم، يدوياً أو رقمياً", gamification: "أستخدم كليهما بانتظام", q8: 4, q9: 4, q10: 3, q11: 3, q12: 4, q13: 3, q14: 4, q15: 4, q16: 4, q17: 4, q18: 5, q19: 4, q20: 4, q21: 3, q22: 3, q23: 2 },
+    { faculty: "الكليات الإنسانية والتربوية", year: "السنة الرابعة", gpa: "جيد", freq: "أحياناً", mindmap: "أحياناً قبل الامتحانات", gamification: "نادراً أو لا أستخدم", q8: 3, q9: 3, q10: 3, q11: 3, q12: 3, q13: 3, q14: 3, q15: 3, q16: 2, q17: 3, q18: 2, q19: 2, q20: 3, q21: 2, q22: 3, q23: 4 },
+
+    // كلية الاقتصاد والعلوم الإدارية
+    { faculty: "كلية الاقتصاد والعلوم الإدارية", year: "السنة الثانية", gpa: "جيد جداً", freq: "عدة مرات أسبوعياً", mindmap: "نعم، بالذكاء الاصطناعي", gamification: "أعتمد على مولدات الأسئلة", q8: 4, q9: 4, q10: 4, q11: 3, q12: 4, q13: 4, q14: 3, q15: 4, q16: 4, q17: 4, q18: 3, q19: 4, q20: 4, q21: 4, q22: 3, q23: 2 },
+    { faculty: "كلية الاقتصاد والعلوم الإدارية", year: "السنة الثالثة", gpa: "ممتاز", freq: "يومياً", mindmap: "نعم، بالذكاء الاصطناعي", gamification: "أستخدم كليهما بانتظام", q8: 4, q9: 5, q10: 4, q11: 4, q12: 4, q13: 4, q14: 4, q15: 4, q16: 5, q17: 4, q18: 4, q19: 4, q20: 4, q21: 4, q22: 4, q23: 2 },
+    { faculty: "كلية الاقتصاد والعلوم الإدارية", year: "السنة الأولى", gpa: "جيد", freq: "أحياناً", mindmap: "أحياناً قبل الامتحانات", gamification: "أستخدم الألعاب أحياناً", q8: 3, q9: 4, q10: 3, q11: 3, q12: 3, q13: 3, q14: 3, q15: 3, q16: 3, q17: 3, q18: 4, q19: 3, q20: 3, q21: 3, q22: 3, q23: 3 },
+    { faculty: "كلية الاقتصاد والعلوم الإدارية", year: "السنة الرابعة", gpa: "جيد جداً", freq: "عدة مرات أسبوعياً", mindmap: "نعم، يدوياً أو رقمياً", gamification: "أعتمد على مولدات الأسئلة", q8: 4, q9: 4, q10: 4, q11: 4, q12: 4, q13: 3, q14: 4, q15: 3, q16: 4, q17: 4, q18: 3, q19: 4, q20: 4, q21: 3, q22: 4, q23: 2 },
+    { faculty: "كلية الاقتصاد والعلوم الإدارية", year: "السنة الثانية", gpa: "جيد جداً", freq: "عدة مرات أسبوعياً", mindmap: "نعم، بالذكاء الاصطناعي", gamification: "أستخدم كليهما بانتظام", q8: 4, q9: 4, q10: 4, q11: 4, q12: 4, q13: 4, q14: 4, q15: 4, q16: 4, q17: 4, q18: 4, q19: 4, q20: 4, q21: 4, q22: 4, q23: 2 },
+    { faculty: "كلية الاقتصاد والعلوم الإدارية", year: "السنة الثالثة", gpa: "جيد", freq: "نادراً أو لا أستخدم", gamification: "نادراً أو لا أستخدم", q8: 2, q9: 2, q10: 2, q11: 2, q12: 3, q13: 2, q14: 2, q15: 2, q16: 2, q17: 2, q18: 2, q19: 2, q20: 2, q21: 2, q22: 3, q23: 4 },
+    { faculty: "كلية الاقتصاد والعلوم الإدارية", year: "السنة الأولى", gpa: "جيد جداً", freq: "عدة مرات أسبوعياً", mindmap: "نعم، بالذكاء الاصطناعي", gamification: "أستخدم الألعاب أحياناً", q8: 4, q9: 4, q10: 3, q11: 3, q12: 4, q13: 4, q14: 3, q15: 4, q16: 4, q17: 3, q18: 4, q19: 4, q20: 3, q21: 3, q22: 3, q23: 3 },
+    { faculty: "كلية الاقتصاد والعلوم الإدارية", year: "السنة الرابعة", gpa: "ممتاز", freq: "يومياً", mindmap: "نعم، بالذكاء الاصطناعي", gamification: "أستخدم كليهما بانتظام", q8: 5, q9: 4, q10: 4, q11: 4, q12: 4, q13: 4, q14: 4, q15: 4, q16: 4, q17: 4, q18: 4, q19: 4, q20: 4, q21: 4, q22: 4, q23: 2 }
+  ];
+
+  let allRows = [];
+
+  function enrichRows(rawRows) {
+    return rawRows.map(r => {
+      const n = (v) => {
+        const num = parseFloat(v);
+        return isNaN(num) ? 3 : num;
+      };
+      const q8 = n(r.q8), q9 = n(r.q9), q10 = n(r.q10), q11 = n(r.q11);
+      const q12 = n(r.q12), q13 = n(r.q13), q14 = n(r.q14), q15 = n(r.q15);
+      const q16 = n(r.q16), q17 = n(r.q17), q18 = n(r.q18), q19 = n(r.q19);
+      const q20 = n(r.q20), q21 = n(r.q21), q22 = n(r.q22), q23 = n(r.q23);
+
+      return {
+        ...r,
+        faculty: (r.faculty || "غير محدد").trim(),
+        gamification: (r.gamification || "").trim(),
+        time_avg: (q8 + q9 + q10 + q11) / 4,
+        mindmap_avg: (q12 + q13 + q14 + q15) / 4,
+        training_avg: (q16 + q17 + q18 + q19) / 4,
+        achievement_avg: (q20 + q21 + q22) / 3,
+        over_reliance: q23
+      };
+    });
+  }
+
+  function avg(arr) {
+    if (!arr.length) return 0;
+    return arr.reduce((a, b) => a + b, 0) / arr.length;
+  }
+
+  function median(arr) {
+    if (!arr.length) return 0;
+    const sorted = [...arr].sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+  }
+
+  function stdDev(arr) {
+    if (arr.length < 2) return 0;
+    const m = avg(arr);
+    const variance = arr.reduce((sum, val) => sum + Math.pow(val - m, 2), 0) / (arr.length - 1);
+    return Math.sqrt(variance);
+  }
+
+  function populateFacultyFilter() {
+    const select = document.getElementById("facultyFilter");
+    const faculties = [...new Set(allRows.map(r => r.faculty))];
+    select.innerHTML = `<option value="ALL">جميع الكليات</option>` + faculties.map(f => `<option value="${f}">${f}</option>`).join("");
+  }
+
+  function getFilteredRows() {
+    const fac = document.getElementById("facultyFilter").value;
+    const tr = document.getElementById("trainingFilter").value;
+
+    return allRows.filter(r => {
+      const facOk = fac === "ALL" || r.faculty === fac;
+      const gText = r.gamification;
+      const isLow = gText.includes("نادراً") || gText.includes("لا أستخدم");
+      const trOk = tr === "ALL" || (tr === "LOW" ? isLow : !isLow);
+      return facOk && trOk;
+    });
+  }
+
+  function drawFacultyChart(rows) {
+    const canvas = document.getElementById("facultyChart");
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const faculties = [...new Set(rows.map(r => r.faculty))];
+    if (!faculties.length) return;
+
+    const metrics = [
+      { key: "time_avg", label: "توفير الوقت", color: "#1e3a8a" },
+      { key: "mindmap_avg", label: "الخرائط الذهنية", color: "#0d9488" },
+      { key: "training_avg", label: "الألعاب والأسئلة", color: "#2563eb" },
+      { key: "achievement_avg", label: "التحصيل والفهم", color: "#16a34a" }
+    ];
+
+    const padLeft = 55, padRight = 30, padTop = 45, padBottom = 55;
+    const plotW = canvas.width - padLeft - padRight;
+    const plotH = canvas.height - padTop - padBottom;
+
+    // Legend
+    ctx.font = "bold 13px Cairo, sans-serif";
+    let legX = padLeft;
+    metrics.forEach(m => {
+      ctx.fillStyle = m.color;
+      ctx.fillRect(legX, 12, 14, 14);
+      ctx.fillStyle = "#1e293b";
+      ctx.fillText(m.label, legX + 20, 24);
+      legX += 165;
+    });
+
+    // Axes & grid (0 to 5)
+    ctx.strokeStyle = "#cbd5e1";
+    ctx.lineWidth = 1;
+    ctx.font = "12px Cairo, sans-serif";
+    ctx.fillStyle = "#64748b";
+    for (let v = 0; v <= 5; v++) {
+      const y = padTop + plotH - (v / 5) * plotH;
+      ctx.beginPath();
+      ctx.moveTo(padLeft, y);
+      ctx.lineTo(canvas.width - padRight, y);
+      ctx.stroke();
+      ctx.fillText(v.toString(), padLeft - 24, y + 4);
+    }
+
+    const groupW = plotW / faculties.length;
+    const barW = Math.min(34, (groupW * 0.65) / metrics.length);
+
+    faculties.forEach((fac, gIdx) => {
+      const subRows = rows.filter(r => r.faculty === fac);
+      const groupStart = padLeft + gIdx * groupW + (groupW - barW * metrics.length) / 2;
+
+      metrics.forEach((m, mIdx) => {
+        const val = avg(subRows.map(r => r[m.key]));
+        const barH = (val / 5) * plotH;
+        const x = groupStart + mIdx * barW;
+        const y = padTop + plotH - barH;
+
+        ctx.fillStyle = m.color;
+        ctx.fillRect(x, y, barW - 4, barH);
+
+        ctx.fillStyle = "#1e293b";
+        ctx.font = "bold 11px Cairo, sans-serif";
+        ctx.fillText(val.toFixed(2), x, y - 5);
+      });
+
+      ctx.fillStyle = "#1e293b";
+      ctx.font = "bold 12px Cairo, sans-serif";
+      const labelShort = fac.length > 26 ? fac.slice(0, 26) + "..." : fac;
+      ctx.fillText(labelShort, padLeft + gIdx * groupW + 12, padTop + plotH + 22);
+    });
+  }
+
+  function drawDistributionChart(values, metricLabel) {
+    const canvas = document.getElementById("distChart");
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (!values.length) return;
+
+    // Bins: 1-1.99, 2-2.99, 3-3.99, 4-5
+    const bins = [
+      { label: "1.0 - 1.9", count: values.filter(v => v >= 1 && v < 2).length },
+      { label: "2.0 - 2.9", count: values.filter(v => v >= 2 && v < 3).length },
+      { label: "3.0 - 3.9", count: values.filter(v => v >= 3 && v < 4).length },
+      { label: "4.0 - 5.0", count: values.filter(v => v >= 4 && v <= 5).length }
+    ];
+
+    const maxC = Math.max(...bins.map(b => b.count), 1);
+    const padLeft = 55, padRight = 30, padTop = 35, padBottom = 45;
+    const plotW = canvas.width - padLeft - padRight;
+    const plotH = canvas.height - padTop - padBottom;
+
+    ctx.strokeStyle = "#cbd5e1";
+    ctx.beginPath();
+    ctx.moveTo(padLeft, padTop);
+    ctx.lineTo(padLeft, padTop + plotH);
+    ctx.lineTo(canvas.width - padRight, padTop + plotH);
+    ctx.stroke();
+
+    const slotW = plotW / bins.length;
+    const bWidth = Math.min(80, slotW * 0.45);
+
+    bins.forEach((b, idx) => {
+      const h = (b.count / maxC) * (plotH - 20);
+      const x = padLeft + idx * slotW + (slotW - bWidth) / 2;
+      const y = padTop + plotH - h;
+
+      ctx.fillStyle = "#0d9488";
+      ctx.fillRect(x, y, bWidth, h);
+
+      ctx.fillStyle = "#1e293b";
+      ctx.font = "bold 13px Cairo, sans-serif";
+      ctx.fillText(`${b.count} طالب`, x + 4, y - 6);
+      ctx.fillText(b.label, x + 4, padTop + plotH + 22);
+    });
+  }
+
+  function updateDashboard() {
+    const filtered = getFilteredRows();
+
+    document.getElementById("kpiCount").textContent = filtered.length;
+    document.getElementById("kpiTime").textContent = avg(filtered.map(r => r.time_avg)).toFixed(2);
+    document.getElementById("kpiMindmap").textContent = avg(filtered.map(r => r.mindmap_avg)).toFixed(2);
+    document.getElementById("kpiTraining").textContent = avg(filtered.map(r => r.training_avg)).toFixed(2);
+    document.getElementById("kpiAchievement").textContent = avg(filtered.map(r => r.achievement_avg)).toFixed(2);
+
+    // Table by faculty within filtered set
+    const tbody = document.querySelector("#facultyTable tbody");
+    const faculties = [...new Set(filtered.map(r => r.faculty))];
+    tbody.innerHTML = faculties.map(fac => {
+      const sub = filtered.filter(r => r.faculty === fac);
+      return `
+        <tr>
+          <td><strong>${fac}</strong></td>
+          <td>${sub.length}</td>
+          <td>${avg(sub.map(r => r.time_avg)).toFixed(2)}</td>
+          <td>${avg(sub.map(r => r.mindmap_avg)).toFixed(2)}</td>
+          <td>${avg(sub.map(r => r.training_avg)).toFixed(2)}</td>
+          <td>${avg(sub.map(r => r.achievement_avg)).toFixed(2)}</td>
+        </tr>
+      `;
+    }).join("");
+
+    drawFacultyChart(filtered);
+
+    // Selected metric stats
+    const metricKey = document.getElementById("metricSelect").value;
+    const metricText = document.getElementById("metricSelect").selectedOptions[0].text;
+    const vals = filtered.map(r => r[metricKey]);
+
+    const mVal = avg(vals);
+    const medVal = median(vals);
+    const sdVal = stdDev(vals);
+    const rngVal = vals.length ? (Math.max(...vals) - Math.min(...vals)) : 0;
+
+    let skewLabel = "متماثل تقريباً";
+    if (mVal - medVal > 0.15) skewLabel = "التواء نحو اليمين (Right-skewed)";
+    else if (medVal - mVal > 0.15) skewLabel = "التواء نحو اليسار (Left-skewed)";
+
+    document.getElementById("statMean").textContent = mVal.toFixed(2);
+    document.getElementById("statMedian").textContent = medVal.toFixed(2);
+    document.getElementById("statSD").textContent = sdVal.toFixed(2);
+    document.getElementById("statRange").textContent = rngVal.toFixed(2);
+    document.getElementById("statSkew").textContent = skewLabel;
+
+    drawDistributionChart(vals, metricText);
+  }
+
+  function parseCSV(text) {
+    const lines = text.trim().split(/?
+/).filter(l => l.trim().length > 0);
+    if (lines.length < 2) return [];
+    const headers = lines[0].split(",").map(h => h.trim().replace(/^"|"$/g, ""));
+    return lines.slice(1).map(line => {
+      const cols = line.split(",").map(c => c.trim().replace(/^"|"$/g, ""));
+      const obj = {};
+      headers.forEach((h, i) => {
+        obj[h] = cols[i] !== undefined ? cols[i] : "";
+      });
+      return obj;
+    });
+  }
+
+  document.getElementById("csvFileInput").addEventListener("change", function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      const parsed = parseCSV(evt.target.result);
+      if (parsed.length) {
+        allRows = enrichRows(parsed);
+        document.getElementById("datasetBadge").textContent = `البيانات الحالية: ملف مرفوع (${file.name} - ${allRows.length} سجل)`;
+        populateFacultyFilter();
+        updateDashboard();
+      }
+    };
+    reader.readAsText(file, "UTF-8");
+  });
+
+  document.getElementById("loadPresetBtn").addEventListener("click", function() {
+    allRows = enrichRows(PRESET_ROWS);
+    document.getElementById("datasetBadge").textContent = `البيانات الحالية: نتائج مسبقة جاهزة للورشة (${allRows.length} طالباً)`;
+    populateFacultyFilter();
+    updateDashboard();
+  });
+
+  document.getElementById("downloadSampleCsvBtn").addEventListener("click", function() {
+    const headers = Object.keys(PRESET_ROWS[0]);
+    const csvLines = [
+      headers.join(","),
+      ...PRESET_ROWS.map(r => headers.map(h => `"${r[h]}"`).join(","))
+    ];
+    const blob = new Blob(["﻿" + csvLines.join("
+")], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "sample.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById("facultyFilter").addEventListener("change", updateDashboard);
+  document.getElementById("trainingFilter").addEventListener("change", updateDashboard);
+  document.getElementById("metricSelect").addEventListener("change", updateDashboard);
+
+  // Initial load
+  allRows = enrichRows(PRESET_ROWS);
+  populateFacultyFilter();
+  updateDashboard();
+</script>
+</body>
+</html>
