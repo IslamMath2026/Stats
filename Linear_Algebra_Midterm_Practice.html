@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linear Algebra Interactive Midterm Practice</title>
+<style>
+  :root {
+    --primary: #1e3a8a;
+    --primary-light: #eff6ff;
+    --secondary: #0f766e;
+    --secondary-light: #f0fdfa;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #1e293b;
+    --border: #cbd5e1;
+    --correct: #16a34a;
+    --correct-bg: #dcfce7;
+    --wrong: #dc2626;
+    --wrong-bg: #fee2e2;
+  }
+  * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+  body { background: var(--bg); color: var(--text); margin: 0; padding: 18px; line-height: 1.6; }
+  .container { max-width: 920px; margin: 0 auto; }
+  header {
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    color: white;
+    padding: 26px;
+    border-radius: 14px;
+    margin-bottom: 22px;
+    box-shadow: 0 4px 15px rgba(30, 58, 138, 0.2);
+    text-align: center;
+  }
+  header h1 { margin: 0 0 8px 0; font-size: 1.75rem; }
+  header p { margin: 0; opacity: 0.92; font-size: 1rem; }
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 18px;
+  }
+  button {
+    cursor: pointer;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+  }
+  .btn-regen { background: #f59e0b; color: #fff; }
+  .btn-regen:hover { background: #d97706; transform: translateY(-1px); }
+  .btn-check { background: #10b981; color: #fff; }
+  .btn-check:hover { background: #059669; transform: translateY(-1px); }
+  .btn-reset { background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.4); }
+  .btn-reset:hover { background: rgba(255,255,255,0.3); }
+
+  .score-banner {
+    display: none;
+    background: #ffffff;
+    border-left: 6px solid var(--primary);
+    padding: 16px 24px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    font-size: 1.15rem;
+    font-weight: bold;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .section-box {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 22px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    border: 1px solid #e2e8f0;
+  }
+  .section-title {
+    color: var(--primary);
+    border-bottom: 2px solid var(--primary-light);
+    padding-bottom: 10px;
+    margin-top: 0;
+    margin-bottom: 18px;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    background: var(--primary-light);
+    color: var(--primary);
+    font-size: 0.82rem;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+  }
+
+  .question-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    background: #ffffff;
+    transition: border-color 0.2s;
+    overflow-x: auto;
+  }
+  .question-card.correct { border-color: var(--correct); background: #f0fdf4; }
+  .question-card.wrong { border-color: var(--wrong); background: #fef2f2; }
+  .q-text { font-weight: 600; margin-bottom: 14px; font-size: 1.04rem; }
+  .options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 10px;
+  }
+  .option-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    background: #fff;
+    transition: all 0.15s;
+    overflow-x: auto;
+  }
+  .option-label:hover { background: var(--primary-light); border-color: var(--primary); }
+  .option-label input[type="radio"] { accent-color: var(--primary); transform: scale(1.15); flex-shrink: 0; }
+  .option-label.correct-opt { background: var(--correct-bg) !important; border-color: var(--correct) !important; font-weight: bold; }
+  .option-label.wrong-opt { background: var(--wrong-bg) !important; border-color: var(--wrong) !important; }
+
+  .explanation {
+    display: none;
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: #f1f5f9;
+    border-left: 4px solid var(--primary);
+    border-radius: 4px;
+    font-size: 0.94rem;
+    color: #334155;
+    overflow-x: auto;
+  }
+  .explanation.show { display: block; }
+  @media print {
+    .toolbar, .score-banner { display: none !important; }
+    .section-box { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Matrices Midterm Practice Generator</h1>
+    <p>Linear Algebra (Parts 1–4) &bull; Dynamic Matrices, Determinants, Rank &amp; Linear Systems</p>
+    <div class="toolbar">
+      <button class="btn-regen" onclick="generateAll()">🔄 Generate New Matrices</button>
+      <button class="btn-check" onclick="gradeQuiz()">✅ Submit &amp; Check Answers</button>
+      <button class="btn-reset" onclick="resetSelections()">↺ Clear Selections</button>
+    </div>
+  </header>
+
+  <div id="scoreBanner" class="score-banner">
+    <span id="scoreText">Score: 0 / 0</span>
+    <span id="scorePercent" style="color: var(--primary);">0%</span>
+  </div>
+
+  <div id="quizContainer"></div>
+</div>
+
+<script>
+const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+const randNonZero = (min, max) => {
+  let v = 0;
+  while (v === 0) v = randInt(min, max);
+  return v;
+};
+const shuffle = (arr) => {
+  let a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
+
+// LaTeX Matrix helper: takes 2D array -> \begin{bmatrix} ... \end{bmatrix}
+const mat = (rows) => {
+  const body = rows.map(r => r.join(' & ')).join(' \\\\ ');
+  return `\\begin{bmatrix} ${body} \\end{bmatrix}`;
+};
+
+let currentQuestions = [];
+
+function makeOptions(correctStr, distractors) {
+  let unique = new Set([String(correctStr)]);
+  let opts = [{ text: String(correctStr), isCorrect: true }];
+  for (let d of distractors) {
+    let s = String(d);
+    if (!unique.has(s)) {
+      unique.add(s);
+      opts.push({ text: s, isCorrect: false });
+    }
+    if (opts.length === 4) break;
+  }
+  let bump = 1;
+  while (opts.length < 4) {
+    let fallback = `${correctStr} (${bump})`;
+    if (!unique.has(fallback)) {
+      unique.add(fallback);
+      opts.push({ text: fallback, isCorrect: false });
+    }
+    bump++;
+  }
+  return shuffle(opts);
+}
+
+function generateAll() {
+  document.getElementById('scoreBanner').style.display = 'none';
+  currentQuestions = [];
+  const container = document.getElementById('quizContainer');
+  container.innerHTML = '';
+
+  let qNum = 1;
+  const addSection = (title, badge, questions) => {
+    const sec = document.createElement('div');
+    sec.className = 'section-box';
+    sec.innerHTML = `<h2 class="section-title"><span class="badge">${badge}</span> ${title}</h2>`;
+    
+    questions.forEach(q => {
+      const idx = currentQuestions.length;
+      currentQuestions.push(q);
+      const qCard = document.createElement('div');
+      qCard.className = 'question-card';
+      qCard.id = `qcard-${idx}`;
+      
+      let optsHtml = q.options.map((opt, oIdx) => `
+        <label class="option-label" id="opt-${idx}-${oIdx}">
+          <input type="radio" name="q-${idx}" value="${oIdx}">
+          <span><strong>${String.fromCharCode(65 + oIdx)}.</strong> ${opt.text}</span>
+        </label>
+      `).join('');
+
+      qCard.innerHTML = `
+        <div class="q-text">Q${qNum++}. ${q.prompt}</div>
+        <div class="options-grid">${optsHtml}</div>
+        <div class="explanation" id="exp-${idx}"><strong>Solution:</strong> ${q.solution}</div>
+      `;
+      sec.appendChild(qCard);
+    });
+    container.appendChild(sec);
+  };
+
+  // ==================== SECTION A: CONCEPTUAL & QUICK CALCULATIONS ====================
+  const secA = [];
+
+  // A1: Matrix Order
+  const is2x4 = Math.random() < 0.5;
+  const ordMat = is2x4
+    ? [[randInt(1,9), randInt(1,9), randInt(1,9), randInt(1,9)], [randInt(1,9), randInt(1,9), randInt(1,9), randInt(1,9)]]
+    : [[randInt(1,9), randInt(1,9)], [randInt(1,9), randInt(1,9)], [randInt(1,9), randInt(1,9)]];
+  const ansOrder = is2x4 ? "\\(2 \\times 4\\)" : "\\(3 \\times 2\\)";
+  secA.push({
+    prompt: `The order of \\(${mat(ordMat)}\\) is:`,
+    options: makeOptions(ansOrder, ["\\(4 \\times 2\\)", "\\(2 \\times 3\\)", "\\(8 \\times 1\\)", "\\(6 \\times 1\\)"]),
+    solution: `Count rows first, then columns: there are ${ordMat.length} rows and ${ordMat[0].length} columns, so the order is ${ansOrder}.`
+  });
+
+  // A2: Specific Name of Scalar Matrix
+  const kScalar = randInt(2, 9);
+  const scalarMat = [[kScalar, 0, 0], [0, kScalar, 0], [0, 0, kScalar]];
+  secA.push({
+    prompt: `The most specific name of \\(${mat(scalarMat)}\\) is:`,
+    options: makeOptions("Scalar", ["Diagonal", "Identity", "Zero"]),
+    solution: `It is a diagonal matrix whose main diagonal entries are all equal (\\(${kScalar} \\neq 1\\)), so its most specific name is a <strong>Scalar</strong> matrix.`
+  });
+
+  // A3: Matrix Equality
+  const a3_shift = randInt(1, 5);
+  const x3 = randInt(2, 7);
+  const y3 = randInt(2, 7);
+  const c3_1 = randInt(1, 9);
+  const c3_2 = randInt(1, 9);
+  secA.push({
+    prompt: `If \\(${mat([[`x+${a3_shift}`, c3_1], [c3_2, 'y']])} = ${mat([[x3 + a3_shift, c3_1], [c3_2, y3]])}\\), then \\(x + y =\\)`,
+    options: makeOptions(`\\(${x3 + y3}\\)`, [`\\(${x3 + a3_shift + y3}\\)`, `\\(${x3 + y3 - 1}\\)`, `\\(${x3 * y3}\\)`]),
+    solution: `Equating corresponding entries gives \\(x + ${a3_shift} = ${x3 + a3_shift} \\Rightarrow x = ${x3}\\), and \\(y = ${y3}\\). Therefore, \\(x + y = ${x3} + ${y3} = ${x3 + y3}\\).`
+  });
+
+  // A4: Product Order
+  const rA = randInt(2, 4);
+  const commonDim = randInt(2, 5);
+  const cB = randInt(3, 6);
+  secA.push({
+    prompt: `\\(A\\) is \\(${rA} \\times ${commonDim}\\) and \\(B\\) is \\(${commonDim} \\times ${cB}\\). The order of \\(AB\\) is:`,
+    options: makeOptions(`\\(${rA} \\times ${cB}\\)`, [`\\(${commonDim} \\times ${commonDim}\\)`, `\\(${cB} \\times ${rA}\\)`, "\\(AB\\) does not exist"]),
+    solution: `Inner dimensions match (\\(${commonDim} = ${commonDim}\\)), and the outer dimensions give the product order: \\(${rA} \\times ${cB}\\).`
+  });
+
+  // A5: 2A - I
+  const m5 = [[randInt(1, 4), randInt(1, 4)], [randInt(1, 4), randInt(1, 4)]];
+  const ans5 = [[2*m5[0][0] - 1, 2*m5[0][1]], [2*m5[1][0], 2*m5[1][1] - 1]];
+  const dist5_1 = [[2*m5[0][0], 2*m5[0][1]], [2*m5[1][0], 2*m5[1][1]]];
+  const dist5_2 = [[2*m5[0][0] - 1, 2*m5[0][1] - 1], [2*m5[1][0] - 1, 2*m5[1][1] - 1]];
+  const dist5_3 = [[m5[0][0] - 1, m5[0][1]], [m5[1][0], m5[1][1] - 1]];
+  secA.push({
+    prompt: `If \\(A = ${mat(m5)}\\), then \\(2A - I =\\)`,
+    options: makeOptions(`\\(${mat(ans5)}\\)`, [`\\(${mat(dist5_1)}\\)`, `\\(${mat(dist5_2)}\\)`, `\\(${mat(dist5_3)}\\)`]),
+    solution: `\\(2A - I = ${mat(dist5_1)} - ${mat([[1,0],[0,1]])} = ${mat(ans5)}\\).`
+  });
+
+  // A6: Symmetric Matrix
+  const sDiag1 = randInt(1, 6);
+  const sDiag2 = randInt(1, 6);
+  const sOff = randNonZero(-8, 9);
+  secA.push({
+    prompt: `\\(${mat([[sDiag1, 'x'], [sOff, sDiag2]])}\\) is symmetric when \\(x =\\)`,
+    options: makeOptions(`\\(${sOff}\\)`, [`\\(${-sOff}\\)`, `\\(${sDiag1}\\)`, `\\(${sDiag2}\\)`]),
+    solution: `A matrix is symmetric if \\(A^T = A\\), requiring off-diagonal entries to match: \\(x = ${sOff}\\).`
+  });
+
+  // A7: Skew-symmetric diagonal
+  secA.push({
+    prompt: "Every diagonal entry of a skew-symmetric matrix is:",
+    options: makeOptions("\\(0\\)", ["\\(1\\)", "equal to the others", "positive"]),
+    solution: "For a skew-symmetric matrix, \\(a_{ii} = -a_{ii} \\Rightarrow 2a_{ii} = 0 \\Rightarrow a_{ii} = 0\\)."
+  });
+
+  // A8: 2x2 Determinant
+  const d8_a = randInt(2, 6), d8_b = randInt(1, 5), d8_c = randInt(1, 4), d8_d = randInt(2, 6);
+  const det8 = d8_a * d8_d - d8_b * d8_c;
+  secA.push({
+    prompt: `\\(\\begin{vmatrix} ${d8_a} & ${d8_b} \\\\ ${d8_c} & ${d8_d} \\end{vmatrix} =\\)`,
+    options: makeOptions(`\\(${det8}\\)`, [`\\(${d8_a * d8_d + d8_b * d8_c}\\)`, `\\(${d8_b * d8_c - d8_a * d8_d}\\)`, `\\(${det8 + 4}\\)`]),
+    solution: `\\((${d8_a})(${d8_d}) - (${d8_b})(${d8_c}) = ${d8_a * d8_d} - ${d8_b * d8_c} = ${det8}\\).`
+  });
+
+  // A9: 2x2 Inverse with det = 1
+  const invPairs = [
+    [[3, 1], [5, 2]],
+    [[4, 3], [5, 4]],
+    [[5, 2], [7, 3]],
+    [[3, 2], [4, 3]]
+  ];
+  const base9 = invPairs[randInt(0, invPairs.length - 1)];
+  const [[a9, b9], [c9, d9]] = base9;
+  const ans9 = [[d9, -b9], [-c9, a9]];
+  const dist9_1 = [[d9, b9], [c9, a9]];
+  const dist9_2 = [[-d9, b9], [c9, -a9]];
+  const dist9_3 = [[a9, -b9], [-c9, d9]];
+  secA.push({
+    prompt: `The inverse of \\(${mat(base9)}\\) is:`,
+    options: makeOptions(`\\(${mat(ans9)}\\)`, [`\\(${mat(dist9_1)}\\)`, `\\(${mat(dist9_2)}\\)`, `\\(${mat(dist9_3)}\\)`]),
+    solution: `Here \\(|A| = (${a9})(${d9}) - (${b9})(${c9}) = 1\\). Swap diagonal entries and negate off-diagonal entries: \\(A^{-1} = ${mat(ans9)}\\).`
+  });
+
+  // A10: Singular Matrix (no inverse)
+  const k10 = randInt(2, 4);
+  const r10_1 = [randInt(1, 3), randInt(2, 4)];
+  const singMat = [r10_1, [r10_1[0] * k10, r10_1[1] * k10]];
+  const nonSing1 = [[1, 2], [3, 5]];
+  const nonSing2 = [[2, 0], [0, 3]];
+  const nonSing3 = [[1, 0], [0, 1]];
+  secA.push({
+    prompt: "Which matrix has no inverse?",
+    options: makeOptions(`\\(${mat(singMat)}\\)`, [`\\(${mat(nonSing1)}\\)`, `\\(${mat(nonSing2)}\\)`, `\\(${mat(nonSing3)}\\)`]),
+    solution: `A matrix has no inverse when its determinant is \\(0\\). For \\(${mat(singMat)}\\), Row 2 is \\(${k10} \\times\\) Row 1, so \\(|A| = 0\\).`
+  });
+
+  // A11: |kA| for nxn matrix
+  const n11 = 3;
+  const k11 = randInt(2, 3);
+  const detA11 = randInt(2, 5);
+  const ans11 = Math.pow(k11, n11) * detA11;
+  secA.push({
+    prompt: `\\(A\\) is \\(3 \\times 3\\) and \\(|A| = ${detA11}\\). Then \\(|${k11}A| =\\)`,
+    options: makeOptions(`\\(${ans11}\\)`, [`\\(${k11 * detA11}\\)`, `\\(${Math.pow(k11, 2) * detA11}\\)`, `\\(${Math.pow(detA11, k11)}\\)`]),
+    solution: `For an \\(n \\times n\\) matrix, \\(|kA| = k^n |A|\\). Here \\(|${k11}A| = ${k11}^3 \\cdot ${detA11} = ${Math.pow(k11,3)} \\cdot ${detA11} = ${ans11}\\).`
+  });
+
+  // A12: Rank of 2x2 proportional rows
+  const m12 = randInt(2, 4);
+  const r12 = [randInt(1, 3), randInt(2, 5)];
+  const mat12 = [r12, [r12[0]*m12, r12[1]*m12]];
+  secA.push({
+    prompt: `The rank of \\(${mat(mat12)}\\) is:`,
+    options: makeOptions("\\(1\\)", ["\\(0\\)", "\\(2\\)", "\\(3\\)"]),
+    solution: `Row 2 is \\(${m12} \\times\\) Row 1, so row reduction leaves 1 non-zero row. Thus \\(\\text{rank} = 1\\).`
+  });
+
+  // A13: Max rank of r x c matrix
+  const r13 = 3, c13 = 4;
+  secA.push({
+    prompt: `The largest possible rank of a \\(${r13} \\times ${c13}\\) matrix is:`,
+    options: makeOptions(`\\(${Math.min(r13, c13)}\\)`, ["\\(2\\)", "\\(4\\)", "\\(12\\)"]),
+    solution: `\\(\\text{rank}(A) \\le \\min(\\text{rows}, \\text{columns}) = \\min(3, 4) = 3\\).`
+  });
+
+  // A14: Determinant of Diagonal Matrix
+  const d14_1 = randNonZero(-3, 4);
+  const d14_2 = randNonZero(-4, -1);
+  const d14_3 = randNonZero(2, 5);
+  const det14 = d14_1 * d14_2 * d14_3;
+  secA.push({
+    prompt: `For \\(D = \\text{diag}(${d14_1}, ${d14_2}, ${d14_3})\\), \\(|D| =\\)`,
+    options: makeOptions(`\\(${det14}\\)`, [`\\(${-det14}\\)`, `\\(${d14_1 + d14_2 + d14_3}\\)`, "\\(0\\)"]),
+    solution: `The determinant of a diagonal matrix is the product of its diagonal entries: \\((${d14_1})(${d14_2})(${d14_3}) = ${det14}\\).`
+  });
+
+  // A15: Consistency of AX = B
+  secA.push({
+    prompt: "If \\(\\text{rank}(A) = 2\\) and \\(\\text{rank}([A|B]) = 3\\), the system \\(AX = B\\) has:",
+    options: makeOptions("no solution", ["a unique solution", "infinitely many solutions", "only the trivial solution"]),
+    solution: "Because \\(\\text{rank}(A) \\neq \\text{rank}([A|B])\\), the system is inconsistent and has <strong>no solution</strong>."
+  });
+
+  // A16: Transpose of product
+  secA.push({
+    prompt: "\\((AB)^T =\\)",
+    options: makeOptions("\\(B^T A^T\\)", ["\\(A^T B^T\\)", "\\(AB\\)", "\\(BA\\)"]),
+    solution: "The transpose of a product reverses the order of multiplication: \\((AB)^T = B^T A^T\\)."
+  });
+
+  addSection("Section A — Core Concepts & Quick Properties (1 mark each)", "Section A", secA);
+
+  // ==================== SECTION B: COMPUTATIONS, CRAMER & CONCEPT CHECKS ====================
+  const secB = [];
+
+  // B1: 2x2 Matrix Multiplication AB
+  const A_b1 = [[randInt(1,3), randInt(1,3)], [randInt(2,4), randInt(1,4)]];
+  const B_b1 = [[0, randInt(1,2)], [randInt(1,3), -1]];
+  const AB_b1 = [
+    [A_b1[0][0]*B_b1[0][0] + A_b1[0][1]*B_b1[1][0], A_b1[0][0]*B_b1[0][1] + A_b1[0][1]*B_b1[1][1]],
+    [A_b1[1][0]*B_b1[0][0] + A_b1[1][1]*B_b1[1][0], A_b1[1][0]*B_b1[0][1] + A_b1[1][1]*B_b1[1][1]]
+  ];
+  const BA_b1 = [
+    [B_b1[0][0]*A_b1[0][0] + B_b1[0][1]*A_b1[1][0], B_b1[0][0]*A_b1[0][1] + B_b1[0][1]*A_b1[1][1]],
+    [B_b1[1][0]*A_b1[0][0] + B_b1[1][1]*A_b1[1][0], B_b1[1][0]*A_b1[0][1] + B_b1[1][1]*A_b1[1][1]]
+  ];
+  const entryProd_b1 = [
+    [A_b1[0][0]*B_b1[0][0], A_b1[0][1]*B_b1[0][1]],
+    [A_b1[1][0]*B_b1[1][0], A_b1[1][1]*B_b1[1][1]]
+  ];
+  const wrongSign_b1 = [
+    [AB_b1[0][0], -AB_b1[0][1]],
+    [AB_b1[1][0], -AB_b1[1][1]]
+  ];
+  secB.push({
+    prompt: `For \\(A = ${mat(A_b1)}\\) and \\(B = ${mat(B_b1)}\\), the product \\(AB\\) is:`,
+    options: makeOptions(`\\(${mat(AB_b1)}\\)`, [`\\(${mat(BA_b1)}\\)`, `\\(${mat(entryProd_b1)}\\)`, `\\(${mat(wrongSign_b1)}\\)`]),
+    solution: `Multiply rows of \\(A\\) by columns of \\(B\\): \\(AB = ${mat(AB_b1)}\\). (Note: \\(${mat(BA_b1)}\\) is \\(BA\\).)`
+  });
+
+  // B2: Transpose of 3x2 Matrix
+  const A_b2 = [[randInt(1,4), -randInt(1,3)], [0, randInt(2,5)], [randInt(3,6), randInt(1,4)]];
+  const AT_b2 = [[A_b2[0][0], A_b2[1][0], A_b2[2][0]], [A_b2[0][1], A_b2[1][1], A_b2[2][1]]];
+  const negAT_b2 = AT_b2.map(r => r.map(v => -v));
+  const revAT_b2 = [[A_b2[2][0], A_b2[1][0], A_b2[0][0]], [A_b2[2][1], A_b2[1][1], A_b2[0][1]]];
+  secB.push({
+    prompt: `For \\(A = ${mat(A_b2)}\\), the transpose \\(A^T\\) is:`,
+    options: makeOptions(`\\(${mat(AT_b2)}\\)`, [`\\(${mat(negAT_b2)}\\)`, `\\(${mat(revAT_b2)}\\)`, `\\(${mat(A_b2)}\\)`]),
+    solution: `Turn the 3 rows into 3 columns: \\(A^T = ${mat(AT_b2)}\\).`
+  });
+
+  // B3: 3x3 Determinant
+  const m3 = [
+    [1, randInt(2, 3), 0],
+    [randInt(2, 4), 1, randInt(2, 4)],
+    [2, 0, 1]
+  ];
+  const det3 = m3[0][0]*(m3[1][1]*m3[2][2] - m3[1][2]*m3[2][1])
+             - m3[0][1]*(m3[1][0]*m3[2][2] - m3[1][2]*m3[2][0])
+             + m3[0][2]*(m3[1][0]*m3[2][1] - m3[1][1]*m3[2][0]);
+  secB.push({
+    prompt: `\\(\\begin{vmatrix} ${m3[0].join(' & ')} \\\\ ${m3[1].join(' & ')} \\\\ ${m3[2].join(' & ')} \\end{vmatrix} =\\)`,
+    options: makeOptions(`\\(${det3}\\)`, [`\\(${-det3}\\)`, `\\(${det3 + 2}\\)`, `\\(${det3 - 4}\\)`]),
+    solution: `Expanding along Row 1: \\(1(1 - 0) - ${m3[0][1]}(${m3[1][0]} - ${2*m3[1][2]}) + 0 = 1 - ${m3[0][1]}(${m3[1][0] - 2*m3[1][2]}) = ${det3}\\).`
+  });
+
+  // B4: Inverse of 2x2 Matrix (det = 1)
+  const invPairsB = [
+    [[2, 5], [1, 3]],
+    [[3, 5], [1, 2]],
+    [[4, 7], [1, 2]],
+    [[5, 7], [2, 3]]
+  ];
+  const baseB4 = invPairsB[randInt(0, invPairsB.length - 1)];
+  const [[a4, b4], [c4, d4]] = baseB4;
+  const ansB4 = [[d4, -b4], [-c4, a4]];
+  secB.push({
+    prompt: `The inverse of \\(${mat(baseB4)}\\) is:`,
+    options: makeOptions(`\\(${mat(ansB4)}\\)`, [
+      `\\(${mat([[d4, b4], [c4, a4]])}\\)`,
+      `\\(${mat([[-d4, b4], [c4, -a4]])}\\)`,
+      `\\(${mat([[a4, -b4], [-c4, d4]])}\\)`
+    ]),
+    solution: `\\(|A| = (${a4})(${d4}) - (${b4})(${c4}) = 1\\), so \\(A^{-1} = ${mat(ansB4)}\\).`
+  });
+
+  // B5: Rank of 3x3 Matrix where R3 = R1 + R2 (rank = 2)
+  const r5_1 = [1, 0, randInt(2, 4)];
+  const r5_2 = [randInt(2, 3), 1, randInt(1, 3)];
+  const r5_3 = [r5_1[0] + r5_2[0], r5_1[1] + r5_2[1], r5_1[2] + r5_2[2]];
+  const matB5 = [r5_1, r5_2, r5_3];
+  secB.push({
+    prompt: `The rank of \\(${mat(matB5)}\\) is:`,
+    options: makeOptions("\\(2\\)", ["\\(1\\)", "\\(3\\)", "\\(0\\)"]),
+    solution: `Notice that Row 3 = Row 1 + Row 2. Row reduction yields a zero row and 2 independent non-zero rows, so \\(\\text{rank} = 2\\).`
+  });
+
+  // B6: Solving 2x2 Linear System
+  const xSol6 = randInt(1, 3);
+  const ySol6 = randInt(1, 3);
+  const rhs6_1 = a4 * xSol6 + b4 * ySol6;
+  const rhs6_2 = c4 * xSol6 + d4 * ySol6;
+  secB.push({
+    prompt: `Which pair \\((x, y)\\) solves \\(\\begin{cases} ${a4}x + ${b4}y = ${rhs6_1} \\\\ ${c4}x + ${d4}y = ${rhs6_2} \\end{cases}\\)?`,
+    options: makeOptions(`\\((${xSol6}, ${ySol6})\\)`, [
+      `\\((${ySol6}, ${xSol6 + 1})\\)`,
+      `\\((${xSol6 + 2}, ${ySol6 - 2})\\)`,
+      `\\((${rhs6_2}, 0)\\)`
+    ]),
+    solution: `Substituting \\(x = ${xSol6}, y = ${ySol6}\\): \\(${a4}(${xSol6}) + ${b4}(${ySol6}) = ${rhs6_1}\\) and \\(${c4}(${xSol6}) + ${d4}(${ySol6}) = ${rhs6_2}\\).`
+  });
+
+  // B7: 3x3 System via Cramer's Rule
+  const x7 = randInt(1, 2), y7 = randInt(1, 3), z7 = randInt(2, 3);
+  // Coefficient matrix with |A| = 4: [[2,1,0],[0,2,1],[0,0,1]]
+  const eq1_7 = 2*x7 + y7;
+  const eq2_7 = 2*y7 + z7;
+  const eq3_7 = z7;
+  secB.push({
+    prompt: `Using Cramer's Rule, the solution \\((x, y, z)\\) to \\(\\begin{cases} 2x + y = ${eq1_7} \\\\ 2y + z = ${eq2_7} \\\\ z = ${eq3_7} \\end{cases}\\) is:`,
+    options: makeOptions(`\\((${x7}, ${y7}, ${z7})\\)`, [
+      `\\((${z7}, ${y7}, ${x7})\\)`,
+      `\\((${x7 + 1}, ${y7}, ${z7})\\)`,
+      `\\((${x7}, ${y7 + 1}, ${z7 - 1})\\)`
+    ]),
+    solution: `Here \\(|A| = 4\\), \\(D_x = ${4*x7}\\), \\(D_y = ${4*y7}\\), \\(D_z = ${4*z7}\\), giving \\((x, y, z) = (${x7}, ${y7}, ${z7})\\).`
+  });
+
+  // B8: True/False Matrix Commutativity
+  secB.push({
+    prompt: "True or False: For any two square matrices \\(A\\) and \\(B\\) of the same order, \\(AB = BA\\).",
+    options: makeOptions("False", ["True", "True only if \\(A\\) is symmetric", "True only if \\(|A| \\neq 0\\)"]),
+    solution: "<strong>False.</strong> Matrix multiplication is not commutative in general (\\(AB \\neq BA\\))."
+  });
+
+  // B9: True/False Triangular Matrix with zero on diagonal
+  const t9_1 = randInt(2, 5), t9_2 = randInt(2, 5);
+  const triMat9 = [[t9_1, randInt(1,4), randInt(1,4)], [0, 0, randInt(1,4)], [0, 0, t9_2]];
+  secB.push({
+    prompt: `True or False: The triangular matrix \\(${mat(triMat9)}\\) is singular (has no inverse).`,
+    options: makeOptions("True", ["False", "Only when transposed", "Cannot be determined"]),
+    solution: `<strong>True.</strong> The determinant of a triangular matrix is the product of its diagonal entries: \\(${t9_1} \\times 0 \\times ${t9_2} = 0\\).`
+  });
+
+  // B10: Spot the mistake in 2x2 inverse (forgetting 1/|A|)
+  const m10_a = 4, m10_b = 7, m10_c = 2, m10_d = 6; // det = 24 - 14 = 10
+  secB.push({
+    prompt: `A student wrote that the inverse of \\(A = ${mat([[m10_a, m10_b], [m10_c, m10_d]])}\\) is \\(${mat([[m10_d, -m10_b], [-m10_c, m10_a]])}\\). What is the mistake?`,
+    options: makeOptions(
+      `Forgot to divide by \\(|A| = 10\\): \\(A^{-1} = \\frac{1}{10}${mat([[m10_d, -m10_b], [-m10_c, m10_a]])}\\)`,
+      ["Swapped the wrong diagonal", "Did not change the signs of off-diagonal entries", "The matrix has no inverse"]
+    ),
+    solution: `The adjoint matrix is correct, but the student forgot to divide by \\(|A| = (4)(6) - (7)(2) = 10\\).`
+  });
+
+  addSection("Section B — Computations, Systems & Error Analysis (2 marks each)", "Section B", secB);
+
+  if (window.MathJax && window.MathJax.typesetPromise) {
+    window.MathJax.typesetPromise();
+  }
+}
+
+function gradeQuiz() {
+  let score = 0;
+  let total = currentQuestions.length;
+
+  currentQuestions.forEach((q, idx) => {
+    const selected = document.querySelector(`input[name="q-${idx}"]:checked`);
+    const card = document.getElementById(`qcard-${idx}`);
+    const exp = document.getElementById(`exp-${idx}`);
+    card.classList.remove('correct', 'wrong');
+    exp.classList.add('show');
+
+    q.options.forEach((opt, oIdx) => {
+      const lbl = document.getElementById(`opt-${idx}-${oIdx}`);
+      lbl.classList.remove('correct-opt', 'wrong-opt');
+      if (opt.isCorrect) {
+        lbl.classList.add('correct-opt');
+      }
+    });
+
+    if (selected) {
+      const chosenIdx = parseInt(selected.value);
+      if (q.options[chosenIdx].isCorrect) {
+        score++;
+        card.classList.add('correct');
+      } else {
+        card.classList.add('wrong');
+        document.getElementById(`opt-${idx}-${chosenIdx}`).classList.add('wrong-opt');
+      }
+    } else {
+      card.classList.add('wrong');
+    }
+  });
+
+  const banner = document.getElementById('scoreBanner');
+  banner.style.display = 'flex';
+  document.getElementById('scoreText').textContent = `Your Score: ${score} / ${total}`;
+  document.getElementById('scorePercent').textContent = `${Math.round((score / total) * 100)}%`;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetSelections() {
+  document.getElementById('scoreBanner').style.display = 'none';
+  currentQuestions.forEach((q, idx) => {
+    const card = document.getElementById(`qcard-${idx}`);
+    const exp = document.getElementById(`exp-${idx}`);
+    card.classList.remove('correct', 'wrong');
+    exp.classList.remove('show');
+    q.options.forEach((_, oIdx) => {
+      const lbl = document.getElementById(`opt-${idx}-${oIdx}`);
+      lbl.classList.remove('correct-opt', 'wrong-opt');
+      const radio = lbl.querySelector('input');
+      radio.checked = false;
+    });
+  });
+}
+
+window.onload = generateAll;
+</script>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(', '\\)']] }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</body>
+</html>
