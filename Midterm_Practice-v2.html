@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Statistics Interactive Midterm Practice</title>
+<style>
+  :root {
+    --primary: #1e3a8a;
+    --primary-light: #eff6ff;
+    --secondary: #0f766e;
+    --secondary-light: #f0fdfa;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #cbd5e1;
+    --correct: #16a34a;
+    --correct-bg: #dcfce7;
+    --wrong: #dc2626;
+    --wrong-bg: #fee2e2;
+  }
+  * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+  body { background: var(--bg); color: var(--text); margin: 0; padding: 20px; line-height: 1.6; }
+  .container { max-width: 900px; margin: 0 auto; }
+  header {
+    background: linear-gradient(135deg, #1e3a8a, #1d4ed8);
+    color: white;
+    padding: 28px;
+    border-radius: 14px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 15px rgba(30, 58, 138, 0.2);
+    text-align: center;
+  }
+  header h1 { margin: 0 0 8px 0; font-size: 1.8rem; }
+  header p { margin: 0; opacity: 0.9; font-size: 1rem; }
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  button {
+    cursor: pointer;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+  }
+  .btn-regen { background: #f59e0b; color: #fff; }
+  .btn-regen:hover { background: #d97706; transform: translateY(-1px); }
+  .btn-check { background: #10b981; color: #fff; }
+  .btn-check:hover { background: #059669; transform: translateY(-1px); }
+  .btn-reset { background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.4); }
+  .btn-reset:hover { background: rgba(255,255,255,0.3); }
+
+  .score-banner {
+    display: none;
+    background: #ffffff;
+    border-left: 6px solid var(--primary);
+    padding: 16px 24px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    font-size: 1.15rem;
+    font-weight: bold;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .lecture-section {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    border: 1px solid #e2e8f0;
+  }
+  .lecture-title {
+    color: var(--primary);
+    border-bottom: 2px solid var(--primary-light);
+    padding-bottom: 10px;
+    margin-top: 0;
+    margin-bottom: 18px;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    background: var(--primary-light);
+    color: var(--primary);
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 700;
+  }
+
+  .data-box {
+    background: var(--secondary-light);
+    border: 1px solid #99f6e4;
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+  }
+  .data-box h4 { margin: 0 0 10px 0; color: var(--secondary); font-size: 1rem; }
+
+  table.stat-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+    background: white;
+    font-size: 0.95rem;
+  }
+  table.stat-table th, table.stat-table td {
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    text-align: center;
+  }
+  table.stat-table th {
+    background: var(--primary);
+    color: white;
+    font-weight: 600;
+  }
+  table.stat-table tr:nth-child(even) { background: #f8fafc; }
+  table.stat-table tr.summary-row {
+    background: #e0e7ff;
+    font-weight: bold;
+    color: var(--primary);
+  }
+
+  .question-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    background: #ffffff;
+    transition: border-color 0.2s;
+  }
+  .question-card.correct { border-color: var(--correct); background: #f0fdf4; }
+  .question-card.wrong { border-color: var(--wrong); background: #fef2f2; }
+  .q-text { font-weight: 600; margin-bottom: 12px; font-size: 1.02rem; }
+  .options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
+  }
+  .option-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    background: #fff;
+    transition: all 0.15s;
+  }
+  .option-label:hover { background: var(--primary-light); border-color: var(--primary); }
+  .option-label input[type="radio"] { accent-color: var(--primary); transform: scale(1.15); }
+  .option-label.correct-opt { background: var(--correct-bg) !important; border-color: var(--correct) !important; font-weight: bold; }
+  .option-label.wrong-opt { background: var(--wrong-bg) !important; border-color: var(--wrong) !important; }
+
+  .explanation {
+    display: none;
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: #f1f5f9;
+    border-left: 4px solid var(--primary);
+    border-radius: 4px;
+    font-size: 0.92rem;
+    color: #334155;
+  }
+  .explanation.show { display: block; }
+  @media print {
+    .toolbar, .score-banner { display: none !important; }
+    .lecture-section { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Statistics Midterm Practice Generator</h1>
+    <p>Interactive Question Bank with Pre-Computed Helper Tables &amp; Instant Step-by-Step Solutions</p>
+    <div class="toolbar">
+      <button class="btn-regen" onclick="generateAll()">🔄 Generate New Numbers</button>
+      <button class="btn-check" onclick="gradeQuiz()">✅ Submit &amp; Check Answers</button>
+      <button class="btn-reset" onclick="resetSelections()">↺ Clear Selections</button>
+    </div>
+  </header>
+
+  <div id="scoreBanner" class="score-banner">
+    <span id="scoreText">Score: 0 / 0</span>
+    <span id="scorePercent" style="color: var(--primary);">0%</span>
+  </div>
+
+  <div id="quizContainer"></div>
+</div>
+
+<script>
+const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+const shuffle = (arr) => {
+  let a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
+const round2 = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
+
+let currentQuestions = [];
+
+function makeOptions(correctVal, distractors, formatter = (v) => v) {
+  let unique = new Set([String(formatter(correctVal))]);
+  let opts = [{ text: String(formatter(correctVal)), isCorrect: true }];
+  for (let d of distractors) {
+    let f = String(formatter(d));
+    if (!unique.has(f)) {
+      unique.add(f);
+      opts.push({ text: f, isCorrect: false });
+    }
+    if (opts.length === 4) break;
+  }
+  let bump = 1;
+  while (opts.length < 4) {
+    let fallback = typeof correctVal === 'number' ? formatter(round2(correctVal + bump * 1.5)) : `${correctVal} (${bump})`;
+    if (!unique.has(String(fallback))) {
+      unique.add(String(fallback));
+      opts.push({ text: String(fallback), isCorrect: false });
+    }
+    bump++;
+  }
+  return shuffle(opts);
+}
+
+function generateAll() {
+  document.getElementById('scoreBanner').style.display = 'none';
+  currentQuestions = [];
+  const container = document.getElementById('quizContainer');
+  container.innerHTML = '';
+
+  let qNum = 1;
+  const addSection = (title, badge, introHtml, questions) => {
+    const sec = document.createElement('div');
+    sec.className = 'lecture-section';
+    sec.innerHTML = `<h2 class="lecture-title"><span class="badge">${badge}</span> ${title}</h2>${introHtml || ''}`;
+    
+    questions.forEach(q => {
+      const idx = currentQuestions.length;
+      currentQuestions.push(q);
+      const qCard = document.createElement('div');
+      qCard.className = 'question-card';
+      qCard.id = `qcard-${idx}`;
+      
+      let optsHtml = q.options.map((opt, oIdx) => `
+        <label class="option-label" id="opt-${idx}-${oIdx}">
+          <input type="radio" name="q-${idx}" value="${oIdx}">
+          <span><strong>${String.fromCharCode(65 + oIdx)}.</strong> ${opt.text}</span>
+        </label>
+      `).join('');
+
+      qCard.innerHTML = `
+        <div class="q-text">Q${qNum++}. ${q.prompt}</div>
+        <div class="options-grid">${optsHtml}</div>
+        <div class="explanation" id="exp-${idx}"><strong>Solution:</strong> ${q.solution}</div>
+      `;
+      sec.appendChild(qCard);
+    });
+    container.appendChild(sec);
+  };
+
+  // ================= LECTURE 1 =================
+  const l1Pool = [
+    {
+      prompt: "Which of the following represents discrete quantitative data?",
+      options: makeOptions("Number of absent students in a lecture", ["Height of a student in cm", "Time required to finish an exam", "Blood type of a patient"]),
+      solution: "Discrete data are countable whole numbers (e.g., number of students). Height and time are continuous; blood type is qualitative."
+    },
+    {
+      prompt: "Which of the following is qualitative (categorical) data?",
+      options: makeOptions("Marital status (Single, Married)", ["Age in years", "Daily temperature in °C", "Number of siblings"]),
+      solution: "Marital status describes a category/attribute rather than a numerical measurement."
+    },
+    {
+      prompt: "A researcher selects 150 patients from a hospital containing 3,200 patients. The 150 patients are called:",
+      options: makeOptions("A sample", ["The population", "A parameter", "A cumulative frequency"]),
+      solution: "A subset selected from the entire population (\\(N = 3,200\\)) is a sample (\\(n = 150\\))."
+    }
+  ];
+  const sampleSeq = Array.from({length: 7}, () => randInt(1, 9));
+  const targetPos = randInt(3, 6);
+  l1Pool.push({
+    prompt: `In the collected sample: <strong>${sampleSeq.join(', ')}</strong>, what is the value of \\(x_{${targetPos}}\\)?`,
+    options: makeOptions(sampleSeq[targetPos - 1], [sampleSeq[targetPos], sampleSeq[targetPos - 2], [...sampleSeq].sort((a,b)=>a-b)[targetPos-1]]),
+    solution: `Reading in the original order collected, the ${targetPos}th observation \\(x_{${targetPos}}\\) is ${sampleSeq[targetPos - 1]}.`
+  });
+  addSection("Introduction to Statistics", "Lecture 1", "", l1Pool);
+
+  // ================= LECTURE 2: RAW DATA WITH PRE-COMPUTED TABLE =================
+  let meanVal = randInt(6, 15);
+  let d1 = randInt(2, 4);
+  let d2 = randInt(1, 3);
+  let rawSet = [meanVal - d1, meanVal - d2, meanVal, meanVal + d2, meanVal + d1];
+  let displayRaw = shuffle(rawSet);
+  let nRaw = rawSet.length;
+  let sumX = rawSet.reduce((a,b) => a + b, 0);
+  let sumX2 = rawSet.reduce((a,b) => a + b*b, 0);
+  let sumDiffSq = rawSet.reduce((a,b) => a + Math.pow(b - meanVal, 2), 0);
+  
+  let popVar = round2(sumDiffSq / nRaw);
+  let popSD = round2(Math.sqrt(popVar));
+  let sampVar = round2(sumDiffSq / (nRaw - 1));
+  let sampSD = round2(Math.sqrt(sampVar));
+
+  let rawRowsHtml = displayRaw.map((x, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${x}</td>
+      <td>${x * x}</td>
+      <td>${x - meanVal}</td>
+      <td>${Math.pow(x - meanVal, 2)}</td>
+    </tr>
+  `).join('');
+
+  const l2Intro = `
+    <div class="data-box">
+      <h4>Raw Data Table (\\(n = ${nRaw}\\)): ${displayRaw.join(', ')}</h4>
+      <p style="margin:0 0 8px 0; font-size:0.9rem;">Use the pre-computed summary table below to find the mean, variance, and standard deviation:</p>
+      <table class="stat-table">
+        <thead>
+          <tr>
+            <th>Observation #</th>
+            <th>\\(x\\)</th>
+            <th>\\(x^2\\)</th>
+            <th>\\(x - \\bar{x}\\)</th>
+            <th>\\((x - \\bar{x})^2\\)</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rawRowsHtml}
+          <tr class="summary-row">
+            <td>Total (\\(\\Sigma\\))</td>
+            <td>\\(\\Sigma x = ${sumX}\\)</td>
+            <td>\\(\\Sigma x^2 = ${sumX2}\\)</td>
+            <td>\\(\\Sigma (x - \\bar{x}) = 0\\)</td>
+            <td>\\(\\Sigma (x - \\bar{x})^2 = ${sumDiffSq}\\)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  let sortedRaw = [...rawSet].sort((a,b) => a - b);
+  let medianRaw = sortedRaw[2];
+  let rangeRaw = sortedRaw[4] - sortedRaw[0];
+
+  const l2Questions = [
+    {
+      prompt: "From the Raw Data Table above, what is the arithmetic mean (\\(\\bar{x}\\))?",
+      options: makeOptions(meanVal, [sumX, medianRaw + 1, round2(sumX / 4)]),
+      solution: `\\(\\bar{x} = \\frac{\\Sigma x}{n} = \\frac{${sumX}}{${nRaw}} = ${meanVal}\\).`
+    },
+    {
+      prompt: "What is the median of this raw data set?",
+      options: makeOptions(medianRaw, [displayRaw[2], sortedRaw[1], sortedRaw[3]]),
+      solution: `Sorted data: ${sortedRaw.join(', ')}. With \\(n = 5\\) (odd), the middle (3rd) value is ${medianRaw}.`
+    },
+    {
+      prompt: "What is the range of this raw data set?",
+      options: makeOptions(rangeRaw, [sortedRaw[4], sortedRaw[0], sortedRaw[4] + sortedRaw[0]]),
+      solution: `\\(\\text{Range} = \\text{Max} - \\text{Min} = ${sortedRaw[4]} - ${sortedRaw[0]} = ${rangeRaw}\\).`
+    },
+    {
+      prompt: "Using the table, calculate the <strong>population variance</strong> (\\(\\sigma^2\\)):",
+      options: makeOptions(popVar, [sampVar, sumDiffSq, popSD]),
+      solution: `\\(\\sigma^2 = \\frac{\\Sigma (x - \\mu)^2}{N} = \\frac{${sumDiffSq}}{${nRaw}} = ${popVar}\\).`
+    },
+    {
+      prompt: "Using the table, calculate the <strong>sample variance</strong> (\\(s^2\\)):",
+      options: makeOptions(sampVar, [popVar, sampSD, sumDiffSq]),
+      solution: `\\(s^2 = \\frac{\\Sigma (x - \\bar{x})^2}{n - 1} = \\frac{${sumDiffSq}}{${nRaw - 1}} = ${sampVar}\\).`
+    },
+    {
+      prompt: "What is the <strong>sample standard deviation</strong> (\\(s\\)) for this data set?",
+      options: makeOptions(sampSD, [sampVar, popSD, popVar]),
+      solution: `\\(s = \\sqrt{s^2} = \\sqrt{${sampVar}} \\approx ${sampSD}\\).`
+    }
+  ];
+  addSection("Raw Data: Centre, Variance & Standard Deviation", "Lecture 2", l2Intro, l2Questions);
+
+  // ================= LECTURE 3: PERCENTILES, QUARTILES & IQR =================
+  let pData = [];
+  let startVal = randInt(2, 6);
+  for (let i = 0; i < 10; i++) {
+    startVal += randInt(2, 4);
+    pData.push(startVal);
+  }
+  const l3Intro = `
+    <div class="data-box">
+      <h4>Sorted Data (\\(n = 10\\)): ${pData.join(', ')}</h4>
+      <p style="margin:0; font-size:0.9rem;">Use the course index formula: \\(i = \\left(\\frac{P}{100}\\right) \\times n\\). (If \\(i\\) is a whole number, average the \\(i\\)-th and \\((i+1)\\)-th values; if not whole, round \\(i\\) up to the next integer.)</p>
+    </div>
+  `;
+  let p30 = round2((pData[2] + pData[3]) / 2);
+  let q1 = pData[2];
+  let q3 = pData[7];
+  let iqr = q3 - q1;
+  let p80 = round2((pData[7] + pData[8]) / 2);
+
+  const l3Questions = [
+    {
+      prompt: "Find the 30th percentile (\\(P_{30}\\)):",
+      options: makeOptions(p30, [pData[2], pData[3], round2((pData[1]+pData[2])/2)]),
+      solution: `\\(i = 0.30 \\times 10 = 3\\) (whole number), so average the 3rd and 4th values: \\((${pData[2]} + ${pData[3]}) \\div 2 = ${p30}\\).`
+    },
+    {
+      prompt: "Find the first quartile (\\(Q_1\\)):",
+      options: makeOptions(q1, [pData[1], round2((pData[1]+pData[2])/2), pData[3]]),
+      solution: `\\(i = 0.25 \\times 10 = 2.5\\) (not whole), round up to 3. The 3rd value is ${q1}.`
+    },
+    {
+      prompt: "Find the third quartile (\\(Q_3\\)):",
+      options: makeOptions(q3, [pData[6], round2((pData[6]+pData[7])/2), pData[8]]),
+      solution: `\\(i = 0.75 \\times 10 = 7.5\\) (not whole), round up to 8. The 8th value is ${q3}.`
+    },
+    {
+      prompt: "Find the Interquartile Range (\\(IQR\\)):",
+      options: makeOptions(iqr, [pData[9] - pData[0], q3 + q1, iqr + 2]),
+      solution: `\\(IQR = Q_3 - Q_1 = ${q3} - ${q1} = ${iqr}\\).`
+    },
+    {
+      prompt: "Find the 80th percentile (\\(P_{80}\\)):",
+      options: makeOptions(p80, [pData[7], pData[8], pData[9]]),
+      solution: `\\(i = 0.80 \\times 10 = 8\\) (whole number), so average the 8th and 9th values: \\((${pData[7]} + ${pData[8]}) \\div 2 = ${p80}\\).`
+    }
+  ];
+  addSection("Percentiles, Quartiles & IQR", "Lecture 3", l3Intro, l3Questions);
+
+  // ================= LECTURE 4: GROUPED DATA MEAN, VARIANCE & SD =================
+  let f1 = randInt(2, 6);
+  let f2 = randInt(4, 9);
+  let f3 = randInt(4, 9);
+  let f4 = randInt(2, 6);
+  let freqs4 = [f1, f2, f3, f4];
+  let mids4 = [5, 15, 25, 35];
+  let classes4 = ["0 – 10", "10 – 20", "20 – 30", "30 – 40"];
+  let N4 = freqs4.reduce((a,b) => a+b, 0);
+  let sumFx4 = freqs4.reduce((acc, f, i) => acc + f * mids4[i], 0);
+  let sumFx2_4 = freqs4.reduce((acc, f, i) => acc + f * mids4[i] * mids4[i], 0);
+  let mean4 = round2(sumFx4 / N4);
+  let popVar4 = round2((sumFx2_4 / N4) - Math.pow(mean4, 2));
+  let popSD4 = round2(Math.sqrt(popVar4));
+
+  let rows4Html = classes4.map((c, i) => `
+    <tr>
+      <td>${c}</td>
+      <td>${freqs4[i]}</td>
+      <td>${mids4[i]}</td>
+      <td>${freqs4[i] * mids4[i]}</td>
+      <td>${freqs4[i] * mids4[i] * mids4[i]}</td>
+    </tr>
+  `).join('');
+
+  const l4Intro = `
+    <div class="data-box">
+      <h4>Grouped Frequency Table (\\(N = ${N4}\\))</h4>
+      <table class="stat-table">
+        <thead>
+          <tr>
+            <th>Class</th>
+            <th>Frequency (\\(f\\))</th>
+            <th>Midpoint (\\(x\\))</th>
+            <th>\\(f \\cdot x\\)</th>
+            <th>\\(f \\cdot x^2\\)</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows4Html}
+          <tr class="summary-row">
+            <td>Total (\\(\\Sigma\\))</td>
+            <td>\\(N = ${N4}\\)</td>
+            <td>—</td>
+            <td>\\(\\Sigma fx = ${sumFx4}\\)</td>
+            <td>\\(\\Sigma fx^2 = ${sumFx2_4}\\)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  const l4Questions = [
+    {
+      prompt: "What is the midpoint (\\(x\\)) of the class <strong>20 – 30</strong>?",
+      options: makeOptions(25, [20, 30, 50]),
+      solution: `\\(x = \\frac{20 + 30}{2} = 25\\).`
+    },
+    {
+      prompt: "Using the table above, calculate the grouped mean (\\(\\bar{x}\\)):",
+      options: makeOptions(mean4, [20, round2(sumFx4 / 4), round2(mean4 + 2.5)]),
+      solution: `\\(\\bar{x} = \\frac{\\Sigma fx}{N} = \\frac{${sumFx4}}{${N4}} = ${mean4}\\).`
+    },
+    {
+      prompt: "Calculate the <strong>population variance</strong> (\\(\\sigma^2\\)) of this grouped data:",
+      options: makeOptions(popVar4, [round2(sumFx2_4 / N4), popSD4, round2(popVar4 + mean4)]),
+      solution: `\\(\\sigma^2 = \\frac{\\Sigma fx^2}{N} - \\bar{x}^2 = \\frac{${sumFx2_4}}{${N4}} - (${mean4})^2 = ${round2(sumFx2_4/N4)} - ${round2(mean4*mean4)} = ${popVar4}\\).`
+    },
+    {
+      prompt: "What is the <strong>population standard deviation</strong> (\\(\\sigma\\)) of this grouped data?",
+      options: makeOptions(popSD4, [popVar4, round2(Math.sqrt(sumFx2_4 / N4)), round2(popSD4 + 3.1)]),
+      solution: `\\(\\sigma = \\sqrt{\\sigma^2} = \\sqrt{${popVar4}} \\approx ${popSD4}\\).`
+    }
+  ];
+  addSection("Grouped Data: Mean, Variance & SD", "Lecture 4", l4Intro, l4Questions);
+
+  // ================= LECTURE 5: GROUPED DATA MEDIAN & MODE WITH CF TABLE =================
+  let g5_f1 = randInt(2, 4);
+  let g5_f2 = randInt(4, 7);
+  let g5_f3 = randInt(10, 15);
+  let g5_f4 = randInt(5, 8);
+  let g5_f5 = randInt(2, 4);
+  let freqs5 = [g5_f1, g5_f2, g5_f3, g5_f4, g5_f5];
+  let classes5 = ["0 – 10", "10 – 20", "20 – 30", "30 – 40", "40 – 50"];
+  let cf5 = [];
+  let runningCf = 0;
+  for (let f of freqs5) {
+    runningCf += f;
+    cf5.push(runningCf);
+  }
+  let N5 = runningCf;
+  let halfN5 = N5 / 2;
+  let medIdx5 = cf5.findIndex(c => c >= halfN5);
+  let L_med5 = medIdx5 * 10;
+  let cf_before5 = medIdx5 === 0 ? 0 : cf5[medIdx5 - 1];
+  let f_med5 = freqs5[medIdx5];
+  let h5 = 10;
+  let median5 = round2(L_med5 + ((halfN5 - cf_before5) / f_med5) * h5);
+
+  let modIdx5 = freqs5.indexOf(Math.max(...freqs5));
+  let L_mod5 = modIdx5 * 10;
+  let d1_5 = freqs5[modIdx5] - (modIdx5 > 0 ? freqs5[modIdx5 - 1] : 0);
+  let d2_5 = freqs5[modIdx5] - (modIdx5 < freqs5.length - 1 ? freqs5[modIdx5 + 1] : 0);
+  let mode5 = round2(L_mod5 + (d1_5 / (d1_5 + d2_5)) * h5);
+
+  let rows5Html = classes5.map((c, i) => `
+    <tr>
+      <td>${c}</td>
+      <td>${freqs5[i]}</td>
+      <td><strong>${cf5[i]}</strong></td>
+    </tr>
+  `).join('');
+
+  const l5Intro = `
+    <div class="data-box">
+      <h4>Grouped Frequency Table with Cumulative Frequency (\\(N = ${N5}\\))</h4>
+      <p style="margin:0 0 8px 0; font-size:0.9rem;">The classes have no gaps (\\(h = 10\\)). The Cumulative Frequency (\\(cf\\)) column is already computed for you:</p>
+      <table class="stat-table">
+        <thead>
+          <tr>
+            <th>Class</th>
+            <th>Frequency (\\(f\\))</th>
+            <th>Cumulative Frequency (\\(cf\\))</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows5Html}
+          <tr class="summary-row">
+            <td>Total</td>
+            <td>\\(N = ${N5}\\)</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  const l5Questions = [
+    {
+      prompt: `Since \\(N/2 = ${halfN5}\\), which class is the <strong>median class</strong>?`,
+      options: makeOptions(classes5[medIdx5], ["10 – 20", "30 – 40", "40 – 50"]),
+      solution: `\\(N/2 = ${halfN5}\\). Looking at the \\(cf\\) column, the first cumulative frequency \\(\\ge ${halfN5}\\) is ${cf5[medIdx5]}, which belongs to class <strong>${classes5[medIdx5]}</strong>.`
+    },
+    {
+      prompt: "Using the cumulative frequency table, calculate the approximate <strong>median</strong>:",
+      options: makeOptions(median5, [round2(L_med5 + (halfN5 / f_med5) * h5), mode5, round2(median5 + 2.4)]),
+      solution: `\\(\\text{Median} = L + \\left(\\frac{N/2 - cf_{\\text{before}}}{f_{\\text{median}}}\\right) \\times h = ${L_med5} + \\left(\\frac{${halfN5} - ${cf_before5}}{${f_med5}}\\right) \\times 10 = ${median5}\\).`
+    },
+    {
+      prompt: "Using the frequency column, calculate the approximate <strong>mode</strong>:",
+      options: makeOptions(mode5, [median5, round2(L_mod5 + (d2_5 / (d1_5 + d2_5)) * h5), L_mod5 + 5]),
+      solution: `Modal class is <strong>${classes5[modIdx5]}</strong> (\\(f = ${freqs5[modIdx5]}\\)). \\(d_1 = ${freqs5[modIdx5]} - ${freqs5[modIdx5-1]} = ${d1_5}\\), \\(d_2 = ${freqs5[modIdx5]} - ${freqs5[modIdx5+1]} = ${d2_5}\\). \\(\\text{Mode} = ${L_mod5} + \\left(\\frac{${d1_5}}{${d1_5} + ${d2_5}}\\right) \\times 10 = ${mode5}\\).`
+    },
+    {
+      prompt: "For discrete classes written as <strong>1–5, 6–10, 11–15</strong>, what are the real lower boundary (\\(L\\)) and class width (\\(h\\)) for the class <strong>6–10</strong>?",
+      options: makeOptions("L = 5.5, h = 5", ["L = 6, h = 4", "L = 5.5, h = 4", "L = 6, h = 5"]),
+      solution: "Subtract 0.5 from 6 and add 0.5 to 10 to get real boundaries 5.5–10.5. Thus \\(L = 5.5\\) and \\(h = 10.5 - 5.5 = 5\\)."
+    }
+  ];
+  addSection("Grouped Data: Median & Mode (with CF Table)", "Lecture 5", l5Intro, l5Questions);
+
+  // ================= LECTURE 6: SKEWNESS & OUTLIERS =================
+  let base6 = randInt(5, 10);
+  let outData = [
+    base6,
+    base6 + 2,
+    base6 + 3,
+    base6 + 4,
+    base6 + 5,
+    base6 + 6,
+    base6 + 7,
+    base6 + 8,
+    base6 + 9,
+    base6 + 28
+  ];
+  let q1_6 = outData[2];
+  let q3_6 = outData[7];
+  let iqr_6 = q3_6 - q1_6;
+  let upperFence_6 = q3_6 + 1.5 * iqr_6;
+  let lowerFence_6 = q1_6 - 1.5 * iqr_6;
+
+  const l6Intro = `
+    <div class="data-box">
+      <h4>Sorted Data (\\(n = 10\\)): ${outData.join(', ')}</h4>
+      <p style="margin:0; font-size:0.9rem;">Outlier Fences: \\(\\text{Lower Fence} = Q_1 - 1.5 \\times IQR\\) and \\(\\text{Upper Fence} = Q_3 + 1.5 \\times IQR\\).</p>
+    </div>
+  `;
+
+  const l6Questions = [
+    {
+      prompt: `For the data set above, \\(Q_1 = ${q1_6}\\) and \\(Q_3 = ${q3_6}\\) (\\(IQR = ${iqr_6}\\)). What is the <strong>upper fence</strong>?`,
+      options: makeOptions(upperFence_6, [q3_6 + iqr_6, lowerFence_6, q3_6 + 2 * iqr_6]),
+      solution: `\\(\\text{Upper Fence} = Q_3 + 1.5 \\times IQR = ${q3_6} + 1.5(${iqr_6}) = ${upperFence_6}\\).`
+    },
+    {
+      prompt: "Which value in this data set is an outlier?",
+      options: makeOptions(outData[9], [outData[0], outData[8], "There is no outlier"]),
+      solution: `Lower fence = ${lowerFence_6}, Upper fence = ${upperFence_6}. Since ${outData[9]} > ${upperFence_6}, ${outData[9]} is an outlier.`
+    },
+    {
+      prompt: `A distribution has \\(\\text{Mean} = ${randInt(62, 70)}\\) and \\(\\text{Median} = ${randInt(50, 56)}\\). What is the shape of this distribution?`,
+      options: makeOptions("Right-skewed (positive)", ["Left-skewed (negative)", "Symmetric", "Uniform"]),
+      solution: "Because Mean > Median, the mean is pulled toward the right tail, meaning the data are right-skewed."
+    },
+    {
+      prompt: "When a data set is heavily skewed or contains outliers, which measure of centre is preferred?",
+      options: makeOptions("The median", ["The mean", "The range", "The standard deviation"]),
+      solution: "The median is resistant to extreme outliers, whereas the mean is pulled toward the outlier."
+    }
+  ];
+  addSection("Skewness & Outliers", "Lecture 6", l6Intro, l6Questions);
+
+  // ================= LECTURE 7: LINEAR TRANSFORMATION =================
+  let mX = randInt(8, 16);
+  let a1 = randInt(2, 4);
+  let b1 = randInt(3, 9);
+  let ansMeanY = a1 * mX + b1;
+
+  let sdX = randInt(3, 6);
+  let a2 = -randInt(2, 5);
+  let b2 = randInt(4, 12);
+  let ansSdY = Math.abs(a2) * sdX;
+
+  let varX = randInt(4, 9);
+  let a3 = randInt(2, 4);
+  let b3 = -randInt(5, 10);
+  let ansVarY = a3 * a3 * varX;
+
+  let p25X = randInt(2, 5);
+  let p75X = p25X + randInt(4, 7);
+  let a4 = -randInt(2, 4);
+  let b4 = randInt(10, 20);
+  let ansP25Y = a4 * p75X + b4;
+
+  const l7Questions = [
+    {
+      prompt: `A sample \\(X\\) has mean \\(\\bar{x} = ${mX}\\). If \\(Y = ${a1}X + ${b1}\\), what is the mean of \\(Y\\)?`,
+      options: makeOptions(ansMeanY, [a1 * mX, mX + b1, ansMeanY + a1]),
+      solution: `\\(\\bar{y} = ${a1}(${mX}) + ${b1} = ${ansMeanY}\\).`
+    },
+    {
+      prompt: `The standard deviation of \\(X\\) is \\(s_X = ${sdX}\\). If \\(Y = ${a2}X + ${b2}\\), what is the standard deviation of \\(Y\\)?`,
+      options: makeOptions(ansSdY, [a2 * sdX, ansSdY + b2, a2 * a2 * sdX]),
+      solution: `\\(s_Y = |a| \\cdot s_X = |${a2}| \\times ${sdX} = ${ansSdY}\\). (Standard deviation is always non-negative, and adding \\(b\\) has no effect.)`
+    },
+    {
+      prompt: `The variance of \\(X\\) is \\(\\text{Var}(X) = ${varX}\\). If \\(Y = ${a3}X ${b3}\\), what is the variance of \\(Y\\)?`,
+      options: makeOptions(ansVarY, [a3 * varX, ansVarY + b3, varX]),
+      solution: `\\(\\text{Var}(Y) = a^2 \\cdot \\text{Var}(X) = (${a3})^2 \\times ${varX} = ${ansVarY}\\).`
+    },
+    {
+      prompt: `For variable \\(X\\), \\(P_{25}(X) = ${p25X}\\) and \\(P_{75}(X) = ${p75X}\\). If \\(Y = ${a4}X + ${b4}\\), find \\(P_{25}(Y)\\):`,
+      options: makeOptions(ansP25Y, [a4 * p25X + b4, Math.abs(ansP25Y), a4 * p75X]),
+      solution: `Because the slope \\(a = ${a4}\\) is negative, order reverses: \\(P_{25}(Y) = ${a4} \\cdot P_{75}(X) + ${b4} = ${a4}(${p75X}) + ${b4} = ${ansP25Y}\\).`
+    }
+  ];
+  addSection("Linear Transformation", "Lecture 7", "", l7Questions);
+
+  // ================= LECTURE 8: THE EMPIRICAL RULE (NO 'ABOVE' QUESTIONS) =================
+  let empMean = randInt(4, 8) * 10;
+  let empSD = randInt(3, 6);
+  
+  const l8Intro = `
+    <div class="data-box">
+      <h4>Bell-Shaped Distribution: Mean (\\(\\mu\\)) = ${empMean}, Standard Deviation (\\(\\sigma\\)) = ${empSD}</h4>
+      <p style="margin:0; font-size:0.9rem;">Empirical Rule: \\(\\mu \\pm 1\\sigma \\approx 68\\%\\), \\(\\mu \\pm 2\\sigma \\approx 95\\%\\), \\(\\mu \\pm 3\\sigma \\approx 99.7\\%\\).</p>
+    </div>
+  `;
+
+  const l8Questions = [
+    {
+      prompt: `About what percentage of the data lies <strong>between ${empMean - empSD} and ${empMean + empSD}</strong>?`,
+      options: makeOptions("68%", ["34%", "95%", "99.7%"]),
+      solution: `${empMean - empSD} and ${empMean + empSD} are \\(\\mu \\pm 1\\sigma\\) (\\(${empMean} \\pm ${empSD}\\)), which contains approximately 68% of the data.`
+    },
+    {
+      prompt: `About what percentage of the data lies <strong>between ${empMean - 2*empSD} and ${empMean + 2*empSD}</strong>?`,
+      options: makeOptions("95%", ["68%", "47.5%", "99.7%"]),
+      solution: `${empMean - 2*empSD} and ${empMean + 2*empSD} are \\(\\mu \\pm 2\\sigma\\) (\\(${empMean} \\pm ${2*empSD}\\)), which contains approximately 95% of the data.`
+    },
+    {
+      prompt: `About what percentage of the data lies <strong>between ${empMean} and ${empMean + 2*empSD}</strong>?`,
+      options: makeOptions("47.5%", ["95%", "34%", "49.85%"]),
+      solution: `From the mean (\\(${empMean}\\)) to \\(\\mu + 2\\sigma\\) (\\(${empMean + 2*empSD}\\)) is half of 95%, which equals 47.5%.`
+    },
+    {
+      prompt: `About what percentage of the data lies <strong>between ${empMean - empSD} and ${empMean}</strong>?`,
+      options: makeOptions("34%", ["68%", "16%", "47.5%"]),
+      solution: `From \\(\\mu - 1\\sigma\\) (\\(${empMean - empSD}\\)) to the mean (\\(${empMean}\\)) is half of 68%, which equals 34%.`
+    },
+    {
+      prompt: `Which interval contains approximately <strong>99.7%</strong> of the data?`,
+      options: makeOptions(`${empMean - 3*empSD} to ${empMean + 3*empSD}`, [
+        `${empMean - 2*empSD} to ${empMean + 2*empSD}`,
+        `${empMean - empSD} to ${empMean + empSD}`,
+        `${empMean - 4*empSD} to ${empMean + 4*empSD}`
+      ]),
+      solution: `99.7% lies within \\(\\mu \\pm 3\\sigma = ${empMean} \\pm 3(${empSD}) = ${empMean - 3*empSD}\\) to \\(${empMean + 3*empSD}\\).`
+    }
+  ];
+  addSection("The Empirical Rule", "Lecture 8", l8Intro, l8Questions);
+
+  if (window.MathJax && window.MathJax.typesetPromise) {
+    window.MathJax.typesetPromise();
+  }
+}
+
+function gradeQuiz() {
+  let score = 0;
+  let total = currentQuestions.length;
+
+  currentQuestions.forEach((q, idx) => {
+    const selected = document.querySelector(`input[name="q-${idx}"]:checked`);
+    const card = document.getElementById(`qcard-${idx}`);
+    const exp = document.getElementById(`exp-${idx}`);
+    card.classList.remove('correct', 'wrong');
+    exp.classList.add('show');
+
+    q.options.forEach((opt, oIdx) => {
+      const lbl = document.getElementById(`opt-${idx}-${oIdx}`);
+      lbl.classList.remove('correct-opt', 'wrong-opt');
+      if (opt.isCorrect) {
+        lbl.classList.add('correct-opt');
+      }
+    });
+
+    if (selected) {
+      const chosenIdx = parseInt(selected.value);
+      if (q.options[chosenIdx].isCorrect) {
+        score++;
+        card.classList.add('correct');
+      } else {
+        card.classList.add('wrong');
+        document.getElementById(`opt-${idx}-${chosenIdx}`).classList.add('wrong-opt');
+      }
+    } else {
+      card.classList.add('wrong');
+    }
+  });
+
+  const banner = document.getElementById('scoreBanner');
+  banner.style.display = 'flex';
+  document.getElementById('scoreText').textContent = `Your Score: ${score} / ${total}`;
+  document.getElementById('scorePercent').textContent = `${Math.round((score / total) * 100)}%`;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetSelections() {
+  document.getElementById('scoreBanner').style.display = 'none';
+  currentQuestions.forEach((q, idx) => {
+    const card = document.getElementById(`qcard-${idx}`);
+    const exp = document.getElementById(`exp-${idx}`);
+    card.classList.remove('correct', 'wrong');
+    exp.classList.remove('show');
+    q.options.forEach((_, oIdx) => {
+      const lbl = document.getElementById(`opt-${idx}-${oIdx}`);
+      lbl.classList.remove('correct-opt', 'wrong-opt');
+      const radio = lbl.querySelector('input');
+      radio.checked = false;
+    });
+  });
+}
+
+window.onload = generateAll;
+</script>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(', '\\)']] }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</body>
+</html>
